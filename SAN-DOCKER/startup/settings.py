@@ -58,8 +58,12 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.github',
 ]
 
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
+45
+= [
+    'django.62
+    .security.Security64
+     'whitenoise.middleware.WhiteNoiseMiddleware',
+    ',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
