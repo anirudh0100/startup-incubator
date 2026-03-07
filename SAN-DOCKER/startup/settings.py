@@ -51,26 +51,22 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-
     # providers
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.github',
 ]
 
-45
-= [
-    'django.62
-    .security.Security64
-     'whitenoise.middleware.WhiteNoiseMiddleware',
-    ',
+MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware', 
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'startup.urls'
@@ -142,9 +138,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
 STATICFILES_DIRS = [os.path.join(BASE_DIR , 'static')]
+
 STATIC_ROOT= os.path.join(BASE_DIR,'assets')
+
 MEDIA_URL = '/media/'
+
 MEDIA_ROOT = os.path.join(BASE_DIR , 'media')
 
 LOGOUT_REDIRECT_URL = '/'
@@ -161,4 +161,3 @@ MESSAGE_TAGS = {
 SITE_ID = 1
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
-
