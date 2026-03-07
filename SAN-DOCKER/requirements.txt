@@ -6,7 +6,7 @@ crispy-bootstrap5==0.6
 cryptography==36.0.1
 defusedxml==0.7.1
 Django==4.0.3
-django-allauth==0.49.0
+django-allauth==0.63.0
 django-ckeditor==6.2.0
 django-crispy-forms==1.14.0
 django-filter==21.1
