@@ -38,3 +38,6 @@ EXPOSE 8000
 
 # Command to run the Django server
 CMD ["python", "-m", "gunicorn", "--bind", "0.0.0.0:8000", "startup.wsgi:application"]
+
+
+# Static files configured with WhiteNoise for production serving
