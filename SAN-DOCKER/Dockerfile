@@ -29,7 +29,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 
 RUN python manage.py makemigrations
-RUN python manage.py 33
 RUN python manage.py collectstatic --noinput
 
 
