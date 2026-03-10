@@ -1,0 +1,23 @@
+# Virtual environment
+venv/
+
+# Database
+db.sqlite3
+
+# Mac junk
+.DS_Store
+__MACOSX/
+
+# Media files
+media/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment variables
+.env
+
+# Website snapshots
+website-snapshots/ 
