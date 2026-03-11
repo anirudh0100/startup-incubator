@@ -75,7 +75,6 @@
         color: #fff;
         opacity: 0.7;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-        /* margin-left: 0; */
       }
       button {
         resize: none;
@@ -103,7 +102,6 @@
         opacity: 0.7;
         margin-bottom: 50px;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-        /* margin-left: 0; */
       }
       textarea {
         resize: none;
@@ -148,14 +146,15 @@
         width: 20px;
       }
     </style>
-    <title>Document</title>
+    <title>Mentor Details</title>
   </head>
   <body onload="loaded()">
     {% load static %}
     <div>
       <h2 class="text-center">Tell us more about yourself</h2>
       {% include 'includes/messages.html' %}
-      <form method="POST" id="form">
+      <!-- FIXED: added enctype="multipart/form-data" for photo upload -->
+      <form method="POST" enctype="multipart/form-data" id="form">
         {% csrf_token %} {{ mentorForm }}
         <div class="row">
           <button class="mx-auto" type="submit">Submit</button>
