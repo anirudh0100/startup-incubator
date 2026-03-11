@@ -1,36 +1,36 @@
-{% extends 'base.html' %} 
+{% extends 'base.html' %}
 
 {% block content %}
 
-{% load static %} 
+{% load static %}
 
 {% load crispy_forms_tags %}
 
-{% load socialaccount %} 
+{% load socialaccount %}
 
-{% providers_media_js %} 
+{% providers_media_js %}
 
-<!--Login--> 
+<!--Login-->
 
 
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link href="{% static 'https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap' %} " rel="stylesheet">
+<!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="{% static 'https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap' %} " rel="stylesheet">
 
-    <link rel="stylesheet" href="{% static 'fonts/icomoon/style.css'%}">
+<link rel="stylesheet" href="{% static 'fonts/icomoon/style.css'%}">
 
-    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css'%}">
+<link rel="stylesheet" href="{% static 'css/owl.carousel.min.css'%}">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css'%}">
-    
-    <!-- Style -->
-    <link rel="stylesheet" href="{% static 'css/style.css'%}">
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css'%}">
 
-    <form method="POST">
-      
-      
+<!-- Style -->
+<link rel="stylesheet" href="{% static 'css/style.css'%}">
+
+<form method="POST">
+
+
   <div class="d-md-flex half">
     <div class="bg" style="background-image: url({% static 'images/bg_1.jpg'%});"></div>
     <div class="contents">
@@ -44,7 +44,7 @@
               </div>
               <form action="studentLogin_form" method="post">
                 {% csrf_token %}
-      {{ studentLogin_form|crispy }}
+                {{ studentLogin_form|crispy }}
                 {% comment %} <div class="form-group first">
                   <label for="username">Username</label>
                   <input type="text" class="form-control" placeholder="your-email@gmail.com" id="username">
@@ -53,44 +53,49 @@
                   <label for="password">Password</label>
                   <input type="password" class="form-control" placeholder="Your Password" id="password">
                 </div> {% endcomment %}
-                
+
                 <div class="d-sm-flex mb-5 align-items-center">
                   <label class="control control--checkbox mb-3 mb-sm-0"><span class="caption">Remember me</span>
-                    <input type="checkbox" checked="checked"/>
+                    <input type="checkbox" checked="checked" />
                     <div class="control__indicator"></div>
                   </label>
-                  <span class="ml-auto"><a href="#" class="forgot-pass">Forgot Password</a></span> 
+                  <span class="ml-auto"><a href="#" class="forgot-pass">Forgot Password</a></span>
                 </div>
               </form>
 
-                <input type="submit" value="Log In" class="btn btn-block py-2 btn-primary">
+              <input type="submit" value="Log In" class="btn btn-block py-2 btn-primary">
 
-                <span class="text-center my-3 d-block">or</span>
-                
-                
-                <div class="">
+              <span class="text-center my-3 d-block">or</span>
+
+
+              <div class="">
                 {% comment %} <a href="#" class="btn btn-block py-2 btn-facebook">
                   <span class="icon-facebook mr-3"></span> Login with facebook
                 </a> {% endcomment %}
-                <a href="{% provider_login_url 'google' %}" class="btn btn-block py-2 btn-google"><span class="icon-google mr-3"></span> Login with Google</a>
-                <br> <p class="text-center">Don't have an account? <a href="{% url 'student-register' %}">Create an Account</a>.</p>
+                {% comment %}
+                <a href="{% provider_login_url 'google' %}" class="btn btn-block py-2 btn-google">
+                  <span class="icon-google mr-3"></span> Login with Google
+                </a>
+                {% endcomment %} <br>
+                <p class="text-center">Don't have an account? <a href="{% url 'student-register' %}">Create an
+                    Account</a>.</p>
               </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  
-    
-  </div>
-    
-    
+</form>
+</div>
+</div>
+</div>
+</div>
+</div>
 
-    <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
-    <script src="{% static 'js/popper.min.js'%}"></script>
-    <script src="{% static 'js/bootstrap.min.js'%}"></script>
-    <script src="{% static 'js/main.js'%}"></script>
-  
+
+</div>
+
+
+
+<script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
+<script src="{% static 'js/popper.min.js'%}"></script>
+<script src="{% static 'js/bootstrap.min.js'%}"></script>
+<script src="{% static 'js/main.js'%}"></script>
+
 
 {% endblock %}
