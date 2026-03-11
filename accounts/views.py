@@ -13,7 +13,6 @@ from accounts.forms import StudentForm, StudentFormDetails, EntrepreneurForm, En
 
 # login into profile
 def profile_view(request):
-    # Add your profile logic here
     return render(request, 'accounts/dashboard.html')
 
 # Student Register
@@ -23,7 +22,7 @@ def studentRegister(request):
         form = StudentForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, "Registration Successful.")
             return redirect('student-details')
         else:
@@ -39,7 +38,7 @@ def entrepreneurRegister(request):
         form = EntrepreneurForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, "Registration Successful.")
             return redirect('entrepreneur-details')
         else:
@@ -55,7 +54,7 @@ def investorRegister(request):
         form = InvestorForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, "Registration Successful.")
             return redirect('investor-details')
         else:
@@ -71,7 +70,7 @@ def mentorRegister(request):
         form = MentorForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, "Registration Successful.")
             return redirect('mentor-details')
         else:
@@ -89,8 +88,7 @@ def studentDetails(request):
             student = studentform.save(commit=False)
             student.user = request.user
             student.save()
-            # logout(request)
-            return redirect('dashboard')        # dashboard
+            return redirect('dashboard')
         
     context = {
         "studentForm": studentform
@@ -107,7 +105,7 @@ def entrepreneurDetails(request):
             entrepreneur = entrepreneurform.save(commit=False)
             entrepreneur.user = request.user
             entrepreneur.save()
-            return redirect('dashboard')            # dashboard
+            return redirect('dashboard')
         
     context = {
         "entrepreneurForm": entrepreneurform
@@ -188,9 +186,6 @@ def dashboardM(request):
     mentors = MentorDetails.objects.all()
     investors = InvestorDetails.objects.all()
     projects = Projects.objects.all()
-    print("Mentors:", mentors)  # Debug message
-    print("Investors:", investors)  # Debug message
-    print("Projects:", projects)  # Debug message
     context = {
         'mentors': mentors,
         'investors': investors,
@@ -198,14 +193,11 @@ def dashboardM(request):
     }
     return render(request , 'accounts/dashboardM.html' , context)
 
-# Display dashboardM
+# Display dashboardI
 def dashboardI(request):
     mentors = MentorDetails.objects.all()
     investors = InvestorDetails.objects.all()
     projects = Projects.objects.all()
-    print("Mentors:", mentors)  # Debug message
-    print("Investors:", investors)  # Debug message
-    print("Projects:", projects)  # Debug message
     context = {
         'mentors': mentors,
         'investors': investors,
@@ -222,9 +214,9 @@ def studentLogin(request):
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
             if user is not None:
-                login(request, user)
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 messages.info(request, f"You are now logged in as {username}.")
-                return redirect('dashboard')                      # dashboard
+                return redirect('dashboard')
             else:
                 messages.error(request,"Invalid username or password.")
                 return redirect('student-login')
@@ -235,7 +227,7 @@ def studentLogin(request):
     return render(request=request, template_name="accounts/studentLogin.html", context={"studentLogin_form":form})
 
 
-# mentor Login
+# Mentor Login
 def mentorLogin(request):
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
@@ -244,9 +236,9 @@ def mentorLogin(request):
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
             if user is not None:
-                login(request, user)
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 messages.info(request, f"You are now logged in as {username}.")
-                return redirect('dashboardM')                      # dashboard
+                return redirect('dashboardM')
             else:
                 messages.error(request,"Invalid username or password.")
                 return redirect('mentor-login')
@@ -256,7 +248,7 @@ def mentorLogin(request):
     form = AuthenticationForm()
     return render(request=request, template_name="accounts/mentorLogin.html", context={"mentorLogin_form":form})
 
-# investor Login
+# Investor Login
 def investorLogin(request):
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
@@ -265,9 +257,9 @@ def investorLogin(request):
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
             if user is not None:
-                login(request, user)
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 messages.info(request, f"You are now logged in as {username}.")
-                return redirect('dashboardI')                      # dashboard
+                return redirect('dashboardI')
             else:
                 messages.error(request,"Invalid username or password.")
                 return redirect('investor-login')
@@ -286,9 +278,9 @@ def entrepreneurLogin(request):
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
             if user is not None:
-                login(request, user)
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 messages.info(request, f"You are now logged in as {username}.")
-                return redirect('/')                      # dashboard
+                return redirect('/')
             else:
                 messages.error(request,"Invalid username or password.")
                 return redirect('entrepreneur-login') 
@@ -311,15 +303,6 @@ def submitProjectIdea(request):
         'project_form':projectform
     }
     return render(request, "accounts/projectSubmit.html", context)
-
-
-# user_name = request.user
-# current_user = User.objects.get(username = user_name)
-# print(current_user)
-# first_name = current_user.first_name
-# last_name = current_user.last_name
-# userMail = current_user.email
-# return 'done'
 
 
 # Create your views here.
@@ -357,6 +340,5 @@ def send(request):
 
 def getMessages(request, room):
     room_details = Room.objects.get(name=room)
-
     messages = Message.objects.filter(room=room_details.id)
     return JsonResponse({"messages":list(messages.values())})
