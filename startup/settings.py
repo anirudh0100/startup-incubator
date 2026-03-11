@@ -111,5 +111,7 @@ AUTHENTICATION_BACKENDS = [
 CSRF_TRUSTED_ORIGINS = [
     "https://incubetor.online",
     "https://www.incubetor.online",
+    "http://incubetor.online",
+    "http://www.incubetor.online",
     "https://startup-incubator-162e274e6e33.herokuapp.com",
 ]
