@@ -107,3 +107,9 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://incubetor.online",
+    "https://www.incubetor.online",
+    "https://startup-incubator-162e274e6e33.herokuapp.com",
+]
