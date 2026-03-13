@@ -127,8 +127,7 @@ def investorDetails(request):
             investor = investorform.save(commit=False)
             investor.user = request.user
             investor.save()
-            logout(request)
-            return redirect('successful-registration')       
+            return redirect('dashboardI')       
         
     context = {
         "investorForm": investorform
@@ -155,8 +154,7 @@ def mentorDetails(request):
             mentor = mentorform.save(commit=False)
             mentor.user = request.user
             mentor.save()
-            logout(request)
-            return redirect('successful-registration')       
+            return redirect('dashboardM')       
         
     context = {
         "mentorForm": mentorform

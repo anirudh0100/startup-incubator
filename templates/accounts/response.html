@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Interview Done </title>
+    <title>Registration Successful</title>
+    <meta http-equiv="refresh" content="4;url=/" />
     <link rel="shortcut icon" href="../static/interview.png" type="image/png">
     <style>
         @import url('https://fonts.googleapis.com/css?family=Montserrat');
@@ -42,6 +43,14 @@ h1 {
 <body>
     <div class="title">
         <h1 style="letter-spacing: 2px; line-height: 135px;"> Thankyou for registering with us. </h1>
+        <p style="color: rgba(255,255,255,0.6); font-family: Montserrat, sans-serif; font-size: 1.1rem; margin-top: 30px;">Redirecting to home page in <span id="countdown">4</span> seconds...</p>
     </div>
+
+    <script>
+      let sec = 4;
+      const el = document.getElementById('countdown');
+      setInterval(() => { sec--; if (el && sec >= 0) el.textContent = sec; }, 1000);
+      setTimeout(() => { window.location.href = '/'; }, 4000);
+    </script>
 </body>
 </html>

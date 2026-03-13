@@ -1,70 +1,10 @@
-{% extends 'base.html' %} {% block content %} {% load static %} {% load
-crispy_forms_tags %} {% load socialaccount %} {% providers_media_js %}
+{% extends 'base.html' %}
 
-<!--Login-->
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header bg-brown text-white">
-          <h3 class="mb-0">Login</h3>
-        </div>
-        <div class="card-body">
-          <form method="POST">
-            {% csrf_token %}
-            <div class="form-group">
-              <label for="id_username">Username</label>
-              <input
-                type="text"
-                class="form-control"
-                id="id_username"
-                name="username"
-              />
-            </div>
-            <div class="form-group">
-              <label for="id_password">Password</label>
-              <input
-                type="password"
-                class="form-control"
-                id="id_password"
-                name="password"
-              />
-            </div>
-            {{ entrepreneurLogin_form|crispy }}
-            <button class="btn btn-primary btn-block mt-3" type="submit">
-              Login
-            </button>
-          </form>
-          <hr />
-          <p class="mb-0 text-center">
-            Don't have an account?
-            <a href="{% url 'entrepreneur-register' %}" class="text-primary"
-              >Create an Account</a
-            >.
-          </p>
-          <hr />
-          {% comment %}
-          <h5 class="text-center">Login via social media</h5>
-          <div class="d-flex justify-content-center">
-            <a
-              href="{% provider_login_url 'facebook' method='oauth2' %}"
-              class="btn btn-social btn-facebook mr-2"
-            >
-              <i class="fa fa-facebook"></i> Facebook
-            </a>
-            <a
-              href="{% provider_login_url 'google' %}"
-              class="btn btn-social btn-google"
-            >
-              <i class="fa fa-google"></i> Google
-            </a>
-          </div>
-          {% endcomment %}
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+{% load static %}
+{% load crispy_forms_tags %}
+{% load socialaccount %}
+
+{% block content %}
 
 <style>
   body {
@@ -103,5 +43,50 @@ crispy_forms_tags %} {% load socialaccount %} {% providers_media_js %}
     color: white;
   }
 </style>
+
+<!-- Login -->
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-brown text-white">
+          <h3 class="mb-0">Login</h3>
+        </div>
+        <div class="card-body">
+          <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="id_username">Username</label>
+              <input type="text" class="form-control" id="id_username" name="username" />
+            </div>
+            <div class="form-group">
+              <label for="id_password">Password</label>
+              <input type="password" class="form-control" id="id_password" name="password" />
+            </div>
+            {{ entrepreneurLogin_form|crispy }}
+            <button class="btn btn-primary btn-block mt-3" type="submit">Login</button>
+          </form>
+          <hr />
+          <p class="mb-0 text-center">
+            Don't have an account?
+            <a href="{% url 'entrepreneur-register' %}" class="text-primary">Create an Account</a>.
+          </p>
+          <hr />
+          {% comment %}
+          <h5 class="text-center">Login via social media</h5>
+          <div class="d-flex justify-content-center">
+            <a href="{% provider_login_url 'facebook' method='oauth2' %}" class="btn btn-social btn-facebook mr-2">
+              <i class="fa fa-facebook"></i> Facebook
+            </a>
+            <a href="{% provider_login_url 'google' %}" class="btn btn-social btn-google">
+              <i class="fa fa-google"></i> Google
+            </a>
+          </div>
+          {% endcomment %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}
