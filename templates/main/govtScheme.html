@@ -1,337 +1,700 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <title>U.S. Government Startup Programs — StartUp Incubator</title>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    :root {
+      --navy:    #0d1b2a;
+      --navy2:   #1b2d45;
+      --gold:    #c9902a;
+      --gold2:   #f0b429;
+      --cream:   #f9f5ee;
+      --red:     #b22234;
+      --white:   #ffffff;
+      --card-bg: #ffffff;
+      --shadow:  0 8px 40px rgba(13,27,42,0.13);
+    }
 
-    <title>StartUp Incubator</title>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--navy);
+      overflow-x: hidden;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      height: 69px;
+      background: var(--navy) !important;
+      border-bottom: 3px solid var(--gold);
+      z-index: 1050;
+    }
+    .navbar-brand img { height: 47px; }
+    .nav-link { font-weight: 600; letter-spacing: .03em; transition: color .2s; }
+    .nav-link:hover { color: var(--gold2) !important; }
+
+    /* ── HERO BANNER ── */
+    .hero {
+      margin-top: 69px;
+      position: relative;
+      min-height: 420px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 60%, #2a3d5c 100%);
+    }
+
+    /* animated star field */
+    .stars {
+      position: absolute; inset: 0;
+      pointer-events: none;
+    }
+    .star {
+      position: absolute;
+      width: 2px; height: 2px;
+      background: rgba(240,180,41,.7);
+      border-radius: 50%;
+      animation: twinkle var(--d, 3s) ease-in-out infinite alternate;
+      animation-delay: var(--delay, 0s);
+    }
+    @keyframes twinkle {
+      from { opacity: .1; transform: scale(1); }
+      to   { opacity: 1;  transform: scale(1.8); }
+    }
+
+    /* diagonal stripe accent */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -30%; right: -10%;
+      width: 55%; height: 200%;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 18px,
+        rgba(178,34,52,.12) 18px,
+        rgba(178,34,52,.12) 36px
+      );
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--navy);
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 5px 16px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      animation: fadeDown .6s ease both;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.6rem);
+      font-weight: 900;
+      color: var(--white);
+      line-height: 1.1;
+      animation: fadeDown .7s .1s ease both;
+    }
+    .hero h1 span { color: var(--gold2); }
+    .hero p {
+      color: rgba(255,255,255,.7);
+      font-size: 1.1rem;
+      max-width: 560px;
+      margin: 18px auto 0;
+      animation: fadeDown .7s .2s ease both;
+    }
+    .hero-divider {
+      width: 70px; height: 4px;
+      background: linear-gradient(90deg, var(--red), var(--gold2));
+      margin: 22px auto 0;
+      border-radius: 2px;
+      animation: fadeDown .7s .3s ease both;
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-intro {
+      text-align: center;
+      padding: 60px 20px 10px;
+    }
+    .section-intro h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .section-intro p {
+      color: #5a6a7e;
+      max-width: 540px;
+      margin: 10px auto 0;
+      font-size: .97rem;
+    }
+
+    /* ── CARDS GRID ── */
+    .cards-section {
+      padding: 50px 40px 80px;
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 32px;
+    }
+
+    /* ── INDIVIDUAL CARD ── */
+    .scheme-card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .35s ease;
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    .scheme-card.visible {
+      animation: riseUp .55s ease forwards;
+    }
+    @keyframes riseUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .scheme-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 24px 60px rgba(13,27,42,.2);
+    }
+
+    /* top color bar per card */
+    .scheme-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--card-accent, var(--navy)), var(--gold2));
+      z-index: 2;
+    }
+
+    .card-img-wrap {
+      position: relative;
+      height: 190px;
+      overflow: hidden;
+    }
+    .card-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform .5s ease;
+    }
+    .scheme-card:hover .card-img-wrap img {
+      transform: scale(1.08);
+    }
+    .card-img-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(0deg, rgba(13,27,42,.6) 0%, transparent 55%);
+    }
+    .card-tag {
+      position: absolute;
+      bottom: 12px; left: 14px;
+      background: var(--gold);
+      color: var(--navy);
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 12px;
+    }
+
+    .card-body {
+      padding: 22px 22px 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .card-icon {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      color: white;
+      margin-bottom: 14px;
+      flex-shrink: 0;
+    }
+    .card-body h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+    .card-body p {
+      font-size: .9rem;
+      color: #5a6a7e;
+      line-height: 1.6;
+      flex: 1;
+    }
+    .card-funding {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 14px 0 16px;
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--navy2);
+      background: #f0f4f8;
+      padding: 5px 12px;
+      border-radius: 20px;
+    }
+    .card-funding i { color: var(--gold); }
+
+    .apply-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: var(--navy);
+      color: white;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: .88rem;
+      font-weight: 600;
+      letter-spacing: .03em;
+      transition: background .25s, transform .2s;
+      margin-top: auto;
+    }
+    .apply-btn:hover {
+      background: var(--gold);
+      color: var(--navy);
+      transform: translateX(3px);
+      text-decoration: none;
+    }
+    .apply-btn i { font-size: .8rem; }
+
+    /* ── FOOTER ── */
+    .site-footer {
+      background: var(--navy);
+      color: rgba(255,255,255,.7);
+      padding: 50px 40px;
+    }
+    .footer-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .footer-brand span { color: var(--gold2); }
+    .footer-icons { display: flex; gap: 14px; margin-top: 14px; }
+    .footer-icons a {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,.6);
+      font-size: 1rem;
+      transition: border-color .2s, color .2s, background .2s;
+      text-decoration: none;
+    }
+    .footer-icons a:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(201,144,42,.1);
+    }
+    .footer-links { list-style: none; padding: 0; }
+    .footer-links li { margin-bottom: 8px; }
+    .footer-links a {
+      color: rgba(255,255,255,.6);
+      text-decoration: none;
+      font-size: .9rem;
+      transition: color .2s;
+    }
+    .footer-links a:hover { color: var(--gold2); }
+    .footer-label {
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+    .footer-contact { display: flex; flex-direction: column; gap: 10px; }
+    .footer-contact a {
+      display: flex; align-items: center; gap: 10px;
+      color: rgba(255,255,255,.65);
+      text-decoration: none;
+      font-size: .9rem;
+      transition: color .2s;
+    }
+    .footer-contact a:hover { color: var(--gold2); }
+    .footer-contact i { color: var(--gold); width: 16px; }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.1);
+      margin-top: 40px;
+      padding-top: 20px;
+      text-align: center;
+      font-size: .82rem;
+      color: rgba(255,255,255,.35);
+    }
+
+    /* ── SCROLL PROGRESS BAR ── */
+    #progress-bar {
+      position: fixed;
+      top: 69px; left: 0;
+      height: 3px;
+      width: 0%;
+      background: linear-gradient(90deg, var(--red), var(--gold2));
+      z-index: 2000;
+      transition: width .1s linear;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .cards-section { padding: 30px 20px 60px; }
+      .hero h1 { font-size: 2rem; }
+    }
+  </style>
 </head>
 <body>
-  <body style="margin-top: 590px;"> <!-- Add margin-top to create a gap -->
 
-<!-- Your existing navigation bar -->
-<nav class="navbar bg-dark fixed-top navbar-dark navbar-expand-lg bd-dark" data-bs-theme="#f5f5f5" style="height: 69px;">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-            <img src="{% static 'main/logo69.png' %}" alt="jhsadcgjsdhc" width="218" height="47" class="d-inline-block align-text-top ms-2" />
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-            <ul class="navbar-nav mb-2 mb-lg-0 ">
-                <li class="nav-item">
-                    <a href="{% url 'Homee' %}" class="nav-link pe-auto text-light fw-bolder">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'about' %}" class="nav-link pe-auto text-light fw-bolder">About</a>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'top-startups' %}" class="nav-link pe-auto text-light fw-bolder">Top StartUps</a>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'resources' %}" class="nav-link pe-auto text-light fw-bolder">Learning Resources</a>
-                </li>
-                <!-- <li class="nav-item">
-                    <a href="{% url 'submit-project' %}" class="nav-link pe-auto text-light fw-bolder">Pitch Idea</a>
-                </li> -->
-                <li class="nav-item">
-                    <a href="{% url 'schemes' %}" class="nav-link pe-auto text-light fw-bolder">Government Schemes</a>
-                </li>
-                <li class="nav-item">
-                    <!-- Google Translate Element -->
-                    <div id="google_translate_element"></div>
-                </li>
-                <li class="nav-item">
-                    <div class="dropdown">
-                        <button style="border-color: transparent" class="btn" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa-regular fa-user" style="color: white;"></i>
-                        </button>
-                        <ul style="left: -8rem" class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                            <li>
-                                <a class="dropdown-item" href="{% url 'student-register' %}">Enterpreneur</a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'mentor-register' %}">Mentor</a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'investor-register' %}">Investor</a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
+<!-- Scroll Progress Bar -->
+<div id="progress-bar"></div>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar fixed-top navbar-dark navbar-expand-lg">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">
+      <img src="{% static 'main/logo69.png' %}" alt="StartUp Incubator" width="218" height="47" class="d-inline-block align-text-top ms-2" />
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
+      <ul class="navbar-nav mb-2 mb-lg-0">
+        <li class="nav-item"><a href="{% url 'Homee' %}" class="nav-link text-light">Home</a></li>
+        <li class="nav-item"><a href="{% url 'about' %}" class="nav-link text-light">About</a></li>
+        <li class="nav-item"><a href="{% url 'top-startups' %}" class="nav-link text-light">Top StartUps</a></li>
+        <li class="nav-item"><a href="{% url 'resources' %}" class="nav-link text-light">Learning Resources</a></li>
+        <li class="nav-item"><a href="{% url 'schemes' %}" class="nav-link text-light">Government Schemes</a></li>
+        <li class="nav-item"><div id="google_translate_element"></div></li>
+        <li class="nav-item">
+          <div class="dropdown">
+            <button style="border-color:transparent" class="btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fa-regular fa-user" style="color:white;"></i>
+            </button>
+            <ul style="left:-8rem" class="dropdown-menu" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" href="{% url 'student-register' %}">Entrepreneur</a></li>
+              <li><a class="dropdown-item" href="{% url 'mentor-register' %}">Mentor</a></li>
+              <li><a class="dropdown-item" href="{% url 'investor-register' %}">Investor</a></li>
             </ul>
-        </div>
+          </div>
+        </li>
+      </ul>
     </div>
+  </div>
 </nav>
 
-<!-- Bootstrap JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-7/WcCpXy5aBJiK4fUMnuSrsQ/zZMMSJwWe1/2x4K5NcBLfykv5BoEU4B+XlUnV3F" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-mJ0pgYWjLr1gU0cykAo3+SM5r5S02dFfdHHCEm0FyIJ0esVhjH8Eggo0ZMpdqDhS" crossorigin="anonymous"></script>
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="stars" id="stars"></div>
+  <div class="hero-content">
+    <span class="hero-badge">🇺🇸 Federal Programs</span>
+    <h1>U.S. Government <span>Startup</span><br>Funding Programs</h1>
+    <p>Explore federal grants, loans, and accelerator programs designed to help American entrepreneurs grow their ideas into businesses.</p>
+    <div class="hero-divider"></div>
+  </div>
+</section>
 
-<!-- Google Translate Script -->
+<!-- ── SECTION INTRO ── -->
+<div class="section-intro">
+  <h2>Programs Available to You</h2>
+  <p>Each program below is backed by a federal agency. Click "Apply Now" to visit the official government portal.</p>
+</div>
+
+<!-- ── CARDS GRID ── -->
+<div class="cards-section" id="cardsGrid">
+
+  <!-- 1 -->
+  <div class="scheme-card" style="--card-accent:#b22234;">
+    <div class="card-img-wrap">
+      <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600&q=80" alt="SBA Loans" loading="lazy">
+      <div class="card-img-overlay"></div>
+      <span class="card-tag">Loan</span>
+    </div>
+    <div class="card-body">
+      <div class="card-icon" style="background:linear-gradient(135deg,#b22234,#c9902a);">
+        <i class="fas fa-landmark"></i>
+      </div>
+      <h3>SBA 7(a) Loan Program</h3>
+      <p>The SBA's most common loan program for working capital, equipment purchase, and business expansion.</p>
+      <div class="card-funding"><i class="fas fa-dollar-sign"></i> Up to $5,000,000</div>
+      <a href="https://www.sba.gov/funding-programs/loans/7a-loans" class="apply-btn" target="_blank">
+        Apply Now <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="scheme-card" style="--card-accent:#0d4f8c;">
+    <div class="card-img-wrap">
+      <img src="https://images.unsplash.com/photo-1532094349884-543559b9f4ab?w=600&q=80" alt="SBIR Research" loading="lazy">
+      <div class="card-img-overlay"></div>
+      <span class="card-tag">R&amp;D Grant</span>
+    </div>
+    <div class="card-body">
+      <div class="card-icon" style="background:linear-gradient(135deg,#0d4f8c,#0d1b2a);">
+        <i class="fas fa-flask"></i>
+      </div>
+      <h3>Small Business Innovation Research (SBIR)</h3>
+      <p>Competitive grants for early-stage R&amp;D with high commercialization potential across federal agencies.</p>
+      <div class="card-funding"><i class="fas fa-dollar-sign"></i> Up to $2,000,000</div>
+      <a href="https://www.sbir.gov/" class="apply-btn" target="_blank">
+        Apply Now <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="scheme-card" style="--card-accent:#1a7a4a;">
+    <div class="card-img-wrap">
+      <img src="https://images.unsplash.com/photo-1606761568499-6d2451b23c66?w=600&q=80" alt="University Research" loading="lazy">
+      <div class="card-img-overlay"></div>
+      <span class="card-tag">Research Transfer</span>
+    </div>
+    <div class="card-body">
+      <div class="card-icon" style="background:linear-gradient(135deg,#1a7a4a,#2aad6a);">
+        <i class="fas fa-university"></i>
+      </div>
+      <h3>Small Business Technology Transfer (STTR)</h3>
+      <p>Partners small businesses with universities and research institutions to move innovations from the lab to the market.</p>
+      <div class="card-funding"><i class="fas fa-dollar-sign"></i> Up to $1,500,000</div>
+      <a href="https://www.sbir.gov/about/about-sttr" class="apply-btn" target="_blank">
+        Apply Now <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="scheme-card" style="--card-accent:#7b4f12;">
+    <div class="card-img-wrap">
+      <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&q=80" alt="Microloan" loading="lazy">
+      <div class="card-img-overlay"></div>
+      <span class="card-tag">Microloan</span>
+    </div>
+    <div class="card-body">
+      <div class="card-icon" style="background:linear-gradient(135deg,#c9902a,#f0b429);">
+        <i class="fas fa-coins"></i>
+      </div>
+      <h3>SBA Microloan Program</h3>
+      <p>Small loans for startups and nonprofits needing capital to start up or expand, distributed through approved lenders.</p>
+      <div class="card-funding"><i class="fas fa-dollar-sign"></i> Up to $50,000</div>
+      <a href="https://www.sba.gov/funding-programs/loans/microloans" class="apply-btn" target="_blank">
+        Apply Now <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="scheme-card" style="--card-accent:#5a2d82;">
+    <div class="card-img-wrap">
+      <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=600&q=80" alt="SCORE Mentorship" loading="lazy">
+      <div class="card-img-overlay"></div>
+      <span class="card-tag">Mentorship</span>
+    </div>
+    <div class="card-body">
+      <div class="card-icon" style="background:linear-gradient(135deg,#5a2d82,#9b59b6);">
+        <i class="fas fa-hands-helping"></i>
+      </div>
+      <h3>SCORE Mentorship Program</h3>
+      <p>Free SBA-sponsored program connecting entrepreneurs with experienced volunteer mentors, workshops, and business resources.</p>
+      <div class="card-funding"><i class="fas fa-star"></i> Free of Charge</div>
+      <a href="https://www.score.org/" class="apply-btn" target="_blank">
+        Apply Now <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- 6 -->
+  <div class="scheme-card" style="--card-accent:#b22234;">
+    <div class="card-img-wrap">
+      <img src="https://images.unsplash.com/photo-1573497161161-c3e73707e25c?w=600&q=80" alt="Women Owned Business" loading="lazy">
+      <div class="card-img-overlay"></div>
+      <span class="card-tag">Federal Contracting</span>
+    </div>
+    <div class="card-body">
+      <div class="card-icon" style="background:linear-gradient(135deg,#b22234,#e74c3c);">
+        <i class="fas fa-female"></i>
+      </div>
+      <h3>Women-Owned Small Business (WOSB) Program</h3>
+      <p>Helps women-owned small businesses compete for federal set-aside contracts across underrepresented industries.</p>
+      <div class="card-funding"><i class="fas fa-file-contract"></i> Federal Contracts</div>
+      <a href="https://www.sba.gov/federal-contracting/contracting-assistance-programs/women-owned-small-business-federal-contracting-program" class="apply-btn" target="_blank">
+        Apply Now <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- 7 -->
+  <div class="scheme-card" style="--card-accent:#1a5c9e;">
+    <div class="card-img-wrap">
+      <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80" alt="SBA 8a Program" loading="lazy">
+      <div class="card-img-overlay"></div>
+      <span class="card-tag">Business Development</span>
+    </div>
+    <div class="card-body">
+      <div class="card-icon" style="background:linear-gradient(135deg,#1a5c9e,#2980b9);">
+        <i class="fas fa-handshake"></i>
+      </div>
+      <h3>SBA 8(a) Business Development Program</h3>
+      <p>Supports businesses owned by socially and economically disadvantaged individuals with mentoring and federal contracting access.</p>
+      <div class="card-funding"><i class="fas fa-file-contract"></i> Federal Contracts</div>
+      <a href="https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program" class="apply-btn" target="_blank">
+        Apply Now <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- 8 -->
+  <div class="scheme-card" style="--card-accent:#1a7a4a;">
+    <div class="card-img-wrap">
+      <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&q=80" alt="EDA Build to Scale" loading="lazy">
+      <div class="card-img-overlay"></div>
+      <span class="card-tag">Ecosystem Grant</span>
+    </div>
+    <div class="card-body">
+      <div class="card-icon" style="background:linear-gradient(135deg,#1a7a4a,#16a085);">
+        <i class="fas fa-rocket"></i>
+      </div>
+      <h3>EDA Build to Scale Program</h3>
+      <p>EDA awards grants to regional organizations that accelerate startup growth and innovation-driven entrepreneurship ecosystems.</p>
+      <div class="card-funding"><i class="fas fa-dollar-sign"></i> Varies by Region</div>
+      <a href="https://www.eda.gov/funding/programs/build-to-scale" class="apply-btn" target="_blank">
+        Apply Now <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── FOOTER ── -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="row gy-4">
+      <div class="col-lg-4">
+        <div class="footer-brand">StartUp <span>Incubator</span></div>
+        <p style="font-size:.9rem;color:rgba(255,255,255,.55);max-width:280px;">
+          Connecting American entrepreneurs with the resources they need to build the future.
+        </p>
+        <div class="footer-icons">
+          <a href="#"><i class="fab fa-youtube"></i></a>
+          <a href="#"><i class="fab fa-facebook"></i></a>
+          <a href="#"><i class="fab fa-linkedin"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-2 col-6">
+        <div class="footer-label">Legal</div>
+        <ul class="footer-links">
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms &amp; Conditions</a></li>
+          <li><a href="#">Disclaimer</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-6">
+        <div class="footer-label">Navigate</div>
+        <ul class="footer-links">
+          <li><a href="{% url 'Homee' %}">Home</a></li>
+          <li><a href="{% url 'about' %}">About</a></li>
+          <li><a href="{% url 'top-startups' %}">Top StartUps</a></li>
+          <li><a href="{% url 'resources' %}">Resources</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4">
+        <div class="footer-label">Connect With Us</div>
+        <div class="footer-contact">
+          <a href="tel:9999999999"><i class="fas fa-phone-alt"></i> (999) 999-9999</a>
+          <a href="mailto:startupIncubator@mail.com"><i class="fas fa-envelope"></i> startupIncubator@mail.com</a>
+          <a href="#"><i class="fas fa-map-marker-alt"></i> United States of America</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2025 StartUp Incubator. All rights reserved. &nbsp;|&nbsp; Proudly American 🇺🇸
+    </div>
+  </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+<!-- Google Translate -->
 <script type="text/javascript">
-    function googleTranslateElementInit() {
-        new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
-    }
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement({pageLanguage:'en'}, 'google_translate_element');
+  }
 </script>
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Government Policies for Startups</title>
-<style>
-  body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    height: 50vh;
-    margin: 0;
+<script>
+  // ── Generate star field ──
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.cssText = `
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --d:${2 + Math.random()*4}s;
+      --delay:${Math.random()*4}s;
+      width:${1+Math.random()*2}px;
+      height:${1+Math.random()*2}px;
+    `;
+    starsEl.appendChild(s);
   }
 
-  .header {
-    font-weight: bold;
-    font-size: 24px;
-    margin-bottom: 10px;
-  }
+  // ── Scroll progress bar ──
+  window.addEventListener('scroll', () => {
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    document.getElementById('progress-bar').style.width = (window.scrollY / total * 100) + '%';
+  });
 
-  .header-img {
-    width: 800px; /* Adjust width as needed */
-    height: auto; /* Auto adjust height to maintain aspect ratio */
-    border-radius: 5px;
-    margin-bottom: 20px;
-  }
-
-  .cards-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-  }
-
-  .card {
-    width: 300px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 20px;
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-  }
-
-  .card img {
-    width: 100%;
-    border-radius: 5px;
-    margin-bottom: 10px;
-  }
-
-  .card h3 {
-    font-size: 20px;
-    margin-bottom: 10px;
-  }
-
-  .card p {
-    font-size: 16px;
-    color: #333;
-  }
-  .apply-button {
-    display: inline-block;
-    margin-top: 10px;
-    padding: 10px 20px;
-    color: white;
-    background-color: #007bff;
-    text-decoration: none;
-    border-radius: 5px;
-    font-size: 16px;
-  }
-
-  .apply-button:hover {
-    background-color: #0056b3;
-  }
-</style>
-</head>
-<body>
-  <body style="margin-top: 500px;"> <!-- Add margin-top to create a gap -->
-
-
-    <img src="{% static 'main/image12.png' %}" alt="" class="responsive-img materialboxed medium-image">
-
-    <style>
-      .medium-image {
-        width: 100%; /* Adjust this percentage to change the size */
-        height: auto; /* Maintain aspect ratio */
+  // ── Intersection Observer: card entrance animations ──
+  const cards = document.querySelectorAll('.scheme-card');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
       }
-    </style>
-    
-
-
-<div class="cards-container">
-  <div class="card">
-    <img src="https://d1auykqeekwe79.cloudfront.net/wp-content/uploads/2023/12/Seed-Fund-scheme.png" alt="Startup Policy 1">
-    <h3>Startup India Seed Fund Scheme</h3>
-    <p> Provides up to Rs. 70 Lakhs for proof of concept, prototype development, market entry, and commercialization.</p>
-    <a href="https://www.myscheme.gov.in/schemes/sisfs-fs" class="apply-button">Apply Now</a>
-  </div>
-
-  <div class="card">
-    <img src="https://d1auykqeekwe79.cloudfront.net/wp-content/uploads/2023/12/AIM.png.webp" alt="Startup Policy 2">
-    <h3>Atal Innovation Mission (AIM)</h3>
-    <p>Promotes innovation through Atal Incubation Centres and ARISE-ANIC challenges, supporting startups with resources.</p>
-    <a href="https://aim.gov.in/" class="apply-button">Apply Now</a>
-  </div>
-
-  <div class="card">
-    <img src="https://d1auykqeekwe79.cloudfront.net/wp-content/uploads/2023/12/STPI.png" alt="Startup Policy 3">
-    <h3>Software Technology Parks of India (STPI)</h3>
-    <p>Encourages IT innovation and startups through CoEs and incubators focusing on emerging technologies like AI and IoT.</p>
-    <a href="https://stpi.in/en/home" class="apply-button">Apply Now</a>
-  </div>
-
-  <div class="card">
-    <img src="https://d1auykqeekwe79.cloudfront.net/wp-content/uploads/2023/12/PM-yojna.png" alt="Startup Policy 2">
-    <p> </p>
-    <p> </p>
-    <p> </p>
-    <p> </p>
-    <p> </p>
-    <p> </p>
-    <h3>Pradhan Mantri Mudra Yojana (PMMY)</h3>
-    <p>Provides loans up to Rs. 10 Lakhs for small and micro enterprises in manufacturing, trading, and service sectors.</p>
-    <a href="https://www.mudra.org.in/" class="apply-button">Apply Now</a>
-  </div>
-
-  <div class="card">
-    <img src="https://d1auykqeekwe79.cloudfront.net/wp-content/uploads/2023/12/ASPIRE.png.webp" alt="Startup Policy 2">
-    <h3>ASPIRE – A Scheme for the Promotion of Innovation, Rural Industries and Entrepreneurship</h3>
-    <p>Promotes rural innovation and entrepreneurship through incubation centers, focusing on agriculture and MSME sectors.</p>
-    <a href="https://www.myscheme.gov.in/schemes/sisfs-fs" class="apply-button">Apply Now</a>
-  </div>
-   
-  <div class="card">
-    <img src="https://d1auykqeekwe79.cloudfront.net/wp-content/uploads/2023/12/MGS-1.png" alt="Startup Policy 2">
-    <p> </p>
-    <p> </p>
-    <p> </p>
-    <p> </p>
-    <p> </p>
-    <p> </p>
-    <h3>Multiplier Grants Scheme (MGS)</h3>
-    <p> Supports collaborative R&D between industry and academia with government grants up to Rs. 4 Crores per project.</p>
-    <p> </p>
-    <p> </p>
-    <a href="https://www.myscheme.gov.in/schemes/sisfs-fs" class="apply-button">Apply Now</a>
-  </div>
-
-  <div class="card">
-    <img src="https://d1auykqeekwe79.cloudfront.net/wp-content/uploads/2023/12/DIDF.png.webp" alt="Startup Policy 2">
-    <h3>Dairy Processing and Infrastructure Development Fund (DIDF)</h3>
-    <p>Offers subsidized loans to improve dairy processing efficiency and expand market participation for milk producers.</p>
-    <p> </p>
-
-    <a href="https://www.myscheme.gov.in/schemes/sisfs-fs" class="apply-button">Apply Now</a>
-  </div>
-
-  <div class="card">
-    <img src="https://d1auykqeekwe79.cloudfront.net/wp-content/uploads/2023/12/MGS-1.png" alt="Startup Policy 2">
-    <p> </p>
-    <p> </p>
-    <p> </p>
-    <p> </p>
-    <p> </p>
-    <p> </p>
-    <h3>Multiplier Grants Scheme (MGS)</h3>
-    <p>Under this policy, the government offers incubation centers and mentoring programs to support aspiring entrepreneurs.</p>
-    <p> </p>
-    <p> </p>
-    <a href="https://www.myscheme.gov.in/schemes/sisfs-fs" class="apply-button">Apply Now</a>
-  </div>
-</div>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Startup Incubator</title>
-<!-- Add fontawesome CDN link -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<style>
-/* Define custom background color class */
-.bg-lightgray {
-background-color: #f5f5f5; /* Light gray color */
-}
-</style>
-</head>
-<body>
-
-<div class="container">
-<div class="row bg-lightgray py-5">
-<div class="col-6">
-  <p class="fs-2 text-center">StartUp Incubator</p>
-  <div class="text-center">
-    <i class="fab fa-youtube fs-1"></i>
-    <i class="fab fa-facebook fs-1"></i>
-    <i class="fab fa-google fs-1"></i>
-    <i class="fab fa-linkedin fs-1"></i>
-  </div>
-</div>
-<div class="col-6">
-  <div class="row">
-    <div class="col-4">
-      <div class="row">
-        <div class="col-12 fs-6">Privacy Policy</div>
-        <div class="col-12 fs-6">Terms and Conditions</div>
-        <div class="col-12 fs-6">Disclaimer</div>
-      </div>
-    </div>
-    <div class="col-8">
-      <div class="row">
-        <div class="col-12 mb-1 fs-4 ps-5">Connect With Us</div>
-        <div class="row">
-          <div class="col-5 my-2 text-end">
-            <i class="fas fa-phone-alt fs-1 me-1"></i><span class="fs-7">9999999999</span>
-          </div>
-          <div class="col-6 my-2 text-start">
-            <i class="fas fa-envelope fs-1 me-1"></i> <span class="fs-6">startupIncubator@mail.com</span>
-          </div>
-          
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
-</div>
-
-</body>
-</html>
-
-
-<script
-  src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-  integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-  crossorigin="anonymous"
-></script>
-</body>
-</html>
-
+    });
+  }, { threshold: 0.1 });
+  cards.forEach(c => observer.observe(c));
+</script>
 
 </body>
 </html>
