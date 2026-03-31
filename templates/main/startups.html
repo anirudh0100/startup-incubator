@@ -1,683 +1,539 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <title>Latest Startup News — StartUp Incubator</title>
 
-    <title>StartUp Incubator</title>
+  <style>
+    :root {
+      --navy:    #0d1b2a;
+      --navy2:   #1b2d45;
+      --gold:    #c9902a;
+      --gold2:   #f0b429;
+      --cream:   #f9f5ee;
+      --red:     #b22234;
+      --white:   #ffffff;
+      --card-bg: #ffffff;
+      --shadow:  0 8px 40px rgba(13,27,42,0.13);
+    }
 
-    <style>
-        :root {
-            --neon: #00f5c4;
-            --neon-dim: rgba(0,245,196,0.15);
-            --fire: #ff4d00;
-            --dark: #080c12;
-            --dark2: #0f1622;
-            --card-bg: rgba(15,22,34,0.85);
-            --text: #e8eaf0;
-            --muted: #7a8499;
-            --border: rgba(0,245,196,0.18);
-        }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--navy);
+      overflow-x: hidden;
+    }
 
-        body {
-            font-family: 'Space Grotesk', sans-serif;
-            background-color: var(--dark);
-            color: var(--text);
-            margin-top: 70px;
-            overflow-x: hidden;
-        }
+    /* SCROLL PROGRESS */
+    #progress-bar {
+      position: fixed; top: 69px; left: 0;
+      height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--red), var(--gold2));
+      z-index: 2000; transition: width .1s linear;
+    }
 
-        /* ─── ANIMATED BACKGROUND ─── */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            z-index: -2;
-            background:
-                radial-gradient(ellipse 80% 60% at 10% 20%, rgba(0,245,196,0.07) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 50% at 90% 80%, rgba(255,77,0,0.06) 0%, transparent 60%),
-                var(--dark);
-        }
+    /* NAVBAR */
+    .navbar {
+      height: 69px;
+      background: var(--navy) !important;
+      border-bottom: 3px solid var(--gold);
+      z-index: 1050;
+    }
+    .nav-link {
+      font-weight: 600; letter-spacing: .03em; transition: color .2s;
+      position: relative;
+    }
+    .nav-link::after {
+      content: ''; position: absolute; bottom: 0; left: 50%;
+      width: 0; height: 2px; background: var(--gold2);
+      border-radius: 2px; transform: translateX(-50%); transition: width .3s ease;
+    }
+    .nav-link:hover { color: var(--gold2) !important; }
+    .nav-link:hover::after { width: 70%; }
+    .dropdown-menu {
+      background: var(--navy2); border: 1px solid rgba(201,144,42,.25);
+      border-radius: 12px; padding: 8px;
+    }
+    .dropdown-item { color: rgba(255,255,255,.8); border-radius: 8px; padding: 10px 16px; font-size: .9rem; transition: all .2s; }
+    .dropdown-item:hover { background: rgba(201,144,42,.15); color: var(--gold2); }
 
-        /* Floating particles */
-        .particle-field {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            overflow: hidden;
-            pointer-events: none;
-        }
-        .particle {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0;
-            animation: float-up linear infinite;
-        }
-        @keyframes float-up {
-            0%   { opacity: 0; transform: translateY(0) scale(0); }
-            10%  { opacity: 0.6; }
-            90%  { opacity: 0.3; }
-            100% { opacity: 0; transform: translateY(-100vh) scale(1.5); }
-        }
+    /* HERO */
+    .hero {
+      margin-top: 69px; position: relative; min-height: 420px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 60%, #2a3d5c 100%);
+    }
+    .stars { position: absolute; inset: 0; pointer-events: none; }
+    .star {
+      position: absolute; background: rgba(240,180,41,.7); border-radius: 50%;
+      animation: twinkle var(--d, 3s) ease-in-out infinite alternate;
+      animation-delay: var(--delay, 0s);
+    }
+    @keyframes twinkle {
+      from { opacity: .1; transform: scale(1); }
+      to   { opacity: 1;  transform: scale(1.8); }
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -30%; right: -10%;
+      width: 55%; height: 200%;
+      background: repeating-linear-gradient(-45deg, transparent, transparent 18px, rgba(178,34,52,.12) 18px, rgba(178,34,52,.12) 36px);
+      pointer-events: none;
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(201,144,42,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(201,144,42,.05) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 80%);
+      pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 2; text-align: center; padding: 60px 20px; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(201,144,42,.15); border: 1px solid rgba(201,144,42,.4);
+      color: var(--gold2); font-size: .75rem; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      padding: 6px 18px; border-radius: 20px; margin-bottom: 20px;
+      animation: fadeDown .6s ease both;
+    }
+    .live-dot {
+      width: 7px; height: 7px; background: var(--gold2); border-radius: 50%;
+      animation: pulse-dot 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse-dot { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.7);opacity:.5;} }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.6rem); font-weight: 900;
+      color: var(--white); line-height: 1.1;
+      animation: fadeDown .7s .1s ease both;
+    }
+    .hero h1 span { color: var(--gold2); }
+    .hero p {
+      color: rgba(255,255,255,.7); font-size: 1.05rem;
+      max-width: 540px; margin: 18px auto 0; line-height: 1.7;
+      animation: fadeDown .7s .2s ease both;
+    }
+    .hero-divider {
+      width: 70px; height: 4px;
+      background: linear-gradient(90deg, var(--red), var(--gold2));
+      margin: 22px auto 0; border-radius: 2px;
+      animation: fadeDown .7s .3s ease both;
+    }
+    @keyframes fadeDown { from{opacity:0;transform:translateY(-20px);} to{opacity:1;transform:translateY(0);} }
 
-        /* ─── NAVBAR ─── */
-        .navbar {
-            background: rgba(8,12,18,0.92) !important;
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            height: 69px;
-            transition: all 0.3s ease;
-        }
-        .navbar.scrolled {
-            box-shadow: 0 4px 40px rgba(0,245,196,0.1);
-        }
-        .navbar-brand img { filter: brightness(1.1); }
+    /* SECTION INTRO */
+    .section-intro { text-align: center; padding: 60px 20px 10px; }
+    .section-intro h2 { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--navy); }
+    .section-intro p { color: #5a6a7e; max-width: 540px; margin: 10px auto 0; font-size: .97rem; }
 
-        .nav-link {
-            position: relative;
-            color: var(--text) !important;
-            font-weight: 500;
-            font-size: 0.88rem;
-            letter-spacing: 0.04em;
-            padding: 6px 14px !important;
-            transition: color 0.3s;
-        }
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 50%;
-            width: 0; height: 2px;
-            background: var(--neon);
-            border-radius: 2px;
-            transform: translateX(-50%);
-            transition: width 0.3s ease;
-        }
-        .nav-link:hover { color: var(--neon) !important; }
-        .nav-link:hover::after { width: 70%; }
+    /* SECTION HEADER ROW */
+    .section-header {
+      display: flex; align-items: center; gap: 16px;
+      max-width: 1280px; margin: 40px auto 0; padding: 0 40px;
+    }
+    .section-header h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: var(--navy); white-space: nowrap; }
+    .section-line { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(13,27,42,.15), transparent); }
+    .section-count {
+      font-size: .78rem; font-weight: 700; color: var(--navy);
+      background: rgba(201,144,42,.15); border: 1px solid rgba(201,144,42,.35);
+      border-radius: 100px; padding: 4px 14px; letter-spacing: .06em; white-space: nowrap;
+    }
 
-        .dropdown-menu {
-            background: var(--dark2);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 8px;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px var(--border);
-        }
-        .dropdown-item {
-            color: var(--text);
-            border-radius: 8px;
-            padding: 10px 16px;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-        }
-        .dropdown-item:hover {
-            background: var(--neon-dim);
-            color: var(--neon);
-        }
+    /* SKELETON */
+    .skeleton-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 32px; max-width: 1280px; margin: 0 auto; padding: 30px 40px 80px;
+    }
+    .skeleton-card { background: var(--card-bg); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow); }
+    .skel-img { height: 190px; }
+    .skel-body { padding: 22px; }
+    .skel {
+      background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
+      background-size: 200% 100%; border-radius: 6px;
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+    .skel-tag { height: 22px; width: 80px; margin-bottom: 16px; border-radius: 100px; }
+    .skel-h { height: 18px; margin-bottom: 10px; }
+    .skel-h.w70 { width: 70%; }
+    .skel-p { height: 12px; margin-bottom: 8px; }
+    .skel-p.w90 { width: 90%; }
+    .skel-p.w75 { width: 75%; }
+    .skel-btn { height: 42px; margin-top: 20px; border-radius: 10px; }
 
-        /* ─── HERO SECTION ─── */
-        .hero {
-            position: relative;
-            min-height: 340px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 60px 20px 40px;
-            text-align: center;
-            overflow: hidden;
-        }
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--neon-dim);
-            border: 1px solid var(--border);
-            border-radius: 100px;
-            padding: 6px 18px;
-            font-size: 0.78rem;
-            letter-spacing: 0.1em;
-            color: var(--neon);
-            text-transform: uppercase;
-            margin-bottom: 24px;
-            animation: badge-in 0.8s ease both;
-        }
-        .hero-badge span { display: inline-block; width: 6px; height: 6px; background: var(--neon); border-radius: 50%; animation: pulse-dot 1.5s ease-in-out infinite; }
-        @keyframes pulse-dot { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.6);opacity:0.5;} }
+    /* NEWS CARDS GRID */
+    .cards-section {
+      padding: 30px 40px 100px; max-width: 1280px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 32px;
+    }
+    .news-card:first-child { grid-column: span 2; }
+    @media(max-width:768px){ .news-card:first-child { grid-column: span 1; } }
 
-        .hero h1 {
-            font-family: 'Syne', sans-serif;
-            font-size: clamp(2.4rem, 6vw, 4.2rem);
-            font-weight: 800;
-            line-height: 1.1;
-            letter-spacing: -0.02em;
-            margin-bottom: 16px;
-            animation: hero-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
-        }
-        .hero h1 .accent {
-            background: linear-gradient(135deg, var(--neon) 0%, #00d4ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .hero p {
-            color: var(--muted);
-            font-size: 1.05rem;
-            max-width: 520px;
-            line-height: 1.7;
-            animation: hero-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
-        }
+    /* NEWS CARD */
+    .news-card {
+      background: var(--card-bg); border-radius: 18px; overflow: hidden;
+      box-shadow: var(--shadow); display: flex; flex-direction: column;
+      position: relative;
+      transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .35s ease;
+      opacity: 0; transform: translateY(40px); cursor: pointer;
+    }
+    .news-card.visible { animation: riseUp .55s ease forwards; }
+    @keyframes riseUp { to { opacity: 1; transform: translateY(0); } }
+    .news-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 24px 60px rgba(13,27,42,.2); }
+    .news-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, var(--card-accent, var(--navy)), var(--gold2)); z-index: 2;
+    }
+    .news-card::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold2), transparent);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform .5s cubic-bezier(.16,1,.3,1);
+    }
+    .news-card:hover::after { transform: scaleX(1); }
 
-        @keyframes hero-in {
-            from { opacity: 0; transform: translateY(28px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes badge-in {
-            from { opacity: 0; transform: scale(0.85); }
-            to   { opacity: 1; transform: scale(1); }
-        }
+    .card-img-wrap { position: relative; height: 190px; overflow: hidden; }
+    .news-card:first-child .card-img-wrap { height: 260px; }
+    .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+    .news-card:hover .card-img-wrap img { transform: scale(1.08); }
+    .card-img-overlay { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(13,27,42,.6) 0%, transparent 55%); }
+    .card-tag {
+      position: absolute; bottom: 12px; left: 14px;
+      background: var(--gold); color: var(--navy);
+      font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 12px;
+    }
 
-        /* Grid lines decoration */
-        .hero-grid {
-            position: absolute;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(0,245,196,0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0,245,196,0.04) 1px, transparent 1px);
-            background-size: 60px 60px;
-            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 80%);
-            pointer-events: none;
-        }
+    .card-body { padding: 22px 22px 20px; flex: 1; display: flex; flex-direction: column; }
+    .card-icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: white; margin-bottom: 14px; flex-shrink: 0;
+    }
+    .card-body h3 {
+      font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700;
+      color: var(--navy); margin-bottom: 10px; line-height: 1.35;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .news-card:first-child .card-body h3 { font-size: 1.5rem; -webkit-line-clamp: 2; }
+    .card-body p {
+      font-size: .9rem; color: #5a6a7e; line-height: 1.65; flex: 1;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 18px;
+    }
+    .card-meta {
+      display: inline-flex; align-items: center; gap: 6px; margin: 0 0 14px;
+      font-size: .78rem; font-weight: 600; color: var(--navy2);
+      background: #f0f4f8; padding: 4px 12px; border-radius: 20px;
+    }
+    .card-meta i { color: var(--gold); }
+    .read-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 20px; background: var(--navy); color: white;
+      border-radius: 10px; text-decoration: none;
+      font-size: .88rem; font-weight: 600; letter-spacing: .03em;
+      transition: background .25s, transform .2s; margin-top: auto;
+    }
+    .read-btn:hover { background: var(--gold); color: var(--navy); transform: translateX(3px); text-decoration: none; }
 
-        /* ─── NEWS SECTION ─── */
-        .news-section {
-            padding: 0 24px 80px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+    /* ERROR */
+    .error-state { text-align: center; padding: 80px 20px; grid-column: 1 / -1; }
+    .error-state i { font-size: 3rem; color: var(--gold); opacity: .4; margin-bottom: 16px; display: block; }
 
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 36px;
-        }
-        .section-header h2 {
-            font-family: 'Syne', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        .section-line {
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(90deg, var(--border), transparent);
-        }
-        .section-count {
-            font-size: 0.78rem;
-            color: var(--neon);
-            background: var(--neon-dim);
-            border: 1px solid var(--border);
-            border-radius: 100px;
-            padding: 4px 12px;
-            letter-spacing: 0.06em;
-        }
+    /* TICKER */
+    .ticker-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; height: 42px;
+      background: var(--navy); border-top: 3px solid var(--gold);
+      display: flex; align-items: center; overflow: hidden; z-index: 999;
+    }
+    .ticker-label {
+      flex-shrink: 0; background: var(--gold); color: var(--navy);
+      font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      padding: 0 16px; height: 100%; display: flex; align-items: center; gap: 6px;
+    }
+    .ticker-track { display: flex; animation: ticker 35s linear infinite; white-space: nowrap; }
+    .ticker-track:hover { animation-play-state: paused; }
+    @keyframes ticker { from{transform:translateX(0);} to{transform:translateX(-50%);} }
+    .ticker-item { padding: 0 44px; font-size: .78rem; color: rgba(255,255,255,.6); flex-shrink: 0; }
+    .ticker-item span { color: var(--gold2); margin-right: 8px; }
 
-        /* ─── CARDS GRID ─── */
-        .news-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
+    /* FOOTER */
+    .site-footer { background: var(--navy); color: rgba(255,255,255,.7); padding: 50px 40px 30px; margin-bottom: 42px; }
+    .footer-brand { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: white; font-weight: 700; margin-bottom: 10px; }
+    .footer-brand span { color: var(--gold2); }
+    .footer-icons { display: flex; gap: 14px; margin-top: 14px; }
+    .footer-icons a { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.6); font-size: 1rem; transition: all .2s; text-decoration: none; }
+    .footer-icons a:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,144,42,.1); }
+    .footer-label { font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+    .footer-links { list-style: none; padding: 0; }
+    .footer-links li { margin-bottom: 8px; }
+    .footer-links a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .9rem; transition: color .2s; }
+    .footer-links a:hover { color: var(--gold2); }
+    .footer-contact { display: flex; flex-direction: column; gap: 10px; }
+    .footer-contact a { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.65); text-decoration: none; font-size: .9rem; transition: color .2s; }
+    .footer-contact a:hover { color: var(--gold2); }
+    .footer-contact i { color: var(--gold); width: 16px; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,.1); margin-top: 40px; padding-top: 20px; text-align: center; font-size: .82rem; color: rgba(255,255,255,.35); }
 
-        /* Featured first card */
-        .news-grid .card:first-child {
-            grid-column: span 2;
-        }
-        @media (max-width: 768px) {
-            .news-grid .card:first-child { grid-column: span 1; }
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 28px;
-            text-align: left;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.35s cubic-bezier(0.16,1,0.3,1),
-                        box-shadow 0.35s ease,
-                        border-color 0.35s ease;
-            animation: card-in 0.6s cubic-bezier(0.16,1,0.3,1) both;
-            backdrop-filter: blur(12px);
-        }
-
-        /* Stagger each card */
-        .card:nth-child(1)  { animation-delay: 0.05s; }
-        .card:nth-child(2)  { animation-delay: 0.10s; }
-        .card:nth-child(3)  { animation-delay: 0.15s; }
-        .card:nth-child(4)  { animation-delay: 0.20s; }
-        .card:nth-child(5)  { animation-delay: 0.25s; }
-        .card:nth-child(6)  { animation-delay: 0.30s; }
-        .card:nth-child(7)  { animation-delay: 0.35s; }
-        .card:nth-child(8)  { animation-delay: 0.40s; }
-
-        @keyframes card-in {
-            from { opacity: 0; transform: translateY(30px) scale(0.97); }
-            to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        /* Glowing corner accent */
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 60px; height: 60px;
-            background: radial-gradient(circle at top left, rgba(0,245,196,0.2), transparent 70%);
-            opacity: 0;
-            transition: opacity 0.4s;
-            border-radius: 16px 0 0 0;
-        }
-        .card::after {
-            content: '';
-            position: absolute;
-            bottom: 0; right: 0;
-            width: 100%; height: 3px;
-            background: linear-gradient(90deg, transparent, var(--neon), transparent);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
-        }
-        .card:hover {
-            transform: translateY(-6px) scale(1.01);
-            box-shadow: 0 24px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,245,196,0.3), 0 0 40px rgba(0,245,196,0.08);
-            border-color: rgba(0,245,196,0.4);
-        }
-        .card:hover::before { opacity: 1; }
-        .card:hover::after  { transform: scaleX(1); }
-
-        /* Card inner elements */
-        .card-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(0,245,196,0.08);
-            border: 1px solid rgba(0,245,196,0.2);
-            border-radius: 100px;
-            padding: 4px 12px;
-            font-size: 0.72rem;
-            color: var(--neon);
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            margin-bottom: 16px;
-            font-weight: 600;
-        }
-
-        .card h3 {
-            font-family: 'Syne', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-            line-height: 1.35;
-            color: var(--text);
-            margin-bottom: 12px;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .news-grid .card:first-child h3 {
-            font-size: 1.5rem;
-            -webkit-line-clamp: 2;
-        }
-
-        .card p {
-            color: var(--muted);
-            font-size: 0.875rem;
-            line-height: 1.7;
-            display: -webkit-box;
-            -webkit-line-clamp: 4;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            margin-bottom: 20px;
-            height: auto;
-        }
-
-        .card-footer-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: auto;
-        }
-
-        .read-more {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--neon);
-            text-decoration: none;
-            font-size: 0.83rem;
-            font-weight: 600;
-            letter-spacing: 0.04em;
-            transition: gap 0.25s ease;
-        }
-        .read-more svg {
-            transition: transform 0.25s ease;
-        }
-        .read-more:hover { gap: 12px; color: var(--neon); }
-        .read-more:hover svg { transform: translateX(4px); }
-
-        /* ─── LOADING SKELETON ─── */
-        .skeleton-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        .skeleton-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 28px;
-        }
-        .skel {
-            background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 75%);
-            background-size: 200% 100%;
-            border-radius: 6px;
-            animation: shimmer 1.6s ease-in-out infinite;
-        }
-        @keyframes shimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
-        .skel-tag  { height: 22px; width: 80px; margin-bottom: 16px; border-radius: 100px; }
-        .skel-h    { height: 20px; margin-bottom: 10px; }
-        .skel-h.w70 { width: 70%; }
-        .skel-p    { height: 12px; margin-bottom: 8px; }
-        .skel-p.w90 { width: 90%; }
-        .skel-p.w75 { width: 75%; }
-        .skel-link { height: 14px; width: 90px; margin-top: 20px; }
-
-        /* ─── ERROR STATE ─── */
-        .error-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--muted);
-        }
-        .error-state .error-icon {
-            font-size: 3rem;
-            margin-bottom: 16px;
-            opacity: 0.3;
-        }
-
-        /* ─── FOOTER TICKER ─── */
-        .ticker-bar {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            height: 40px;
-            background: rgba(8,12,18,0.95);
-            border-top: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-            z-index: 100;
-        }
-        .ticker-label {
-            flex-shrink: 0;
-            background: var(--neon);
-            color: var(--dark);
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            padding: 0 14px;
-            height: 100%;
-            display: flex;
-            align-items: center;
-        }
-        .ticker-track {
-            display: flex;
-            animation: ticker 30s linear infinite;
-            white-space: nowrap;
-        }
-        .ticker-track:hover { animation-play-state: paused; }
-        @keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
-        .ticker-item {
-            padding: 0 40px;
-            font-size: 0.78rem;
-            color: var(--muted);
-            flex-shrink: 0;
-        }
-        .ticker-item span { color: var(--neon); margin-right: 8px; }
-
-        /* Google Translate Override */
-        #google_translate_element .goog-te-combo {
-            background: transparent;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text);
-            padding: 4px 8px;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.82rem;
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--dark); }
-        ::-webkit-scrollbar-thumb { background: rgba(0,245,196,0.25); border-radius: 3px; }
-
-        /* Responsive */
-        @media (max-width: 576px) {
-            .news-section { padding: 0 12px 100px; }
-            .hero h1 { font-size: 2rem; }
-        }
-    </style>
+    @media(max-width:768px){ .cards-section, .skeleton-grid { padding: 20px 16px 100px; } .section-header { padding: 0 16px; } }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--cream); }
+    ::-webkit-scrollbar-thumb { background: rgba(13,27,42,.2); border-radius: 3px; }
+  </style>
 </head>
 <body>
 
-<!-- Animated particles -->
-<div class="particle-field" id="particles"></div>
+<div id="progress-bar"></div>
 
 <!-- Chatbase -->
-<script>
-    window.embeddedChatbotConfig = { chatbotId: "gdPJ7UU5-879AEWrXzwns", domain: "www.chatbase.co" }
-</script>
+<script>window.embeddedChatbotConfig = { chatbotId: "gdPJ7UU5-879AEWrXzwns", domain: "www.chatbase.co" }</script>
 <script src="https://www.chatbase.co/embed.min.js" chatbotId="gdPJ7UU5-879AEWrXzwns" domain="www.chatbase.co" defer></script>
 
-<!-- ─── NAVBAR ─── -->
-<nav class="navbar fixed-top navbar-dark navbar-expand-lg" id="mainNav">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-            <img src="{% static 'main/logo69.png' %}" alt="StartUp Incubator" width="218" height="47" class="d-inline-block align-text-top ms-2" />
-        </a>
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-            <ul class="navbar-nav mb-2 mb-lg-0">
-                <li class="nav-item"><a href="{% url 'Homee' %}" class="nav-link">Home</a></li>
-                <li class="nav-item"><a href="{% url 'about' %}" class="nav-link">About</a></li>
-                <li class="nav-item"><a href="{% url 'top-startups' %}" class="nav-link">Top StartUps</a></li>
-                <li class="nav-item"><a href="{% url 'resources' %}" class="nav-link">Learning Resources</a></li>
-                <li class="nav-item"><a href="{% url 'schemes' %}" class="nav-link">Government Schemes</a></li>
-                <li class="nav-item">
-                    <div id="google_translate_element"></div>
-                </li>
-                <li class="nav-item">
-                    <div class="dropdown">
-                        <button style="border-color:transparent" class="btn" type="button" id="dropdownMenuButton1"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa-regular fa-user" style="color:white;font-size:1.1rem;"></i>
-                        </button>
-                        <ul style="left:-8rem" class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                            <li><a class="dropdown-item" href="{% url 'student-register' %}">
-                                <i class="fa-solid fa-rocket me-2" style="color:var(--neon)"></i> Entrepreneur
-                            </a></li>
-                            <li><a class="dropdown-item" href="{% url 'mentor-register' %}">
-                                <i class="fa-solid fa-lightbulb me-2" style="color:var(--neon)"></i> Mentor
-                            </a></li>
-                            <li><a class="dropdown-item" href="{% url 'investor-register' %}">
-                                <i class="fa-solid fa-chart-line me-2" style="color:var(--neon)"></i> Investor
-                            </a></li>
-                        </ul>
-                    </div>
-                </li>
+<!-- NAVBAR -->
+<nav class="navbar fixed-top navbar-dark navbar-expand-lg">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">
+      <img src="{% static 'main/logo69.png' %}" alt="StartUp Incubator" width="218" height="47" class="d-inline-block align-text-top ms-2" />
+    </a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
+      <ul class="navbar-nav mb-2 mb-lg-0">
+        <li class="nav-item"><a href="{% url 'Homee' %}" class="nav-link text-light">Home</a></li>
+        <li class="nav-item"><a href="{% url 'about' %}" class="nav-link text-light">About</a></li>
+        <li class="nav-item"><a href="{% url 'top-startups' %}" class="nav-link text-light">Top StartUps</a></li>
+        <li class="nav-item"><a href="{% url 'resources' %}" class="nav-link text-light">Learning Resources</a></li>
+        <li class="nav-item"><a href="{% url 'schemes' %}" class="nav-link text-light">Government Schemes</a></li>
+        <li class="nav-item"><div id="google_translate_element"></div></li>
+        <li class="nav-item">
+          <div class="dropdown">
+            <button style="border-color:transparent" class="btn" type="button" data-bs-toggle="dropdown">
+              <i class="fa-regular fa-user" style="color:white;font-size:1.1rem;"></i>
+            </button>
+            <ul style="left:-8rem" class="dropdown-menu">
+              <li><a class="dropdown-item" href="{% url 'student-register' %}"><i class="fa-solid fa-rocket me-2" style="color:var(--gold)"></i>Entrepreneur</a></li>
+              <li><a class="dropdown-item" href="{% url 'mentor-register' %}"><i class="fa-solid fa-lightbulb me-2" style="color:var(--gold)"></i>Mentor</a></li>
+              <li><a class="dropdown-item" href="{% url 'investor-register' %}"><i class="fa-solid fa-chart-line me-2" style="color:var(--gold)"></i>Investor</a></li>
             </ul>
-        </div>
+          </div>
+        </li>
+      </ul>
     </div>
+  </div>
 </nav>
 
-<!-- ─── HERO ─── -->
+<!-- HERO -->
 <section class="hero">
-    <div class="hero-grid"></div>
-    <div class="hero-badge">
-        <span></span> Live Updates
-    </div>
-    <h1>Latest <span class="accent">Startup</span> News</h1>
+  <div class="stars" id="stars"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><div class="live-dot"></div> Live News Feed</div>
+    <h1>Latest <span>Startup</span> News</h1>
     <p>Stay ahead of the curve with real-time insights from the world's most innovative startups and emerging ventures.</p>
+    <div class="hero-divider"></div>
+  </div>
 </section>
 
-<!-- ─── NEWS SECTION ─── -->
-<section class="news-section">
-    <div class="section-header">
-        <h2>Top Stories</h2>
-        <div class="section-line"></div>
-        <div class="section-count" id="articleCount">Loading…</div>
-    </div>
-
-    <!-- Skeleton loader -->
-    <div class="skeleton-grid" id="skeletonLoader">
-        {% for i in "12345678" %}
-        <div class="skeleton-card">
-            <div class="skel skel-tag"></div>
-            <div class="skel skel-h"></div>
-            <div class="skel skel-h w70"></div>
-            <div class="skel skel-p w90" style="margin-top:14px"></div>
-            <div class="skel skel-p w90"></div>
-            <div class="skel skel-p w75"></div>
-            <div class="skel skel-link"></div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- News grid -->
-    <div class="news-grid" id="news" style="display:none"></div>
-</section>
-
-<!-- ─── TICKER BAR ─── -->
-<div class="ticker-bar">
-    <div class="ticker-label">📡 Live</div>
-    <div style="overflow:hidden;flex:1">
-        <div class="ticker-track" id="ticker">
-            <div class="ticker-item"><span>🚀</span> Loading startup headlines...</div>
-        </div>
-    </div>
+<!-- SECTION INTRO -->
+<div class="section-intro">
+  <h2>Top Stories Today</h2>
+  <p>Breaking news and insights from the global startup ecosystem, updated in real time.</p>
 </div>
 
-<!-- Bootstrap JS -->
+<!-- SECTION HEADER -->
+<div class="section-header">
+  <h3>Top Stories</h3>
+  <div class="section-line"></div>
+  <div class="section-count" id="articleCount">Loading…</div>
+</div>
+
+<!-- SKELETON -->
+<div class="skeleton-grid" id="skeletonLoader">
+  {% for i in "12345678" %}
+  <div class="skeleton-card">
+    <div class="skel skel-img"></div>
+    <div class="skel-body">
+      <div class="skel skel-tag"></div>
+      <div class="skel skel-h" style="margin-top:6px;"></div>
+      <div class="skel skel-h w70"></div>
+      <div class="skel skel-p w90" style="margin-top:12px;"></div>
+      <div class="skel skel-p w90"></div>
+      <div class="skel skel-p w75"></div>
+      <div class="skel skel-btn"></div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- NEWS CARDS -->
+<div class="cards-section" id="newsGrid" style="display:none;"></div>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-label"><i class="fas fa-satellite-dish"></i> Live</div>
+  <div style="overflow:hidden;flex:1;">
+    <div class="ticker-track" id="ticker">
+      <div class="ticker-item"><span>🚀</span> Loading startup headlines…</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="row gy-4">
+      <div class="col-lg-4">
+        <div class="footer-brand">StartUp <span>Incubator</span></div>
+        <p style="font-size:.9rem;color:rgba(255,255,255,.55);max-width:280px;margin-top:10px;">Connecting entrepreneurs with the resources they need to build the future.</p>
+        <div class="footer-icons">
+          <a href="#"><i class="fab fa-youtube"></i></a>
+          <a href="#"><i class="fab fa-facebook"></i></a>
+          <a href="#"><i class="fab fa-linkedin"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-2 col-6">
+        <div class="footer-label">Legal</div>
+        <ul class="footer-links">
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms &amp; Conditions</a></li>
+          <li><a href="#">Disclaimer</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-6">
+        <div class="footer-label">Navigate</div>
+        <ul class="footer-links">
+          <li><a href="{% url 'Homee' %}">Home</a></li>
+          <li><a href="{% url 'about' %}">About</a></li>
+          <li><a href="{% url 'top-startups' %}">Top StartUps</a></li>
+          <li><a href="{% url 'resources' %}">Resources</a></li>
+          <li><a href="{% url 'schemes' %}">Gov. Schemes</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4">
+        <div class="footer-label">Connect With Us</div>
+        <div class="footer-contact">
+          <a href="tel:9999999999"><i class="fas fa-phone-alt"></i> (999) 999-9999</a>
+          <a href="mailto:startupIncubator@mail.com"><i class="fas fa-envelope"></i> startupIncubator@mail.com</a>
+          <a href="#"><i class="fas fa-map-marker-alt"></i> United States of America</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2025 StartUp Incubator. All rights reserved. &nbsp;|&nbsp; Proudly American 🇺🇸</div>
+  </div>
+</footer>
+
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
-
-<!-- Google Translate -->
-<script type="text/javascript">
-    function googleTranslateElementInit() {
-        new google.translate.TranslateElement({ pageLanguage: 'en' }, 'google_translate_element');
-    }
-</script>
+<script type="text/javascript">function googleTranslateElementInit(){new google.translate.TranslateElement({pageLanguage:'en'},'google_translate_element');}</script>
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 <script>
-// ─── PARTICLES ───
-(function () {
-    const field = document.getElementById('particles');
-    const COLORS = ['#00f5c4', '#00d4ff', '#ff4d00'];
-    for (let i = 0; i < 28; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        const size = Math.random() * 3 + 1;
-        p.style.cssText = `
-            left:${Math.random()*100}%;
-            bottom:${Math.random()*30}%;
-            width:${size}px; height:${size}px;
-            background:${COLORS[Math.floor(Math.random()*COLORS.length)]};
-            animation-duration:${Math.random()*12+8}s;
-            animation-delay:${Math.random()*10}s;
-        `;
-        field.appendChild(p);
-    }
-})();
+  // Star field
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${Math.random()*4}s;width:${1+Math.random()*2}px;height:${1+Math.random()*2}px;`;
+    starsEl.appendChild(s);
+  }
 
-// ─── NAVBAR SCROLL ───
-window.addEventListener('scroll', () => {
-    document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 20);
-});
+  // Scroll progress
+  window.addEventListener('scroll', () => {
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    document.getElementById('progress-bar').style.width = (window.scrollY / total * 100) + '%';
+  });
 
-// ─── FETCH NEWS ───
-const TAGS = ['🚀 Funding', '💡 Innovation', '📈 Growth', '🌍 Global', '⚡ Tech', '🎯 Product', '🤖 AI', '💰 Finance'];
+  const CARD_STYLES = [
+    { accent:'#b22234', icon:'fa-rocket',      bg:'linear-gradient(135deg,#b22234,#c9902a)', tag:'Funding' },
+    { accent:'#0d4f8c', icon:'fa-flask',        bg:'linear-gradient(135deg,#0d4f8c,#0d1b2a)', tag:'Innovation' },
+    { accent:'#1a7a4a', icon:'fa-chart-line',   bg:'linear-gradient(135deg,#1a7a4a,#2aad6a)', tag:'Growth' },
+    { accent:'#7b4f12', icon:'fa-globe',        bg:'linear-gradient(135deg,#c9902a,#f0b429)', tag:'Global' },
+    { accent:'#5a2d82', icon:'fa-microchip',    bg:'linear-gradient(135deg,#5a2d82,#9b59b6)', tag:'Tech' },
+    { accent:'#1a5c9e', icon:'fa-lightbulb',    bg:'linear-gradient(135deg,#1a5c9e,#2980b9)', tag:'Product' },
+    { accent:'#b22234', icon:'fa-robot',        bg:'linear-gradient(135deg,#b22234,#e74c3c)', tag:'AI' },
+    { accent:'#1a7a4a', icon:'fa-coins',        bg:'linear-gradient(135deg,#1a7a4a,#16a085)', tag:'Finance' },
+  ];
+  const FALLBACKS = [
+    'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600&q=80',
+    'https://images.unsplash.com/photo-1532094349884-543559b9f4ab?w=600&q=80',
+    'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&q=80',
+    'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80',
+    'https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=600&q=80',
+    'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&q=80',
+    'https://images.unsplash.com/photo-1573497161161-c3e73707e25c?w=600&q=80',
+    'https://images.unsplash.com/photo-1606761568499-6d2451b23c66?w=600&q=80',
+  ];
 
-document.addEventListener('DOMContentLoaded', () => {
-    const apiKey  = 'pub_462482e313c36257ae5dab3b356fba4adabb1';
-    const apiUrl  = `https://newsdata.io/api/1/news?apikey=${apiKey}&q=top%20startups`;
+  document.addEventListener('DOMContentLoaded', () => {
+    const apiKey = 'pub_462482e313c36257ae5dab3b356fba4adabb1';
+    fetch(`https://newsdata.io/api/1/news?apikey=${apiKey}&q=top%20startups`)
+      .then(r => r.json())
+      .then(data => {
+        const articles = data.results || [];
+        document.getElementById('skeletonLoader').style.display = 'none';
+        const grid = document.getElementById('newsGrid');
+        grid.style.display = 'grid';
+        document.getElementById('articleCount').textContent = `${articles.length} articles`;
 
-    fetch(apiUrl)
-        .then(r => r.json())
-        .then(data => {
-            const articles      = data.results || [];
-            const skeleton      = document.getElementById('skeletonLoader');
-            const newsContainer = document.getElementById('news');
-            const count         = document.getElementById('articleCount');
-
-            skeleton.style.display = 'none';
-            newsContainer.style.display = 'grid';
-            count.textContent = `${articles.length} articles`;
-
-            articles.forEach((article, idx) => {
-                const card = document.createElement('div');
-                card.className = 'card';
-
-                const tag  = TAGS[idx % TAGS.length];
-                const desc = article.description || 'Read the full article for more details.';
-
-                card.innerHTML = `
-                    <div class="card-tag">${tag}</div>
-                    <h3>${article.title || 'Untitled'}</h3>
-                    <p>${desc}</p>
-                    <div class="card-footer-row">
-                        <a class="read-more" href="${article.link}" target="_blank" rel="noopener">
-                            Read article
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-                            </svg>
-                        </a>
-                    </div>
-                `;
-
-                newsContainer.appendChild(card);
-            });
-
-            // Build ticker
-            const ticker = document.getElementById('ticker');
-            const items  = articles.map(a => `<div class="ticker-item"><span>🚀</span>${a.title}</div>`).join('');
-            ticker.innerHTML = items + items; // duplicate for seamless loop
-        })
-        .catch(err => {
-            document.getElementById('skeletonLoader').style.display = 'none';
-            const news = document.getElementById('news');
-            news.style.display = 'block';
-            news.innerHTML = `
-                <div class="error-state" style="grid-column:1/-1">
-                    <div class="error-icon">📡</div>
-                    <p style="font-size:1.1rem;color:var(--text);margin-bottom:8px">Unable to load news</p>
-                    <p>Check your connection or API key and try again.</p>
-                </div>
-            `;
-            document.getElementById('articleCount').textContent = '0 articles';
+        articles.forEach((article, idx) => {
+          const s = CARD_STYLES[idx % CARD_STYLES.length];
+          const img = article.image_url || FALLBACKS[idx % FALLBACKS.length];
+          const desc = article.description || 'Click to read the full article for more details.';
+          const card = document.createElement('div');
+          card.className = 'news-card';
+          card.style.setProperty('--card-accent', s.accent);
+          card.innerHTML = `
+            <div class="card-img-wrap">
+              <img src="${img}" alt="${article.title}" onerror="this.src='${FALLBACKS[idx%FALLBACKS.length]}'" loading="lazy">
+              <div class="card-img-overlay"></div>
+              <span class="card-tag">${s.tag}</span>
+            </div>
+            <div class="card-body">
+              <div class="card-icon" style="background:${s.bg};"><i class="fas ${s.icon}"></i></div>
+              <h3>${article.title || 'Untitled'}</h3>
+              <p>${desc}</p>
+              <div class="card-meta"><i class="fas fa-newspaper"></i> ${article.source_id || 'News Source'}</div>
+              <a class="read-btn" href="${article.link}" target="_blank" rel="noopener">
+                Read Full Article <i class="fas fa-arrow-right"></i>
+              </a>
+            </div>`;
+          grid.appendChild(card);
         });
-});
+
+        // entrance animations
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const all = [...document.querySelectorAll('.news-card')];
+              setTimeout(() => entry.target.classList.add('visible'), all.indexOf(entry.target) * 80);
+              io.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.news-card').forEach(c => io.observe(c));
+
+        // ticker
+        const ticker = document.getElementById('ticker');
+        const items = articles.map(a => `<div class="ticker-item"><span>🚀</span>${a.title}</div>`).join('');
+        ticker.innerHTML = items + items;
+      })
+      .catch(() => {
+        document.getElementById('skeletonLoader').style.display = 'none';
+        const grid = document.getElementById('newsGrid');
+        grid.style.display = 'grid';
+        grid.innerHTML = `<div class="error-state"><i class="fas fa-satellite-dish"></i><p style="font-size:1.1rem;font-weight:600;color:var(--navy);margin-bottom:8px;">Unable to load news</p><p>Check your connection or API key and try again.</p></div>`;
+        document.getElementById('articleCount').textContent = '0 articles';
+      });
+  });
 </script>
 </body>
 </html>
