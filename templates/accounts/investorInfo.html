@@ -1,476 +1,899 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,600;0,700;1,300&display=swap" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    <title>Investor Details</title>
+    <title>Investor Profile — InnoHub</title>
+
     <style>
-      *, *::before, *::after { box-sizing: border-box; }
+      :root {
+        --white:        #ffffff;
+        --bg:           #f4f6fb;
+        --bg2:          #eef1f8;
+        --card:         #ffffff;
+        --border:       #e2e8f4;
+        --border2:      #ccd5ea;
+        --primary:      #4361ee;
+        --primary-dk:   #3a0ca3;
+        --primary-lt:   rgba(67, 97, 238, 0.10);
+        --primary-glow: rgba(67, 97, 238, 0.22);
+        --accent:       #06d6a0;
+        --accent-lt:    rgba(6, 214, 160, 0.12);
+        --gold:         #f4a261;
+        --gold-lt:      rgba(244, 162, 97, 0.14);
+        --teal:         #0ea5e9;
+        --teal-lt:      rgba(14, 165, 233, 0.12);
+        --purple:       #7c3aed;
+        --purple-lt:    rgba(124, 58, 237, 0.10);
+        --green:        #059669;
+        --green-lt:     rgba(5, 150, 105, 0.10);
+        --danger:       #ef4444;
+        --danger-lt:    rgba(239, 68, 68, 0.10);
+        --text:         #1a2340;
+        --text2:        #374151;
+        --muted:        #7485a8;
+        --soft:         #aab4cc;
+        --shadow-sm:    0 2px 12px rgba(67, 97, 238, 0.08);
+        --shadow-md:    0 8px 32px rgba(67, 97, 238, 0.13);
+        --shadow-lg:    0 20px 60px rgba(67, 97, 238, 0.18);
+        --radius:       16px;
+        --transition:   all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       body {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background: var(--bg);
+        color: var(--text);
         min-height: 100vh;
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-        display: flex;
-        flex-direction: column;
+      }
+
+      /* ── BG BLOBS ── */
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(ellipse 70% 45% at 0% 0%,    rgba(67,97,238,0.07)  0%, transparent 55%),
+          radial-gradient(ellipse 55% 40% at 100% 100%, rgba(6,214,160,0.07)  0%, transparent 55%),
+          radial-gradient(ellipse 40% 30% at 55% 45%,  rgba(14,165,233,0.05) 0%, transparent 55%);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* ── HERO ── */
+      .page-hero {
+        background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 60%, #2d1b8a 100%);
+        padding: 48px 40px 36px;
+        position: relative;
+        overflow: hidden;
+        animation: fadeDown 0.6s ease both;
+      }
+      .page-hero::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent), var(--teal), var(--gold));
+      }
+      .hero-shape {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.10;
+        animation: float 7s ease-in-out infinite;
+      }
+      .hero-shape.a { width:220px;height:220px; top:-80px; right:-50px;  background:#fff; }
+      .hero-shape.b { width:130px;height:130px; bottom:-50px; left:38%; background:var(--teal); animation-delay:-3.5s; }
+      .hero-shape.c { width:70px; height:70px;  top:24px; right:26%;   background:var(--gold);  animation-delay:-1.8s; }
+
+      .hero-eyebrow {
+        display: inline-flex;
         align-items: center;
-        padding: 40px 20px 60px;
-      }
-
-      h2.page-title {
-        color: #fff;
-        font-size: 2rem;
+        gap: 8px;
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.25);
+        border-radius: 40px;
+        padding: 5px 16px;
+        font-size: 11px;
         font-weight: 700;
-        text-align: center;
-        margin-bottom: 36px;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.4);
-      }
-
-      .form-card {
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.15);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-radius: 24px;
-        padding: 40px 48px;
-        width: 100%;
-        max-width: 1000px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-      }
-
-      .section-title {
-        color: rgba(255,255,255,0.7);
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
         letter-spacing: 2px;
-        margin-bottom: 14px;
-        margin-top: 28px;
-        border-bottom: 1px solid rgba(255,255,255,0.15);
-        padding-bottom: 8px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.9);
+        margin-bottom: 16px;
+        backdrop-filter: blur(6px);
+        position: relative;
+        z-index: 1;
+      }
+      .hero-title {
+        font-family: 'Fraunces', serif;
+        font-size: clamp(1.9rem, 3.5vw, 3rem);
+        font-weight: 700;
+        color: #fff;
+        line-height: 1.15;
+        position: relative;
+        z-index: 1;
+      }
+      .hero-title .it { color: #a8eddc; font-style: italic; }
+      .hero-sub {
+        margin-top: 10px;
+        font-size: 14px;
+        color: rgba(255,255,255,0.7);
+        max-width: 500px;
+        line-height: 1.6;
+        position: relative;
+        z-index: 1;
       }
 
-      .field-grid { display: grid; gap: 20px; }
-      .cols-2 { grid-template-columns: 1fr 1fr; }
-      .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
-      .cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
-      .cols-1 { grid-template-columns: 1fr; }
+      /* ── STEP BAR ── */
+      .steps-bar {
+        background: var(--white);
+        border-bottom: 1px solid var(--border);
+        padding: 18px 40px;
+        display: flex;
+        align-items: center;
+        overflow-x: auto;
+        animation: fadeDown 0.5s ease both;
+        animation-delay: 0.1s;
+        opacity: 0;
+      }
+      .step-item { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+      .step-circle {
+        width:32px; height:32px;
+        border-radius:50%;
+        display:flex; align-items:center; justify-content:center;
+        font-size:12px; font-weight:800;
+        border:2px solid var(--border2);
+        color:var(--soft);
+        transition:var(--transition);
+      }
+      .step-circle.done   { background:var(--accent);  border-color:var(--accent);  color:#fff; }
+      .step-circle.active { background:var(--primary); border-color:var(--primary); color:#fff; box-shadow:0 0 0 4px var(--primary-lt); }
+      .step-label { font-size:12px; font-weight:600; color:var(--muted); white-space:nowrap; }
+      .step-label.active-lbl { color:var(--primary); }
+      .step-connector { flex:1; min-width:32px; height:2px; background:var(--border); margin:0 8px; border-radius:2px; }
+      .step-connector.done { background:var(--accent); }
 
-      .field-wrap { display: flex; flex-direction: column; gap: 6px; }
+      /* ── PAGE WRAP ── */
+      .page-wrap {
+        max-width: 1020px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
+        position: relative;
+        z-index: 1;
+        animation: fadeUp 0.6s ease both;
+        animation-delay: 0.2s;
+        opacity: 0;
+      }
+
+      /* ── FORM CARD ── */
+      .form-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+      }
+
+      /* ── SECTION HEAD ── */
+      .section-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 20px 32px;
+        background: var(--bg2);
+        border-bottom: 1px solid var(--border);
+      }
+      .section-head-icon {
+        width: 40px; height: 40px;
+        border-radius: 11px;
+        background: var(--primary-lt);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--primary);
+        font-size: 15px;
+        flex-shrink: 0;
+      }
+      .section-head-icon.gold   { background:var(--gold-lt);   color:#c2700a; }
+      .section-head-icon.teal   { background:var(--teal-lt);   color:#0369a1; }
+      .section-head-icon.purple { background:var(--purple-lt); color:var(--purple); }
+      .section-head-icon.green  { background:var(--green-lt);  color:var(--green); }
+
+      .sh-title { font-weight:800; font-size:14px; color:var(--text); }
+      .sh-sub   { font-size:12px; color:var(--muted); margin-top:2px; }
+
+      /* ── SECTION BODY ── */
+      .section-body {
+        padding: 28px 32px 32px;
+        border-bottom: 1px solid var(--border);
+      }
+      .section-body:last-of-type { border-bottom: none; }
+
+      /* ── GRID ── */
+      .field-grid { display:grid; gap:22px; }
+      .cols-1 { grid-template-columns:1fr; }
+      .cols-2 { grid-template-columns:1fr 1fr; }
+      .cols-3 { grid-template-columns:1fr 1fr 1fr; }
+      .cols-4 { grid-template-columns:1fr 1fr 1fr 1fr; }
+
+      /* ── FIELD WRAP ── */
+      .field-wrap { display:flex; flex-direction:column; gap:7px; position:relative; }
 
       .field-wrap label {
-        color: rgba(255,255,255,0.85);
-        font-size: 0.78rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        color: var(--text2);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .field-wrap label i { color:var(--primary); font-size:11px; width:14px; text-align:center; }
+      .required-dot {
+        width:5px; height:5px;
+        background:var(--danger);
+        border-radius:50%;
+        display:inline-block;
+        margin-left:2px;
+        vertical-align:middle;
       }
 
+      /* ALL INPUTS */
       .field-wrap input[type="text"],
       .field-wrap input[type="number"],
       .field-wrap input[type="url"],
-      .field-wrap textarea {
-        width: 100%;
-        background: rgba(255,255,255,0.1);
-        border: 1px solid rgba(255,255,255,0.2);
-        border-radius: 12px;
-        padding: 12px 16px;
-        color: #fff;
-        font-size: 0.9rem;
-        font-family: 'Inter', sans-serif;
-        outline: none;
-        transition: background 0.2s, border-color 0.2s;
-      }
-      .field-wrap input[type="text"]:focus,
-      .field-wrap input[type="number"]:focus,
-      .field-wrap input[type="url"]:focus,
-      .field-wrap textarea:focus {
-        background: rgba(255,255,255,0.18);
-        border-color: rgba(100,180,255,0.6);
-      }
-      .field-wrap input::placeholder,
-      .field-wrap textarea::placeholder { color: rgba(255,255,255,0.4); }
-
+      .field-wrap input[type="tel"],
+      .field-wrap textarea,
       .field-wrap select {
         width: 100%;
-        background: rgba(255,255,255,0.1);
-        border: 1px solid rgba(255,255,255,0.2);
+        background: var(--bg);
+        border: 1.5px solid var(--border);
         border-radius: 12px;
-        padding: 12px 16px;
-        color: #fff;
-        font-size: 0.9rem;
-        font-family: 'Inter', sans-serif;
+        padding: 11px 16px;
+        color: var(--text);
+        font-size: 14px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        transition: var(--transition);
+        outline: none;
         appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23fff' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 14px center;
-        cursor: pointer; outline: none;
+        -webkit-appearance: none;
       }
+      .field-wrap input:focus,
+      .field-wrap textarea:focus,
       .field-wrap select:focus {
-        background-color: rgba(255,255,255,0.18);
-        border-color: rgba(100,180,255,0.6);
+        background: var(--white);
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px var(--primary-lt);
       }
-      .field-wrap select option { background: #16213e; color: #fff; }
+      .field-wrap input::placeholder,
+      .field-wrap textarea::placeholder { color:var(--soft); }
 
-      .field-wrap input[type="file"] {
-        width: 100%;
-        background: rgba(255,255,255,0.08);
-        border: 2px dashed rgba(255,255,255,0.25);
+      /* Select arrow */
+      .select-wrap { position:relative; }
+      .select-wrap::after {
+        content:'\f107';
+        font-family:'Font Awesome 6 Free';
+        font-weight:900;
+        position:absolute;
+        right:14px; top:50%;
+        transform:translateY(-50%);
+        color:var(--muted);
+        pointer-events:none;
+        font-size:13px;
+      }
+      .select-wrap select { padding-right:36px; cursor:pointer; }
+
+      textarea { resize:vertical; min-height:120px; line-height:1.6; }
+
+      /* ── INVESTMENT RANGE CARD ── */
+      .range-card {
+        background: linear-gradient(135deg, var(--primary-lt), rgba(14,165,233,0.08));
+        border: 1.5px solid rgba(67,97,238,0.15);
+        border-radius: 14px;
+        padding: 20px 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .range-card label { color:var(--text2); font-size:12px; font-weight:700; }
+      .range-card input {
+        background: var(--white) !important;
+        border: 1.5px solid var(--border) !important;
+      }
+      .range-card input:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 4px var(--primary-lt) !important;
+      }
+      .currency-wrap { position:relative; }
+      .currency-wrap::before {
+        content: '₹';
+        position: absolute;
+        left: 14px; top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 14px;
+        pointer-events: none;
+      }
+      .currency-wrap input { padding-left:30px !important; }
+
+      /* ── FILE UPLOAD ── */
+      .file-drop-zone {
+        border: 2px dashed var(--border2);
         border-radius: 12px;
-        padding: 14px 16px;
-        color: rgba(255,255,255,0.7);
-        font-size: 0.85rem;
-        cursor: pointer; outline: none;
-        transition: border-color 0.2s;
+        padding: 22px 16px;
+        text-align: center;
+        background: var(--bg);
+        cursor: pointer;
+        transition: var(--transition);
+        position: relative;
       }
-      .field-wrap input[type="file"]:hover { border-color: rgba(255,255,255,0.5); }
+      .file-drop-zone:hover { border-color:var(--primary); background:var(--primary-lt); }
+      .file-drop-zone input[type="file"] {
+        position:absolute; inset:0;
+        width:100%; height:100%;
+        opacity:0; cursor:pointer;
+        border:none; padding:0; background:none; box-shadow:none;
+      }
+      .file-drop-zone input[type="file"]:focus { box-shadow:none; }
+      .drop-icon { font-size:22px; color:var(--primary); margin-bottom:6px; }
+      .drop-text { font-size:13px; color:var(--muted); font-weight:500; }
+      .drop-text span { color:var(--primary); font-weight:700; }
+      .drop-hint { font-size:11px; color:var(--soft); margin-top:4px; }
 
-      /* MultiSelectField checkbox groups */
+      /* ── CHECKBOX GROUP ── */
       .checkbox-group {
-        background: rgba(255,255,255,0.07);
-        border: 1px solid rgba(255,255,255,0.18);
+        background: var(--bg);
+        border: 1.5px solid var(--border);
         border-radius: 12px;
-        padding: 14px 16px;
+        padding: 12px 14px;
         max-height: 220px;
         overflow-y: auto;
+        transition: var(--transition);
       }
-      .checkbox-group::-webkit-scrollbar { width: 5px; }
-      .checkbox-group::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 4px; }
-      .checkbox-group::-webkit-scrollbar-thumb { background: rgba(100,180,255,0.4); border-radius: 4px; }
+      .checkbox-group:focus-within {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px var(--primary-lt);
+        background: var(--white);
+      }
+      .checkbox-group::-webkit-scrollbar { width:5px; }
+      .checkbox-group::-webkit-scrollbar-track { background:transparent; }
+      .checkbox-group::-webkit-scrollbar-thumb { background:var(--border2); border-radius:10px; }
+      .checkbox-group::-webkit-scrollbar-thumb:hover { background:var(--primary); }
 
-      .checkbox-group ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+      .checkbox-group ul { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:4px; }
       .checkbox-group ul li label {
         display: flex;
         align-items: center;
-        gap: 8px;
-        color: rgba(255,255,255,0.8);
-        font-size: 0.82rem;
-        font-weight: 400;
+        gap: 9px;
+        color: var(--text2);
+        font-size: 13px;
+        font-weight: 500;
         text-transform: none;
         letter-spacing: 0;
         cursor: pointer;
+        padding: 6px 8px;
+        border-radius: 8px;
+        transition: var(--transition);
       }
+      .checkbox-group ul li label:hover { background:var(--primary-lt); color:var(--primary); }
       .checkbox-group ul li label input[type="checkbox"] {
-        width: 15px; height: 15px;
-        accent-color: #4fc3f7;
-        cursor: pointer; flex-shrink: 0;
-        background: unset; border: unset;
-        border-radius: unset; padding: unset;
+        width:16px; height:16px;
+        accent-color:var(--primary);
+        cursor:pointer; flex-shrink:0;
+        background:unset !important; border:unset !important;
+        border-radius:unset !important; padding:unset !important;
+        box-shadow:none !important;
+        appearance:auto !important;
+        -webkit-appearance:auto !important;
       }
 
-      textarea { resize: vertical; min-height: 100px; }
+      /* Chip tags */
+      .selected-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: var(--primary-lt);
+        color: var(--primary);
+        border: 1px solid rgba(67,97,238,0.18);
+        border-radius: 20px;
+        padding: 4px 11px;
+        font-size: 11.5px;
+        font-weight: 700;
+        animation: chipPop 0.2s ease both;
+      }
+      @keyframes chipPop { from{opacity:0;transform:scale(0.85)} to{opacity:1;transform:scale(1)} }
 
-      .field-wrap .errorlist {
-        list-style: none; padding: 0; margin: 4px 0 0;
-        font-size: 0.78rem; color: #ef9a9a;
+      /* Helper text */
+      .field-hint { font-size:11.5px; color:var(--soft); display:flex; align-items:center; gap:5px; margin-top:2px; }
+      .field-hint i { font-size:10px; }
+
+      /* Errors */
+      .errorlist { list-style:none; padding:0; margin:4px 0 0; }
+      .errorlist li { font-size:12px; color:var(--danger); display:flex; align-items:center; gap:5px; }
+      .errorlist li::before { content:'\f071'; font-family:'Font Awesome 6 Free'; font-weight:900; font-size:10px; }
+      .field-wrap.has-error input,
+      .field-wrap.has-error select,
+      .field-wrap.has-error textarea,
+      .field-wrap.has-error .checkbox-group {
+        border-color:var(--danger) !important;
+        box-shadow:0 0 0 3px var(--danger-lt) !important;
       }
 
-      .submit-wrap { display: flex; justify-content: center; margin-top: 36px; }
+      /* ── PROGRESS ── */
+      .form-progress {
+        padding: 20px 32px;
+        background: var(--bg2);
+        border-top: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .progress-label { font-size:12px; font-weight:700; color:var(--muted); flex-shrink:0; }
+      .progress-bar-wrap { flex:1; height:6px; background:var(--border); border-radius:10px; overflow:hidden; }
+      .progress-bar-fill {
+        height:100%;
+        background: linear-gradient(90deg, var(--primary), var(--teal));
+        border-radius:10px;
+        width:0%;
+        transition:width 0.4s ease;
+      }
+      .progress-pct { font-size:12px; font-weight:800; color:var(--primary); flex-shrink:0; min-width:36px; text-align:right; }
+
+      /* ── SUBMIT ── */
+      .submit-area {
+        padding: 26px 32px;
+        background: var(--white);
+        border-top: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .submit-note { font-size:12px; color:var(--muted); display:flex; align-items:center; gap:6px; }
+      .submit-note i { color:var(--accent); }
+
       .btn-submit {
-        background: linear-gradient(135deg, #1565c0, #4fc3f7);
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dk) 100%);
         color: #fff;
         border: none;
         border-radius: 50px;
-        padding: 14px 56px;
-        font-size: 1rem;
-        font-weight: 700;
-        letter-spacing: 1px;
-        text-transform: uppercase;
+        padding: 14px 48px;
+        font-size: 15px;
+        font-weight: 800;
+        font-family: 'Plus Jakarta Sans', sans-serif;
         cursor: pointer;
-        box-shadow: 0 8px 24px rgba(79,195,247,0.3);
-        transition: transform 0.15s, box-shadow 0.15s;
-      }
-      .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(79,195,247,0.45); }
-      .btn-submit:active { transform: translateY(0); }
-
-      @media (max-width: 700px) {
-        .form-card { padding: 28px 20px; }
-        .cols-2, .cols-3, .cols-4 { grid-template-columns: 1fr; }
-      }
-    </style>
-  </head>
-  <body>
-
-    <h2 class="page-title">Investor Profile Setup</h2>
-
-    {% include 'includes/messages.html' %}
-
-    <div class="form-card">
-      <form method="POST" enctype="multipart/form-data" id="form">
-        {% csrf_token %}
-
-        <!-- ── Contact ── -->
-        <div class="section-title">Contact Details</div>
-        <div class="field-grid cols-2">
-          <div class="field-wrap">
-            <label for="{{ investorForm.mobile_number.id_for_label }}">
-              <i class="fa fa-phone me-1"></i> Mobile Number
-            </label>
-            {{ investorForm.mobile_number }}
-            {{ investorForm.mobile_number.errors }}
-          </div>
-          <div class="field-wrap">
-            <label for="{{ investorForm.landline_number.id_for_label }}">
-              <i class="fa fa-phone-alt me-1"></i> Landline Number
-            </label>
-            {{ investorForm.landline_number }}
-            {{ investorForm.landline_number.errors }}
-          </div>
-        </div>
-
-        <div class="field-grid cols-1" style="margin-top: 20px;">
-          <div class="field-wrap">
-            <label for="{{ investorForm.website.id_for_label }}">
-              <i class="fa fa-globe me-1"></i> Website / LinkedIn
-            </label>
-            {{ investorForm.website }}
-            {{ investorForm.website.errors }}
-          </div>
-        </div>
-
-        <!-- ── Location ── -->
-        <div class="section-title">Location</div>
-        <div class="field-grid cols-2">
-          <div class="field-wrap">
-            <label for="{{ investorForm.state.id_for_label }}">
-              <i class="fa fa-map-marker-alt me-1"></i> State
-            </label>
-            {{ investorForm.state }}
-            {{ investorForm.state.errors }}
-          </div>
-          <div class="field-wrap">
-            <label for="{{ investorForm.city.id_for_label }}">
-              <i class="fa fa-city me-1"></i> City
-            </label>
-            {{ investorForm.city }}
-            {{ investorForm.city.errors }}
-          </div>
-        </div>
-
-        <!-- ── Profile ── -->
-        <div class="section-title">Profile</div>
-        <div class="field-grid cols-2">
-          <div class="field-wrap">
-            <label for="{{ investorForm.photo.id_for_label }}">
-              <i class="fa fa-image me-1"></i> Profile Photo
-            </label>
-            {{ investorForm.photo }}
-            {{ investorForm.photo.errors }}
-          </div>
-          <div class="field-wrap">
-            <label for="{{ investorForm.about.id_for_label }}">
-              <i class="fa fa-pen me-1"></i> About Yourself
-            </label>
-            {{ investorForm.about }}
-            {{ investorForm.about.errors }}
-          </div>
-        </div>
-
-        <!-- ── Investment Range ── -->
-        <div class="section-title">Investment Range (INR)</div>
-        <div class="field-grid cols-2">
-          <div class="field-wrap">
-            <label for="{{ investorForm.min_investment_range.id_for_label }}">
-              <i class="fa fa-rupee-sign me-1"></i> Minimum Investment
-            </label>
-            {{ investorForm.min_investment_range }}
-            {{ investorForm.min_investment_range.errors }}
-          </div>
-          <div class="field-wrap">
-            <label for="{{ investorForm.max_investment_range.id_for_label }}">
-              <i class="fa fa-rupee-sign me-1"></i> Maximum Investment
-            </label>
-            {{ investorForm.max_investment_range }}
-            {{ investorForm.max_investment_range.errors }}
-          </div>
-        </div>
-
-        <!-- ── Preferences ── -->
-        <div class="section-title">Investment Preferences</div>
-        <div class="field-grid cols-3">
-          <div class="field-wrap">
-            <label>
-              <i class="fa fa-industry me-1"></i> Focus Industries
-            </label>
-            <div class="checkbox-group">
-              {{ investorForm.focus_industries }}
-            </div>
-            {{ investorForm.focus_industries.errors }}
-          </div>
-          <div class="field-wrap">
-            <label>
-              <i class="fa fa-chart-pie me-1"></i> Focus Sectors
-            </label>
-            <div class="checkbox-group">
-              {{ investorForm.focus_sectors }}
-            </div>
-            {{ investorForm.focus_sectors.errors }}
-          </div>
-          <div class="field-wrap">
-            <label>
-              <i class="fa fa-seedling me-1"></i> Startup Stages
-            </label>
-            <div class="checkbox-group">
-              {{ investorForm.startup_stages }}
-            </div>
-            {{ investorForm.startup_stages.errors }}
-          </div>
-        </div>
-
-        <div class="submit-wrap">
-          <button type="submit" class="btn-submit">
-            <i class="fa fa-paper-plane me-2"></i> Submit
-          </button>
-        </div>
-
-      </form>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Toast container -->
-    <div id="toast-container"></div>
-    <style>
-      #toast-container {
-        position: fixed;
-        top: 24px;
-        right: 24px;
-        z-index: 9999;
+        box-shadow: 0 6px 24px var(--primary-glow);
+        transition: var(--transition);
         display: flex;
-        flex-direction: column;
-        gap: 10px;
-        max-width: 400px;
+        align-items: center;
+        gap: 8px;
+      }
+      .btn-submit:hover { transform:translateY(-2px); box-shadow:0 10px 32px var(--primary-glow); }
+      .btn-submit:active { transform:translateY(0); }
+
+      /* ── PRIVACY ── */
+      .privacy-badge {
+        margin-top: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .privacy-badge i { color:var(--accent); }
+
+      /* ── TOAST ── */
+      #toast-container {
+        position:fixed; top:24px; right:24px;
+        z-index:9999;
+        display:flex; flex-direction:column; gap:10px;
+        max-width:380px;
       }
       .toast-popup {
-        background: #1e1e2e;
-        border-left: 4px solid #ff4444;
-        border-radius: 10px;
-        padding: 16px 20px;
-        color: #fff;
-        font-family: 'Inter', sans-serif;
-        font-size: 0.88rem;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--danger);
+        border-radius: 14px;
+        padding: 16px 18px;
+        color: var(--text);
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 13px;
+        box-shadow: var(--shadow-lg);
         animation: toastIn 0.35s ease-out;
         display: flex;
         gap: 12px;
         align-items: flex-start;
       }
-      .toast-popup.toast-out { animation: toastOut 0.3s ease-in forwards; }
-      .toast-icon { font-size: 1.2rem; color: #ff6b6b; flex-shrink: 0; margin-top: 2px; }
-      .toast-body { flex: 1; }
-      .toast-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 6px; }
-      .toast-list { padding-left: 16px; margin: 0; font-size: 0.82rem; color: rgba(255,255,255,0.8); line-height: 1.6; }
-      .toast-close {
-        background: none; border: none; color: rgba(255,255,255,0.5);
-        font-size: 1.1rem; cursor: pointer; padding: 0; margin-left: 8px; flex-shrink: 0;
+      .toast-popup.toast-out { animation:toastOut 0.3s ease-in forwards; }
+      .toast-icon  { font-size:18px; color:var(--danger); flex-shrink:0; margin-top:1px; }
+      .toast-body  { flex:1; }
+      .toast-title { font-weight:800; font-size:13px; color:var(--text); margin-bottom:6px; }
+      .toast-list  { padding-left:16px; margin:0; font-size:12px; color:var(--muted); line-height:1.7; }
+      .toast-close { background:none; border:none; color:var(--soft); font-size:16px; cursor:pointer; padding:0; margin-left:4px; transition:var(--transition); }
+      .toast-close:hover { color:var(--text); }
+
+      /* ── ANIMATIONS ── */
+      @keyframes fadeDown  { from{opacity:0;transform:translateY(-18px)} to{opacity:1;transform:translateY(0)} }
+      @keyframes fadeUp    { from{opacity:0;transform:translateY(18px)}  to{opacity:1;transform:translateY(0)} }
+      @keyframes float     { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-14px) rotate(5deg)} }
+      @keyframes toastIn   { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
+      @keyframes toastOut  { from{opacity:1} to{opacity:0;transform:translateX(30px)} }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 720px) {
+        .page-wrap { padding:24px 16px 60px; }
+        .section-head, .section-body, .submit-area, .form-progress { padding-left:20px; padding-right:20px; }
+        .cols-2, .cols-3, .cols-4 { grid-template-columns:1fr; }
+        .steps-bar { padding:14px 20px; }
+        .submit-area { flex-direction:column; align-items:stretch; }
+        .btn-submit { justify-content:center; }
+        .page-hero { padding:36px 24px 28px; }
       }
-      .toast-close:hover { color: #fff; }
-      .field-error input, .field-error select, .field-error textarea,
-      .field-error .checkbox-group {
-        border-color: #ff4444 !important;
-        box-shadow: 0 0 0 2px rgba(255,68,68,0.3) !important;
-      }
-      @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-      @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(40px); } }
     </style>
+  </head>
+
+  <body>
+
+    {% include 'includes/navbar.html' %}
+
+    <!-- HERO -->
+    <div class="page-hero">
+      <div class="hero-shape a"></div>
+      <div class="hero-shape b"></div>
+      <div class="hero-shape c"></div>
+      <div class="hero-eyebrow"><i class="fas fa-chart-line"></i> Investor Onboarding</div>
+      <h1 class="hero-title">Set up your <span class="it">investor profile</span></h1>
+      <p class="hero-sub">Tell us about your investment thesis so we can connect you with the most relevant startups on InnoHub.</p>
+    </div>
+
+    <!-- STEPS -->
+    <div class="steps-bar">
+      <div class="step-item">
+        <div class="step-circle done"><i class="fas fa-check"></i></div>
+        <div class="step-label">Account</div>
+      </div>
+      <div class="step-connector done"></div>
+      <div class="step-item">
+        <div class="step-circle active">2</div>
+        <div class="step-label active-lbl">Profile Details</div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item">
+        <div class="step-circle">3</div>
+        <div class="step-label">Investment Thesis</div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item">
+        <div class="step-circle">4</div>
+        <div class="step-label">Review</div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="page-wrap">
+
+      {% include 'includes/messages.html' %}
+
+      <div class="form-card">
+        <form method="POST" enctype="multipart/form-data" id="investorForm" novalidate>
+          {% csrf_token %}
+
+          <!-- ── CONTACT ── -->
+          <div class="section-head">
+            <div class="section-head-icon"><i class="fas fa-address-book"></i></div>
+            <div>
+              <div class="sh-title">Contact Details</div>
+              <div class="sh-sub">How founders and the InnoHub team can reach you</div>
+            </div>
+          </div>
+          <div class="section-body">
+            <div class="field-grid cols-2" style="margin-bottom:22px">
+              <div class="field-wrap">
+                <label for="{{ investorForm.mobile_number.id_for_label }}">
+                  <i class="fas fa-mobile-screen"></i> Mobile Number <span class="required-dot"></span>
+                </label>
+                {{ investorForm.mobile_number }}
+                <div class="field-hint"><i class="fas fa-info-circle"></i> Include country code, e.g. +1 (555) 000-0000</div>
+                {{ investorForm.mobile_number.errors }}
+              </div>
+              <div class="field-wrap">
+                <label for="{{ investorForm.landline_number.id_for_label }}">
+                  <i class="fas fa-phone"></i> Landline Number
+                </label>
+                {{ investorForm.landline_number }}
+                <div class="field-hint"><i class="fas fa-info-circle"></i> Optional — office or direct line</div>
+                {{ investorForm.landline_number.errors }}
+              </div>
+            </div>
+            <div class="field-grid cols-1">
+              <div class="field-wrap">
+                <label for="{{ investorForm.website.id_for_label }}">
+                  <i class="fas fa-globe"></i> Website / LinkedIn <span class="required-dot"></span>
+                </label>
+                {{ investorForm.website }}
+                <div class="field-hint"><i class="fas fa-info-circle"></i> e.g. https://linkedin.com/in/yourname or your firm's website</div>
+                {{ investorForm.website.errors }}
+              </div>
+            </div>
+          </div>
+
+          <!-- ── LOCATION ── -->
+          <div class="section-head">
+            <div class="section-head-icon teal"><i class="fas fa-location-dot"></i></div>
+            <div>
+              <div class="sh-title">Location</div>
+              <div class="sh-sub">Helps surface you in regional founder searches</div>
+            </div>
+          </div>
+          <div class="section-body">
+            <div class="field-grid cols-2">
+              <div class="field-wrap">
+                <label for="{{ investorForm.state.id_for_label }}">
+                  <i class="fas fa-map"></i> State / Province <span class="required-dot"></span>
+                </label>
+                <div class="select-wrap">{{ investorForm.state }}</div>
+                {{ investorForm.state.errors }}
+              </div>
+              <div class="field-wrap">
+                <label for="{{ investorForm.city.id_for_label }}">
+                  <i class="fas fa-city"></i> City <span class="required-dot"></span>
+                </label>
+                {{ investorForm.city }}
+                {{ investorForm.city.errors }}
+              </div>
+            </div>
+          </div>
+
+          <!-- ── PROFILE ── -->
+          <div class="section-head">
+            <div class="section-head-icon gold"><i class="fas fa-id-badge"></i></div>
+            <div>
+              <div class="sh-title">Public Profile</div>
+              <div class="sh-sub">Shown to founders on the InnoHub discovery page</div>
+            </div>
+          </div>
+          <div class="section-body">
+            <div class="field-grid cols-2">
+              <div class="field-wrap">
+                <label for="{{ investorForm.photo.id_for_label }}">
+                  <i class="fas fa-camera"></i> Profile Photo
+                </label>
+                <div class="file-drop-zone">
+                  {{ investorForm.photo }}
+                  <div class="drop-icon"><i class="fas fa-cloud-arrow-up"></i></div>
+                  <div class="drop-text"><span>Click to upload</span> or drag & drop</div>
+                  <div class="drop-hint">PNG, JPG up to 5 MB · Recommended 400×400 px</div>
+                </div>
+                {{ investorForm.photo.errors }}
+              </div>
+              <div class="field-wrap">
+                <label for="{{ investorForm.about.id_for_label }}">
+                  <i class="fas fa-pen-nib"></i> About Yourself <span class="required-dot"></span>
+                </label>
+                {{ investorForm.about }}
+                <div class="field-hint"><i class="fas fa-info-circle"></i> Briefly describe your background, fund size, and what you look for in founders.</div>
+                {{ investorForm.about.errors }}
+              </div>
+            </div>
+          </div>
+
+          <!-- ── INVESTMENT RANGE ── -->
+          <div class="section-head">
+            <div class="section-head-icon green"><i class="fas fa-indian-rupee-sign"></i></div>
+            <div>
+              <div class="sh-title">Investment Range (INR)</div>
+              <div class="sh-sub">Ticket size you typically write — shown to founders to gauge fit</div>
+            </div>
+          </div>
+          <div class="section-body">
+            <div class="field-grid cols-2">
+              <div class="range-card field-wrap">
+                <label for="{{ investorForm.min_investment_range.id_for_label }}">
+                  <i class="fas fa-arrow-down-1-9"></i> Minimum Investment <span class="required-dot"></span>
+                </label>
+                <div class="currency-wrap">{{ investorForm.min_investment_range }}</div>
+                <div class="field-hint"><i class="fas fa-info-circle"></i> e.g. 500000 for ₹5 Lakh</div>
+                {{ investorForm.min_investment_range.errors }}
+              </div>
+              <div class="range-card field-wrap">
+                <label for="{{ investorForm.max_investment_range.id_for_label }}">
+                  <i class="fas fa-arrow-up-9-1"></i> Maximum Investment <span class="required-dot"></span>
+                </label>
+                <div class="currency-wrap">{{ investorForm.max_investment_range }}</div>
+                <div class="field-hint"><i class="fas fa-info-circle"></i> e.g. 5000000 for ₹50 Lakh</div>
+                {{ investorForm.max_investment_range.errors }}
+              </div>
+            </div>
+          </div>
+
+          <!-- ── PREFERENCES ── -->
+          <div class="section-head">
+            <div class="section-head-icon purple"><i class="fas fa-sliders"></i></div>
+            <div>
+              <div class="sh-title">Investment Preferences</div>
+              <div class="sh-sub">Select all that apply — used to match you with the right deals</div>
+            </div>
+          </div>
+          <div class="section-body">
+            <div class="field-grid cols-3">
+
+              <div class="field-wrap">
+                <label>
+                  <i class="fas fa-industry"></i> Focus Industries <span class="required-dot"></span>
+                </label>
+                <div class="checkbox-group" id="industryGroup">
+                  {{ investorForm.focus_industries }}
+                </div>
+                <div class="selected-chips" id="industryChips"></div>
+                {{ investorForm.focus_industries.errors }}
+              </div>
+
+              <div class="field-wrap">
+                <label>
+                  <i class="fas fa-chart-pie"></i> Focus Sectors <span class="required-dot"></span>
+                </label>
+                <div class="checkbox-group" id="sectorGroup">
+                  {{ investorForm.focus_sectors }}
+                </div>
+                <div class="selected-chips" id="sectorChips"></div>
+                {{ investorForm.focus_sectors.errors }}
+              </div>
+
+              <div class="field-wrap">
+                <label>
+                  <i class="fas fa-seedling"></i> Startup Stages <span class="required-dot"></span>
+                </label>
+                <div class="checkbox-group" id="stagesGroup">
+                  {{ investorForm.startup_stages }}
+                </div>
+                <div class="selected-chips" id="stagesChips"></div>
+                {{ investorForm.startup_stages.errors }}
+              </div>
+
+            </div>
+          </div>
+
+          <!-- PROGRESS -->
+          <div class="form-progress">
+            <span class="progress-label">Profile completeness</span>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" id="progressFill"></div>
+            </div>
+            <span class="progress-pct" id="progressPct">0%</span>
+          </div>
+
+          <!-- SUBMIT -->
+          <div class="submit-area">
+            <div class="submit-note">
+              <i class="fas fa-shield-halved"></i>
+              Your information is private and only shared with your permission.
+            </div>
+            <button type="submit" class="btn-submit">
+              <i class="fas fa-paper-plane"></i> Save Profile
+            </button>
+          </div>
+
+        </form>
+      </div><!-- /form-card -->
+
+      <div class="privacy-badge">
+        <i class="fas fa-lock"></i> Secured with 256-bit SSL &nbsp;·&nbsp;
+        <i class="fas fa-eye-slash"></i> Never sold to third parties
+      </div>
+
+    </div><!-- /page-wrap -->
+
+    <div id="toast-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-    (function() {
-      const form = document.querySelector('form');
-      if (!form) return;
+    (function () {
 
-      form.addEventListener('submit', function(e) {
-        // Clear previous errors
-        document.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
+      /* ── LIVE CHIP TAGS ── */
+      function initChips(groupId, chipsId) {
+        const group = document.getElementById(groupId);
+        const chips = document.getElementById(chipsId);
+        if (!group || !chips) return;
+        function render() {
+          chips.innerHTML = '';
+          group.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
+            const lbl  = cb.closest('label') || cb.nextElementSibling;
+            const text = lbl ? lbl.textContent.trim() : cb.value;
+            const chip = document.createElement('span');
+            chip.className = 'chip';
+            chip.innerHTML = '<i class="fas fa-check" style="font-size:9px"></i> ' + text;
+            chips.appendChild(chip);
+          });
+        }
+        group.addEventListener('change', render);
+        render();
+      }
+      initChips('industryGroup', 'industryChips');
+      initChips('sectorGroup',   'sectorChips');
+      initChips('stagesGroup',   'stagesChips');
 
-        const missing = [];
-        const firstBad = [];
+      /* ── PROGRESS BAR ── */
+      const fill = document.getElementById('progressFill');
+      const pct  = document.getElementById('progressPct');
+      function updateProgress() {
+        const texts  = [...document.querySelectorAll('#investorForm input[type="text"], #investorForm input[type="number"], #investorForm input[type="url"], #investorForm input[type="tel"], #investorForm textarea, #investorForm select')];
+        const groups = [...document.querySelectorAll('#investorForm .checkbox-group')];
+        const total  = texts.length + groups.length;
+        const filled = texts.filter(f => f.value && f.value.trim()).length
+                     + groups.filter(g => g.querySelectorAll('input[type="checkbox"]:checked').length > 0).length;
+        const p = total ? Math.round((filled / total) * 100) : 0;
+        fill.style.width = p + '%';
+        pct.textContent  = p + '%';
+      }
+      document.getElementById('investorForm').addEventListener('change', updateProgress);
+      document.getElementById('investorForm').addEventListener('input',  updateProgress);
+      updateProgress();
 
-        // Check text/number/url inputs and textareas
+      /* ── FILE LABEL ── */
+      const fileInput = document.querySelector('input[type="file"]');
+      if (fileInput) {
+        fileInput.addEventListener('change', () => {
+          const dt = fileInput.closest('.file-drop-zone')?.querySelector('.drop-text');
+          if (dt && fileInput.files[0]) dt.innerHTML = '<span>' + fileInput.files[0].name + '</span>';
+        });
+      }
+
+      /* ── VALIDATION + TOAST ── */
+      const form = document.getElementById('investorForm');
+      form.addEventListener('submit', function (e) {
+        document.querySelectorAll('.field-wrap.has-error').forEach(el => el.classList.remove('has-error'));
+        const missing = [], firstBad = [];
+
         form.querySelectorAll('.field-wrap').forEach(wrap => {
-          const label = wrap.querySelector('label');
-          const labelText = label ? label.textContent.trim() : 'Field';
+          const label     = wrap.querySelector('label');
+          const labelText = label ? label.textContent.replace('●','').trim() : 'Field';
+          const isReq     = !!wrap.querySelector('.required-dot');
+          if (!isReq) return;
 
-          // Check input fields (text, number, url)
-          const input = wrap.querySelector('input[type="text"], input[type="number"], input[type="url"]');
-          if (input && !input.value.trim()) {
-            missing.push(labelText);
-            wrap.classList.add('field-error');
-            firstBad.push(wrap);
-            return;
-          }
-
-          // Check textarea
+          const input    = wrap.querySelector('input[type="text"], input[type="number"], input[type="url"], input[type="tel"]');
           const textarea = wrap.querySelector('textarea');
-          if (textarea && !textarea.value.trim()) {
-            missing.push(labelText);
-            wrap.classList.add('field-error');
-            firstBad.push(wrap);
-            return;
-          }
+          const select   = wrap.querySelector('select');
+          const cbGroup  = wrap.querySelector('.checkbox-group');
 
-          // Check select (not default "----------")
-          const select = wrap.querySelector('select');
-          if (select && (!select.value || select.value === '')) {
-            missing.push(labelText);
-            wrap.classList.add('field-error');
-            firstBad.push(wrap);
-            return;
-          }
-
-          // Check checkbox groups (MultiSelectField) — at least one must be checked
-          const cbGroup = wrap.querySelector('.checkbox-group');
-          if (cbGroup) {
-            const checked = cbGroup.querySelectorAll('input[type="checkbox"]:checked');
-            if (checked.length === 0) {
-              missing.push(labelText);
-              wrap.classList.add('field-error');
-              firstBad.push(wrap);
-            }
-          }
+          if      (input    && !input.value.trim())        { missing.push(labelText); wrap.classList.add('has-error'); firstBad.push(wrap); }
+          else if (textarea && !textarea.value.trim())     { missing.push(labelText); wrap.classList.add('has-error'); firstBad.push(wrap); }
+          else if (select   && !select.value)              { missing.push(labelText); wrap.classList.add('has-error'); firstBad.push(wrap); }
+          else if (cbGroup  && cbGroup.querySelectorAll('input[type="checkbox"]:checked').length === 0) {
+                                                             missing.push(labelText); wrap.classList.add('has-error'); firstBad.push(wrap); }
         });
 
-        if (missing.length > 0) {
+        if (missing.length) {
           e.preventDefault();
           showToast(missing);
-          if (firstBad.length > 0) {
-            firstBad[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
+          if (firstBad[0]) firstBad[0].scrollIntoView({ behavior:'smooth', block:'center' });
         }
       });
 
       function showToast(fields) {
-        const container = document.getElementById('toast-container');
-        // Remove existing toasts
-        container.innerHTML = '';
-
-        const listItems = fields.map(f => '<li>' + f + '</li>').join('');
-        const toast = document.createElement('div');
-        toast.className = 'toast-popup';
-        toast.innerHTML = `
-          <span class="toast-icon"><i class="fa fa-exclamation-circle"></i></span>
-          <div class="toast-body">
-            <div class="toast-title">Please fill all required fields</div>
-            <ol class="toast-list">${listItems}</ol>
-          </div>
-          <button class="toast-close" onclick="this.parentElement.classList.add('toast-out'); setTimeout(() => this.parentElement.remove(), 300);">&times;</button>
-        `;
-        container.appendChild(toast);
-
-        // Auto-dismiss after 8 seconds
-        setTimeout(() => {
-          if (toast.parentElement) {
-            toast.classList.add('toast-out');
-            setTimeout(() => toast.remove(), 300);
-          }
-        }, 8000);
+        const c = document.getElementById('toast-container');
+        c.innerHTML = '';
+        const t = document.createElement('div');
+        t.className = 'toast-popup';
+        t.innerHTML =
+          '<span class="toast-icon"><i class="fas fa-circle-exclamation"></i></span>' +
+          '<div class="toast-body">' +
+            '<div class="toast-title">Please complete required fields</div>' +
+            '<ol class="toast-list">' + fields.map(f => '<li>' + f + '</li>').join('') + '</ol>' +
+          '</div>' +
+          '<button class="toast-close" onclick="this.parentElement.classList.add(\'toast-out\');setTimeout(()=>this.parentElement.remove(),300)">&times;</button>';
+        c.appendChild(t);
+        setTimeout(() => { if (t.parentElement) { t.classList.add('toast-out'); setTimeout(() => t.remove(), 300); } }, 8000);
       }
+
     })();
     </script>
   </body>
