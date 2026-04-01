@@ -114,4 +114,10 @@ CSRF_TRUSTED_ORIGINS = [
     "http://incubetor.online",
     "http://www.incubetor.online",
     "https://startup-incubator-162e274e6e33.herokuapp.com",
+    # Render
+    "https://*.onrender.com",
+    # Railway
+    "https://*.railway.app",
+    # Fly.io
+    "https://*.fly.dev",
 ]
