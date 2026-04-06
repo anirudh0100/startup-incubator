@@ -7,131 +7,694 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,700;0,800;1,300;1,700&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Submit Project — InnoHub</title>
 
-    <!-- Bootstrap CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-      integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-
-    <script src="https://kit.fontawesome.com/b8f054bdd1.js" crossorigin="anonymous"></script>
     <style>
+      /* ═══════════════════════════════
+         DESIGN TOKENS
+      ═══════════════════════════════ */
+      :root {
+        --white:        #ffffff;
+        --bg:           #f4f6fb;
+        --bg2:          #eef1f8;
+        --border:       #e2e8f4;
+        --border2:      #ccd5ea;
+        --primary:      #4361ee;
+        --primary-dk:   #3a0ca3;
+        --primary-lt:   rgba(67,97,238,0.10);
+        --primary-glow: rgba(67,97,238,0.22);
+        --accent:       #06d6a0;
+        --accent-lt:    rgba(6,214,160,0.12);
+        --gold:         #f4a261;
+        --gold-lt:      rgba(244,162,97,0.13);
+        --purple:       #7c3aed;
+        --purple-lt:    rgba(124,58,237,0.10);
+        --danger:       #ef4444;
+        --danger-lt:    rgba(239,68,68,0.10);
+        --text:         #1a2340;
+        --text2:        #374151;
+        --muted:        #7485a8;
+        --soft:         #aab4cc;
+        --shadow-sm:    0 2px 12px rgba(67,97,238,0.08);
+        --shadow-md:    0 8px 32px rgba(67,97,238,0.13);
+        --shadow-lg:    0 24px 64px rgba(67,97,238,0.18);
+        --radius:       16px;
+        --transition:   all 0.25s cubic-bezier(0.4,0,0.2,1);
+      }
+
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
       body {
-        background: rgb(131, 58, 180);
-        background: linear-gradient(
-          90deg,
-          rgba(131, 58, 180, 1) 0%,
-          rgba(253, 29, 29, 1) 50%,
-          rgba(252, 176, 69, 1) 100%
-        );
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
       }
-      .container {
-        background-color: rgba(255, 255, 255, 0.5);
-        max-width: 1000px;
-        margin: auto;
+
+      /* ── AMBIENT BG ── */
+      body::before {
+        content: '';
+        position: fixed; inset: 0;
+        background:
+          radial-gradient(ellipse 70% 45% at 0% 0%,    rgba(67,97,238,0.07) 0%, transparent 55%),
+          radial-gradient(ellipse 55% 40% at 100% 100%, rgba(6,214,160,0.07) 0%, transparent 55%),
+          radial-gradient(ellipse 40% 30% at 55% 45%,  rgba(124,58,237,0.04) 0%, transparent 55%);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* ── HERO HEADER ── */
+      .page-hero {
+        background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 60%, #2d1b8a 100%);
+        padding: 52px 40px 40px;
+        position: relative;
+        overflow: hidden;
+        animation: fadeDown 0.6s ease both;
+      }
+      .page-hero::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent), var(--primary), var(--gold));
+      }
+      .hero-shape {
+        position: absolute; border-radius: 50%;
+        opacity: 0.10; animation: float 7s ease-in-out infinite;
+      }
+      .hero-shape.a { width:220px;height:220px; top:-80px; right:-50px; background:#fff; }
+      .hero-shape.b { width:130px;height:130px; bottom:-50px; left:38%; background:var(--accent); animation-delay:-3.5s; }
+      .hero-shape.c { width:70px; height:70px;  top:24px; right:26%;   background:var(--gold);   animation-delay:-1.8s; }
+
+      .hero-eyebrow {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.25);
+        border-radius: 40px; padding: 5px 16px;
+        font-size: 11px; font-weight: 700;
+        letter-spacing: 2px; text-transform: uppercase;
+        color: rgba(255,255,255,0.9);
+        margin-bottom: 14px;
+        backdrop-filter: blur(6px);
+        position: relative; z-index: 1;
+      }
+      .hero-title {
+        font-family: 'Fraunces', serif;
+        font-size: clamp(1.9rem, 3.5vw, 3rem);
+        font-weight: 800; color: #fff;
+        line-height: 1.12;
+        position: relative; z-index: 1;
+      }
+      .hero-title .it { color: #a8eddc; font-style: italic; }
+      .hero-sub {
+        margin-top: 10px;
+        font-size: 14px; color: rgba(255,255,255,0.7);
+        max-width: 520px; line-height: 1.65;
+        position: relative; z-index: 1;
+      }
+
+      /* ── STEP BAR ── */
+      .steps-bar {
+        background: var(--white);
+        border-bottom: 1px solid var(--border);
+        padding: 18px 40px;
+        display: flex; align-items: center;
+        overflow-x: auto;
+        animation: fadeDown 0.5s ease 0.1s both;
+        opacity: 0;
+      }
+      .step-item { display:flex;align-items:center;gap:10px;flex-shrink:0; }
+      .step-circle {
+        width:32px;height:32px;border-radius:50%;
+        display:flex;align-items:center;justify-content:center;
+        font-size:12px;font-weight:800;
+        border:2px solid var(--border2);color:var(--soft);
+        transition:var(--transition);
+      }
+      .step-circle.done   { background:var(--accent); border-color:var(--accent); color:#fff; }
+      .step-circle.active { background:var(--primary); border-color:var(--primary); color:#fff; box-shadow:0 0 0 4px var(--primary-lt); }
+      .step-label { font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap; }
+      .step-label.active-lbl { color:var(--primary); }
+      .step-connector { flex:1;min-width:32px;height:2px;background:var(--border);margin:0 8px;border-radius:2px; }
+      .step-connector.done { background:var(--accent); }
+
+      /* ── PAGE WRAP ── */
+      .page-wrap {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
+        position: relative; z-index: 1;
+        animation: fadeUp 0.6s ease 0.2s both;
+        opacity: 0;
+      }
+
+      /* ── FORM CARD ── */
+      .form-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+      }
+
+      /* ── SECTION HEAD ── */
+      .section-head {
+        display: flex; align-items: center; gap: 14px;
+        padding: 22px 32px;
+        background: var(--bg2);
+        border-bottom: 1px solid var(--border);
+      }
+      .section-head-icon {
+        width: 42px; height: 42px;
+        border-radius: 12px;
+        background: var(--primary-lt);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--primary); font-size: 16px; flex-shrink: 0;
+      }
+      .sh-title { font-weight:800;font-size:15px;color:var(--text); }
+      .sh-sub   { font-size:12px;color:var(--muted);margin-top:2px; }
+
+      /* ── FORM BODY ── */
+      .form-body {
+        padding: 32px 32px 36px;
+      }
+
+      /* ── CRISPY FORMS OVERRIDES ── */
+
+      /* Labels */
+      .form-body label,
+      .form-body .col-form-label {
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        color: var(--text2) !important;
+        letter-spacing: 0.4px !important;
+        margin-bottom: 7px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        text-shadow: none !important;
+        opacity: 1 !important;
+      }
+
+      /* All text / number / url / select inputs */
+      .form-body input[type="text"],
+      .form-body input[type="number"],
+      .form-body input[type="url"],
+      .form-body input[type="email"],
+      .form-body input[type="tel"],
+      .form-body input[type="date"],
+      .form-body input[type="file"],
+      .form-body textarea,
+      .form-body select,
+      .form-body .form-control,
+      .form-body .form-select {
+        width: 100% !important;
+        background: var(--bg) !important;
+        border: 1.5px solid var(--border) !important;
+        border-radius: 12px !important;
+        padding: 11px 16px !important;
+        color: var(--text) !important;
+        font-size: 14px !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        transition: var(--transition) !important;
+        outline: none !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        box-shadow: none !important;
+        /* reset old pill styles */
+        border-left: 1.5px solid var(--border) !important;
+        border-top:  1.5px solid var(--border) !important;
+        border-radius: 12px !important;
+        backdrop-filter: none !important;
+        text-shadow: none !important;
+        margin-bottom: 0 !important;
+      }
+
+      .form-body input:focus,
+      .form-body textarea:focus,
+      .form-body select:focus,
+      .form-body .form-control:focus,
+      .form-body .form-select:focus {
+        background: var(--white) !important;
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 4px var(--primary-lt) !important;
+      }
+
+      .form-body input::placeholder,
+      .form-body textarea::placeholder { color: var(--soft) !important; }
+
+      .form-body textarea { resize: vertical !important; min-height: 120px !important; line-height: 1.65 !important; border-radius: 14px !important; }
+
+      /* File input special */
+      .form-body input[type="file"] {
+        padding: 10px 14px !important;
+        cursor: pointer !important;
+      }
+
+      /* Select arrow */
+      .form-body .select-wrap,
+      .form-body .mb-3:has(select),
+      .form-body .form-group:has(select) { position: relative; }
+
+      .form-body select { padding-right: 36px !important; cursor: pointer !important; }
+
+      /* Help text */
+      .form-body .form-text,
+      .form-body small.text-muted {
+        font-size: 11.5px !important;
+        color: var(--soft) !important;
+        margin-top: 5px !important;
+        display: block !important;
+      }
+
+      /* Error messages */
+      .form-body .invalid-feedback,
+      .form-body .errorlist {
+        list-style: none !important;
+        padding: 0 !important;
+        margin: 5px 0 0 !important;
+        font-size: 12px !important;
+        color: var(--danger) !important;
+      }
+      .form-body .is-invalid,
+      .form-body input.is-invalid,
+      .form-body select.is-invalid,
+      .form-body textarea.is-invalid {
+        border-color: var(--danger) !important;
+        box-shadow: 0 0 0 3px var(--danger-lt) !important;
+      }
+
+      /* Row/Col spacing from crispy */
+      .form-body .row { gap: 0; }
+      .form-body .mb-3,
+      .form-body .form-group { margin-bottom: 22px !important; }
+
+      /* ── SUBMIT AREA ── */
+      .submit-area {
+        padding: 26px 32px;
+        background: var(--bg2);
+        border-top: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .submit-note {
+        font-size: 12px; color: var(--muted);
+        display: flex; align-items: center; gap: 7px;
+      }
+      .submit-note i { color: var(--accent); }
+
+      .btn-submit {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dk) 100%);
+        color: #fff !important;
+        border: none !important;
+        border-radius: 50px !important;
+        padding: 14px 48px !important;
+        font-size: 15px !important;
+        font-weight: 800 !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        cursor: pointer !important;
+        box-shadow: 0 6px 24px var(--primary-glow) !important;
+        transition: var(--transition) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        text-shadow: none !important;
+        backdrop-filter: none !important;
+        border-left: none !important;
+        border-top: none !important;
+      }
+      .btn-submit:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 10px 32px var(--primary-glow) !important;
+      }
+      .btn-submit:active { transform: translateY(0) !important; }
+
+      /* ── PROGRESS BAR ── */
+      .form-progress {
+        padding: 18px 32px;
+        background: var(--white);
+        border-top: 1px solid var(--border);
+        display: flex; align-items: center; gap: 16px;
+      }
+      .progress-label { font-size:12px;font-weight:700;color:var(--muted);flex-shrink:0; }
+      .progress-bar-wrap { flex:1;height:6px;background:var(--border);border-radius:10px;overflow:hidden; }
+      .progress-bar-fill {
+        height:100%;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        border-radius:10px;width:0%;
+        transition:width 0.4s ease;
+      }
+      .progress-pct { font-size:12px;font-weight:800;color:var(--primary);flex-shrink:0;min-width:36px;text-align:right; }
+
+      /* ── TIPS SIDEBAR CARD ── */
+      .tips-card {
+        background: var(--white);
+        border: 1.5px solid var(--border);
+        border-radius: 20px;
+        padding: 26px 24px;
+        box-shadow: var(--shadow-sm);
+        position: sticky;
+        top: 90px;
+      }
+      .tips-title {
+        font-family: 'Fraunces', serif;
+        font-size: 17px; font-weight: 800;
+        color: var(--text); margin-bottom: 18px;
+        display: flex; align-items: center; gap: 8px;
+      }
+      .tips-title i { color: var(--gold); }
+      .tip-item {
+        display: flex; gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .tip-item:last-child { border-bottom: none; padding-bottom: 0; }
+      .tip-icon {
+        width: 34px; height: 34px;
+        border-radius: 10px;
+        background: var(--primary-lt);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--primary); font-size: 13px; flex-shrink: 0;
+      }
+      .tip-text-title { font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px; }
+      .tip-text-sub   { font-size:12px;color:var(--muted);line-height:1.55; }
+
+      /* ── PRIVACY ── */
+      .privacy-badge {
         margin-top: 20px;
-        border-radius: 40px;
-        box-shadow: 20px 20px 40px -6px rgba(0, 0, 0, 0.2);
-        backdrop-filter: blur(10px);
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        font-size: 12px; color: var(--muted);
       }
-      input,
-      select {
-        resize: none;
-        background: transparent;
-        width: 90%;
-        padding: 1em;
-        margin-bottom: 2em;
-        border: none;
-        border-left: 1px solid var(--white);
-        border-top: 1px solid var(--white);
-        border-radius: 5000px;
-        backdrop-filter: blur(5px);
-        box-shadow: 4px 4px 60px rgba(0, 0, 0, 0.2);
-        color: black;
-        font-family: Montserrat, sans-serif;
-        font-weight: 500;
-        transition: all 0.2s ease-in-out;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      .privacy-badge i { color: var(--accent); }
+
+      /* ── TOAST ── */
+      #toast-container {
+        position:fixed;top:24px;right:24px;z-index:9999;
+        display:flex;flex-direction:column;gap:10px;max-width:380px;
       }
-      .container h1 {
-        text-align: center;
+      .toast-popup {
+        background:var(--white);border:1px solid var(--border);
+        border-left:4px solid var(--danger);border-radius:14px;
+        padding:16px 18px;color:var(--text);
+        font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;
+        box-shadow:var(--shadow-lg);animation:toastIn 0.35s ease-out;
+        display:flex;gap:12px;align-items:flex-start;
       }
-      label {
-        font-weight: 500;
-        color: #fff;
-        opacity: 0.7;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-      }
-      button {
-        resize: none;
-        background: transparent;
-        background-color: rgba(255, 51, 0, 0.904);
-        padding: 1em;
-        border: none;
-        border-left: 1px solid var(--white);
-        border-top: 1px solid var(--white);
-        border-radius: 500px;
-        backdrop-filter: blur(5px);
-        box-shadow: 4px 4px 60px rgba(0, 0, 0, 0.2);
-        color: #fff;
-        font-family: Montserrat, sans-serif;
-        font-weight: 500;
-        transition: all 0.2s ease-in-out;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-      }
-      h1 {
-        font-weight: 800;
-        color: #fff;
-        opacity: 0.7;
-        margin-bottom: 50px;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      .toast-popup.toast-out { animation:toastOut 0.3s ease-in forwards; }
+      .toast-icon  { font-size:18px;color:var(--danger);flex-shrink:0;margin-top:1px; }
+      .toast-body  { flex:1; }
+      .toast-title { font-weight:800;font-size:13px;color:var(--text);margin-bottom:6px; }
+      .toast-list  { padding-left:16px;margin:0;font-size:12px;color:var(--muted);line-height:1.7; }
+      .toast-close { background:none;border:none;color:var(--soft);font-size:16px;cursor:pointer;padding:0;margin-left:4px; }
+      .toast-close:hover { color:var(--text); }
+
+      /* ── ANIMATIONS ── */
+      @keyframes fadeDown { from{opacity:0;transform:translateY(-18px)} to{opacity:1;transform:translateY(0)} }
+      @keyframes fadeUp   { from{opacity:0;transform:translateY(18px)}  to{opacity:1;transform:translateY(0)} }
+      @keyframes float    { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-14px) rotate(5deg)} }
+      @keyframes toastIn  { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
+      @keyframes toastOut { from{opacity:1} to{opacity:0;transform:translateX(30px)} }
+      @keyframes chipPop  { from{opacity:0;transform:scale(0.85)} to{opacity:1;transform:scale(1)} }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width:768px) {
+        .tips-card { display:none; }
+        .page-wrap { padding:24px 16px 60px; }
+        .section-head, .form-body, .submit-area, .form-progress { padding-left:20px;padding-right:20px; }
+        .page-hero { padding:36px 24px 28px; }
+        .steps-bar { padding:14px 20px; }
+        .submit-area { flex-direction:column;align-items:stretch; }
+        .btn-submit { justify-content:center; }
       }
     </style>
-    <title>Submit Project</title>
   </head>
-  <body onload="loaded()">
-    <div class="container py-5">
-      <h1>Project Submission</h1>
-      <form id="form" method="POST" enctype="multipart/form-data">
-        {% include 'includes/messages.html' %}
-        {% csrf_token %}
-        {{ project_form|crispy }}
-        <div class="row my-4">
-          <button class="mx-auto w-25" type="submit">Submit</button>
-        </div>
-      </form>
+
+  <body>
+
+    {% include 'includes/navbar.html' %}
+
+    <!-- HERO -->
+    <div class="page-hero">
+      <div class="hero-shape a"></div>
+      <div class="hero-shape b"></div>
+      <div class="hero-shape c"></div>
+      <div class="hero-eyebrow"><i class="fas fa-paper-plane"></i> Idea Submission</div>
+      <h1 class="hero-title">Pitch your <span class="it">startup idea</span></h1>
+      <p class="hero-sub">Submit your project and get discovered by 180+ active investors and 240+ mentors on the InnoHub platform.</p>
     </div>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-      crossorigin="anonymous"
-    ></script>
+
+    <!-- STEP BAR -->
+    <div class="steps-bar">
+      <div class="step-item">
+        <div class="step-circle done"><i class="fas fa-check"></i></div>
+        <div class="step-label">Account Setup</div>
+      </div>
+      <div class="step-connector done"></div>
+      <div class="step-item">
+        <div class="step-circle done"><i class="fas fa-check"></i></div>
+        <div class="step-label">Profile Details</div>
+      </div>
+      <div class="step-connector done"></div>
+      <div class="step-item">
+        <div class="step-circle active">3</div>
+        <div class="step-label active-lbl">Submit Project</div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item">
+        <div class="step-circle">4</div>
+        <div class="step-label">Go Live</div>
+      </div>
+    </div>
+
+    <!-- MAIN LAYOUT -->
+    <div class="page-wrap">
+
+      {% include 'includes/messages.html' %}
+
+      <!-- Two-column: form + tips sidebar -->
+      <div style="display:grid;grid-template-columns:1fr 300px;gap:28px;align-items:start">
+
+        <!-- FORM CARD -->
+        <div class="form-card">
+
+          <div class="section-head">
+            <div class="section-head-icon"><i class="fas fa-lightbulb"></i></div>
+            <div>
+              <div class="sh-title">Project Details</div>
+              <div class="sh-sub">Tell us about your idea — the more detail, the better your matches</div>
+            </div>
+          </div>
+
+          <div class="form-body">
+            <form id="projectForm" method="POST" enctype="multipart/form-data" novalidate>
+              {% csrf_token %}
+              {{ project_form|crispy }}
+            </form>
+          </div>
+
+          <!-- PROGRESS -->
+          <div class="form-progress">
+            <span class="progress-label">Form completeness</span>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" id="progressFill"></div>
+            </div>
+            <span class="progress-pct" id="progressPct">0%</span>
+          </div>
+
+          <!-- SUBMIT -->
+          <div class="submit-area">
+            <div class="submit-note">
+              <i class="fas fa-shield-halved"></i>
+              Your project is reviewed before going live. We typically respond within 48 hours.
+            </div>
+            <button type="submit" form="projectForm" class="btn-submit">
+              <i class="fas fa-paper-plane"></i> Submit Project
+            </button>
+          </div>
+
+        </div><!-- /form-card -->
+
+        <!-- TIPS SIDEBAR -->
+        <div class="tips-card">
+          <div class="tips-title"><i class="fas fa-star"></i> Tips for a strong pitch</div>
+
+          <div class="tip-item">
+            <div class="tip-icon"><i class="fas fa-bullseye"></i></div>
+            <div>
+              <div class="tip-text-title">Be Specific</div>
+              <div class="tip-text-sub">Clearly state the problem you're solving and your unique approach.</div>
+            </div>
+          </div>
+
+          <div class="tip-item">
+            <div class="tip-icon" style="background:var(--accent-lt);color:#059669"><i class="fas fa-users"></i></div>
+            <div>
+              <div class="tip-text-title">Define Your Market</div>
+              <div class="tip-text-sub">Investors want to see TAM/SAM/SOM. Include market size if possible.</div>
+            </div>
+          </div>
+
+          <div class="tip-item">
+            <div class="tip-icon" style="background:var(--gold-lt);color:#c2700a"><i class="fas fa-chart-line"></i></div>
+            <div>
+              <div class="tip-text-title">Show Traction</div>
+              <div class="tip-text-sub">Even early numbers — signups, pilots, or LOIs — build credibility fast.</div>
+            </div>
+          </div>
+
+          <div class="tip-item">
+            <div class="tip-icon" style="background:var(--purple-lt);color:var(--purple)"><i class="fas fa-image"></i></div>
+            <div>
+              <div class="tip-text-title">Use a Great Photo</div>
+              <div class="tip-text-sub">A product screenshot or team photo gets 3× more investor clicks.</div>
+            </div>
+          </div>
+
+          <div class="tip-item">
+            <div class="tip-icon" style="background:rgba(239,68,68,0.10);color:#ef4444"><i class="fas fa-clock"></i></div>
+            <div>
+              <div class="tip-text-title">Keep it Concise</div>
+              <div class="tip-text-sub">Investors read 100s of pitches. Short, punchy descriptions win.</div>
+            </div>
+          </div>
+
+          <!-- mini stat -->
+          <div style="margin-top:20px;padding:16px;background:var(--primary-lt);border:1px solid rgba(67,97,238,0.18);border-radius:14px;text-align:center">
+            <div style="font-family:'Fraunces',serif;font-size:26px;font-weight:800;color:var(--primary)">180+</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Active investors browsing pitches right now</div>
+          </div>
+        </div><!-- /tips-card -->
+
+      </div><!-- /grid -->
+
+      <div class="privacy-badge">
+        <i class="fas fa-lock"></i> Secured with 256-bit SSL &nbsp;·&nbsp;
+        <i class="fas fa-eye-slash"></i> Reviewed before going public
+      </div>
+
+    </div><!-- /page-wrap -->
+
+    <div id="toast-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
     <script>
-      function loaded() {
-        const form = document.getElementById("form");
-        form.classList.add("row", "justify-content-between", "px-4");
-        form.classList.add("gx-3");
-        form.children[1].classList.add("col-md-3", "mx-auto");
-        form.children[2].classList.add("col-md-3", "mx-auto");
-        form.children[3].classList.add("col-md-3", "mx-auto");
-        form.children[4].classList.add("col-6", "mx-auto");
-        form.children[5].classList.add("col-6", "mx-auto");
-        form.children[6].classList.add("col-6", "mx-auto");
-        form.children[7].classList.add("col-6", "mx-auto");
-        form.children[8].classList.add("col-6", "mx-auto");
-        form.children[9].classList.add("col-6", "mx-auto");
-        form.children[10].classList.add("col-6", "mx-auto");
-        form.children[11].classList.add("col-6", "mx-auto");
+    (function () {
+
+      /* ── PROGRESS BAR ── */
+      const fill = document.getElementById('progressFill');
+      const pct  = document.getElementById('progressPct');
+
+      function updateProgress() {
+        const fields = [...document.querySelectorAll(
+          '#projectForm input:not([type=hidden]):not([type=file]), #projectForm select, #projectForm textarea'
+        )];
+        const filled = fields.filter(f => f.value && f.value.trim() !== '').length;
+        const p = fields.length ? Math.round((filled / fields.length) * 100) : 0;
+        fill.style.width = p + '%';
+        pct.textContent  = p + '%';
       }
+      document.getElementById('projectForm').addEventListener('input',  updateProgress);
+      document.getElementById('projectForm').addEventListener('change', updateProgress);
+      updateProgress();
+
+      /* ── FILE INPUT LABEL ── */
+      document.querySelectorAll('input[type="file"]').forEach(inp => {
+        inp.addEventListener('change', () => {
+          if (inp.files[0]) {
+            const lbl = inp.previousElementSibling || inp.parentElement.querySelector('label');
+            if (lbl) lbl.dataset.filename = inp.files[0].name;
+          }
+        });
+      });
+
+      /* ── VALIDATION + TOAST ── */
+      const form = document.getElementById('projectForm');
+      form.addEventListener('submit', function (e) {
+        const missing = [], firstBad = [];
+        document.querySelectorAll('.has-error-field').forEach(el => el.classList.remove('has-error-field'));
+
+        form.querySelectorAll('input[type="text"], input[type="url"], input[type="number"], textarea, select').forEach(field => {
+          if (!field.value || !field.value.trim()) {
+            const lbl = form.querySelector(`label[for="${field.id}"]`);
+            missing.push(lbl ? lbl.textContent.trim() : field.name || 'Field');
+            field.style.borderColor = 'var(--danger)';
+            field.style.boxShadow   = '0 0 0 3px var(--danger-lt)';
+            firstBad.push(field);
+            field.addEventListener('input', function restore() {
+              field.style.borderColor = '';
+              field.style.boxShadow   = '';
+              field.removeEventListener('input', restore);
+            });
+          }
+        });
+
+        if (missing.length) {
+          e.preventDefault();
+          showToast(missing);
+          if (firstBad[0]) firstBad[0].scrollIntoView({ behavior:'smooth', block:'center' });
+        }
+      });
+
+      function showToast(fields) {
+        const c = document.getElementById('toast-container');
+        c.innerHTML = '';
+        const t = document.createElement('div');
+        t.className = 'toast-popup';
+        t.innerHTML =
+          '<span class="toast-icon"><i class="fas fa-circle-exclamation"></i></span>' +
+          '<div class="toast-body">' +
+            '<div class="toast-title">Please fill in all required fields</div>' +
+            '<ol class="toast-list">' + fields.map(f => '<li>' + f + '</li>').join('') + '</ol>' +
+          '</div>' +
+          '<button class="toast-close" onclick="this.parentElement.classList.add(\'toast-out\');setTimeout(()=>this.parentElement.remove(),300)">&times;</button>';
+        c.appendChild(t);
+        setTimeout(() => { if (t.parentElement) { t.classList.add('toast-out'); setTimeout(() => t.remove(), 300); } }, 8000);
+      }
+
+      /* ── CRISPY FORM LAYOUT ENHANCEMENT ── */
+      // Add icons to known field labels
+      const labelIcons = {
+        'title':        'fas fa-heading',
+        'description':  'fas fa-align-left',
+        'stage':        'fas fa-chart-line',
+        'industry':     'fas fa-industry',
+        'sector':       'fas fa-building',
+        'photo':        'fas fa-camera',
+        'website':      'fas fa-globe',
+        'team':         'fas fa-users',
+        'problem':      'fas fa-triangle-exclamation',
+        'solution':     'fas fa-lightbulb',
+        'revenue':      'fas fa-indian-rupee-sign',
+        'traction':     'fas fa-rocket',
+        'funding':      'fas fa-coins',
+        'location':     'fas fa-map-marker-alt',
+        'city':         'fas fa-city',
+        'state':        'fas fa-map',
+        'category':     'fas fa-tag',
+        'url':          'fas fa-link',
+      };
+
+      document.querySelectorAll('#projectForm label').forEach(lbl => {
+        const text = lbl.textContent.toLowerCase();
+        for (const [key, icon] of Object.entries(labelIcons)) {
+          if (text.includes(key)) {
+            const i = document.createElement('i');
+            i.className = icon;
+            i.style.cssText = 'color:var(--primary);font-size:11px;width:14px;text-align:center';
+            lbl.prepend(i);
+            break;
+          }
+        }
+      });
+
+    })();
     </script>
   </body>
 </html>
