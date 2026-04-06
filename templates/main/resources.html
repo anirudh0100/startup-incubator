@@ -1,326 +1,561 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="StartUp Incubator Learning Resources — hands-on startup content for entrepreneurs of all levels." />
+  <link rel="icon" type="image/png" href="{% static 'main/logo69.png' %}" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous" />
+  <title>Learning Resources — StartUp Incubator</title>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+/* ── TOKENS ── */
+:root{
+  --navy:#0d1b2a; --navy2:#1b2d45;
+  --gold:#c9902a; --gold2:#f0b429;
+  --cream:#f9f5ee; --red:#b22234;
+  --shadow:0 8px 40px rgba(13,27,42,.13);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--navy);overflow-x:hidden;}
 
-    <title>StartUp Incubator</title>
+/* ── SCROLL PROGRESS ── */
+#progress-bar{position:fixed;top:69px;left:0;height:3px;width:0%;background:linear-gradient(90deg,var(--red),var(--gold2));z-index:2000;transition:width .1s linear;}
+
+/* ── NAVBAR ── */
+.navbar{height:69px;background:var(--navy)!important;border-bottom:3px solid var(--gold);z-index:1050;transition:box-shadow .3s;}
+.navbar.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.4);}
+.nav-link{font-weight:600;letter-spacing:.03em;transition:color .2s;position:relative;}
+.nav-link::after{content:'';position:absolute;bottom:-2px;left:50%;width:0;height:2px;background:var(--gold2);border-radius:2px;transform:translateX(-50%);transition:width .3s;}
+.nav-link:hover{color:var(--gold2)!important;}
+.nav-link:hover::after{width:70%;}
+.dropdown-menu{background:var(--navy2);border:1px solid rgba(201,144,42,.25);border-radius:12px;padding:8px;}
+.dropdown-item{color:rgba(255,255,255,.8);border-radius:8px;padding:10px 16px;font-size:.9rem;transition:all .2s;}
+.dropdown-item:hover{background:rgba(201,144,42,.15);color:var(--gold2);}
+
+/* ── HERO ── */
+.page-hero{
+  margin-top:69px;padding:80px 20px 70px;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 60%,#2a3d5c 100%);
+  position:relative;overflow:hidden;text-align:center;
+}
+.page-hero::before{
+  content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(201,144,42,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(201,144,42,.05) 1px,transparent 1px);
+  background-size:60px 60px;pointer-events:none;
+}
+.page-hero::after{
+  content:'';position:absolute;top:-30%;right:-8%;width:50%;height:200%;
+  background:repeating-linear-gradient(-45deg,transparent,transparent 18px,rgba(178,34,52,.08) 18px,rgba(178,34,52,.08) 36px);
+  pointer-events:none;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(201,144,42,.18);border:1px solid rgba(201,144,42,.5);
+  color:var(--gold2);font-size:.72rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+  padding:5px 16px;border-radius:20px;margin-bottom:20px;
+  animation:fadeDown .55s ease both;
+}
+.page-hero h1{
+  font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.6rem);font-weight:900;
+  color:#fff;line-height:1.1;position:relative;z-index:1;
+  animation:fadeDown .65s .08s ease both;
+}
+.page-hero h1 em{color:var(--gold2);font-style:normal;}
+.hero-divider{width:60px;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--red),var(--gold2));margin:20px auto;animation:fadeDown .65s .15s ease both;}
+.page-hero p{color:rgba(255,255,255,.72);font-size:1.05rem;max-width:600px;margin:0 auto;line-height:1.75;position:relative;z-index:1;animation:fadeDown .65s .22s ease both;}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── STEP SECTION ── */
+.step-section{padding:80px 0;}
+.step-section:nth-child(even){background:#fff;}
+.step-section:nth-child(odd){background:var(--cream);}
+
+.step-label{
+  display:inline-flex;align-items:center;gap:10px;
+  margin-bottom:28px;
+}
+.step-num-badge{
+  width:42px;height:42px;border-radius:12px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:900;
+  color:var(--navy);background:linear-gradient(135deg,var(--gold),var(--gold2));
+  box-shadow:0 4px 14px rgba(201,144,42,.35);
+}
+.step-title{
+  font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:900;
+  color:var(--navy);
+}
+.step-title em{color:var(--gold);font-style:normal;}
+.step-divider{width:50px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--red),var(--gold2));margin-bottom:36px;}
+
+/* ── RESOURCE CARD ── */
+.res-card{
+  background:#fff;border-radius:20px;overflow:hidden;
+  box-shadow:var(--shadow);position:relative;
+  display:flex;flex-direction:column;
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s;
+  opacity:0;transform:translateY(32px);
+}
+.res-card.up{animation:riseUp .55s ease forwards;}
+@keyframes riseUp{to{opacity:1;transform:translateY(0);}}
+.res-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--navy),var(--gold2));z-index:1;
+}
+.res-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,var(--gold2),transparent);
+  transform:scaleX(0);transform-origin:left;transition:transform .45s ease;
+}
+.res-card:hover{transform:translateY(-10px) scale(1.02);box-shadow:0 24px 60px rgba(13,27,42,.18);}
+.res-card:hover::after{transform:scaleX(1);}
+
+.res-card .img-wrap{position:relative;overflow:hidden;height:180px;}
+.res-card .img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
+.res-card:hover .img-wrap img{transform:scale(1.08);}
+.res-card .img-wrap::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(0deg,rgba(13,27,42,.4) 0%,transparent 60%);
+}
+
+.res-card .card-body{padding:22px;flex:1;display:flex;flex-direction:column;}
+.res-card h3{
+  font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;
+  color:var(--navy);margin-bottom:10px;
+}
+.res-card p{font-size:.88rem;color:#6b7a8d;line-height:1.65;flex:1;margin-bottom:16px;}
+.learn-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 20px;background:var(--navy);color:#fff;
+  border-radius:10px;text-decoration:none;
+  font-size:.88rem;font-weight:700;letter-spacing:.03em;
+  transition:background .25s,transform .2s;margin-top:auto;
+  position:relative;overflow:hidden;
+}
+.learn-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.15) 50%,transparent 70%);transform:translateX(-100%);transition:transform .5s;}
+.learn-btn:hover{background:var(--gold);color:var(--navy);transform:translateX(3px);text-decoration:none;}
+.learn-btn:hover::after{transform:translateX(100%);}
+.learn-btn i{font-size:.8rem;}
+
+/* ── SCROLL REVEAL ── */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.up{opacity:1;transform:translateY(0);}
+
+/* ── TICKER ── */
+.ticker-bar{position:fixed;bottom:0;left:0;right:0;height:40px;background:var(--navy);border-top:3px solid var(--gold);display:flex;align-items:center;overflow:hidden;z-index:999;}
+.ticker-label{flex-shrink:0;background:var(--gold);color:var(--navy);font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:0 16px;height:100%;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.ticker-track{display:flex;animation:ticker 40s linear infinite;white-space:nowrap;}
+.ticker-track:hover{animation-play-state:paused;}
+@keyframes ticker{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+.ticker-item{padding:0 44px;font-size:.77rem;color:rgba(255,255,255,.55);flex-shrink:0;}
+.ticker-item span{color:var(--gold2);margin-right:8px;}
+
+/* ── FOOTER ── */
+.site-footer{background:var(--navy);color:rgba(255,255,255,.65);padding:60px 40px 30px;margin-bottom:40px;}
+.f-brand{font-family:'Playfair Display',serif;font-size:1.6rem;color:#fff;font-weight:700;margin-bottom:8px;}
+.f-brand em{color:var(--gold2);font-style:normal;}
+.f-icons{display:flex;gap:12px;margin-top:14px;}
+.f-icons a{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.55);font-size:.95rem;text-decoration:none;transition:all .2s;}
+.f-icons a:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,144,42,.1);}
+.f-label{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.f-links{list-style:none;padding:0;}
+.f-links li{margin-bottom:8px;}
+.f-links a{color:rgba(255,255,255,.55);text-decoration:none;font-size:.88rem;transition:color .2s;}
+.f-links a:hover{color:var(--gold2);}
+.f-contact{display:flex;flex-direction:column;gap:10px;}
+.f-contact a{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.6);text-decoration:none;font-size:.88rem;transition:color .2s;}
+.f-contact a:hover{color:var(--gold2);}
+.f-contact i{color:var(--gold);width:16px;}
+.f-bottom{border-top:1px solid rgba(255,255,255,.08);margin-top:40px;padding-top:20px;text-align:center;font-size:.8rem;color:rgba(255,255,255,.3);}
+
+@media(max-width:768px){.site-footer{padding:40px 20px 30px;}.step-section{padding:60px 0;}}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--cream);}::-webkit-scrollbar-thumb{background:rgba(13,27,42,.18);border-radius:3px;}
+</style>
 </head>
 <body>
-  <body style="margin-top: 100px;"> <!-- Add margin-top to create a gap -->
 
-<!-- Your existing navigation bar -->
-<nav class="navbar bg-dark fixed-top navbar-dark navbar-expand-lg bd-dark" data-bs-theme="#f5f5f5" style="height: 69px;">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-            <img src="{% static 'main/logo69.png' %}" alt="jhsadcgjsdhc" width="218" height="47" class="d-inline-block align-text-top ms-2" />
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-            <ul class="navbar-nav mb-2 mb-lg-0 ">
-                <li class="nav-item">
-                    <a href="{% url 'Homee' %}" class="nav-link pe-auto text-light fw-bolder">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'about' %}" class="nav-link pe-auto text-light fw-bolder">About</a>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'top-startups' %}" class="nav-link pe-auto text-light fw-bolder">Top StartUps</a>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'resources' %}" class="nav-link pe-auto text-light fw-bolder">Learning Resources</a>
-                </li>
-                <!-- <li class="nav-item">
-                    <a href="{% url 'submit-project' %}" class="nav-link pe-auto text-light fw-bolder">Pitch Idea</a>
-                </li> -->
-                <li class="nav-item">
-                    <a href="{% url 'schemes' %}" class="nav-link pe-auto text-light fw-bolder">Government Schemes</a>
-                </li>
-                <li class="nav-item">
-                    <!-- Google Translate Element -->
-                    <div id="google_translate_element"></div>
-                </li>
-                <li class="nav-item">
-                    <div class="dropdown">
-                        <button style="border-color: transparent" class="btn" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa-regular fa-user" style="color: white;"></i>
-                        </button>
-                        <ul style="left: -8rem" class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                            <li>
-                                <a class="dropdown-item" href="{% url 'student-register' %}">Enterpreneur</a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'mentor-register' %}">Mentor</a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'investor-register' %}">Investor</a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
+<div id="progress-bar"></div>
+<script>window.embeddedChatbotConfig={chatbotId:"gdPJ7UU5-879AEWrXzwns",domain:"www.chatbase.co"}</script>
+<script src="https://www.chatbase.co/embed.min.js" chatbotId="gdPJ7UU5-879AEWrXzwns" domain="www.chatbase.co" defer></script>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar fixed-top navbar-dark navbar-expand-lg" id="mainNav">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{% url 'Homee' %}">
+      <img src="{% static 'main/logo69.png' %}" alt="StartUp Incubator" width="218" height="47" class="d-inline-block align-text-top ms-2" />
+    </a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
+      <ul class="navbar-nav mb-2 mb-lg-0">
+        <li class="nav-item"><a href="{% url 'Homee' %}" class="nav-link text-light">Home</a></li>
+        <li class="nav-item"><a href="{% url 'about' %}" class="nav-link text-light">About</a></li>
+        <li class="nav-item"><a href="{% url 'top-startups' %}" class="nav-link text-light">Top StartUps</a></li>
+        <li class="nav-item"><a href="{% url 'resources' %}" class="nav-link text-light">Resources</a></li>
+        <li class="nav-item"><a href="{% url 'schemes' %}" class="nav-link text-light">Gov. Programs</a></li>
+        <li class="nav-item"><div id="google_translate_element"></div></li>
+        <li class="nav-item">
+          <div class="dropdown">
+            <button style="border-color:transparent" class="btn" type="button" data-bs-toggle="dropdown">
+              <i class="fa-regular fa-user" style="color:#fff;font-size:1.1rem;"></i>
+            </button>
+            <ul style="left:-8rem" class="dropdown-menu">
+              <li><a class="dropdown-item" href="{% url 'student-register' %}"><i class="fa-solid fa-rocket me-2" style="color:var(--gold)"></i>Entrepreneur</a></li>
+              <li><a class="dropdown-item" href="{% url 'mentor-register' %}"><i class="fa-solid fa-lightbulb me-2" style="color:var(--gold)"></i>Mentor</a></li>
+              <li><a class="dropdown-item" href="{% url 'investor-register' %}"><i class="fa-solid fa-chart-line me-2" style="color:var(--gold)"></i>Investor</a></li>
             </ul>
-        </div>
+          </div>
+        </li>
+      </ul>
     </div>
+  </div>
 </nav>
 
-<!-- Bootstrap JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-7/WcCpXy5aBJiK4fUMnuSrsQ/zZMMSJwWe1/2x4K5NcBLfykv5BoEU4B+XlUnV3F" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-mJ0pgYWjLr1gU0cykAo3+SM5r5S02dFfdHHCEm0FyIJ0esVhjH8Eggo0ZMpdqDhS" crossorigin="anonymous"></script>
+<!-- ══ HERO ══ -->
+<section class="page-hero">
+  <div class="hero-badge"><i class="fas fa-graduation-cap me-1"></i> Free Learning Hub</div>
+  <h1>Start Your <em>Startup Journey</em></h1>
+  <div class="hero-divider"></div>
+  <p>Explore hands-on startup content designed for entrepreneurs of all levels and backgrounds. From idea validation to investor engagement — we've got you covered.</p>
+</section>
 
-<!-- Google Translate Script -->
-<script type="text/javascript">
-    function googleTranslateElementInit() {
-        new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
-    }
-</script>
-<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Start Your Startup Journey</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f0f0;
-            color: #333;
-        }
-        .container {
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        h1 {
-            color: #000;
-            text-align: center;
-            margin-bottom: 20px; /* Added margin for spacing */
-        }
-        p {
-            line-height: 1.6;
-        }
-        .intro-text {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .step {
-            margin-top: 20px;
-            text-align: left;
-        }
-        .step h2 {
-            color: #000; /* Changed heading color to black */
-        }
-        .step-content {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-        }
-        .card {
-            width: calc(33.33% - 20px);
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .card h3 {
-            color: #000000;
-        }
-        .card p {
-            line-height: 1.6;
-            margin-bottom: 10px; /* Added margin bottom for spacing */
-        }
-        .card img {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
-        .learn-now-button {
-            display: block;
-            text-align: center;
-            padding: 10px 20px;
-            background-color: #222; /* Box color */
-            color: #ddd; /* Light black text color */
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s, color 0.3s;
-            margin-top: 20px; /* Add margin top for spacing */
-        }
-
-        .learn-now-button:hover {
-            background-color: #444; /* Darker box color on hover */
-            color: #fff; /* White text color on hover */
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Start Your Startup Journey</h1>
-        <p class="intro-text">Starting a startup can be difficult but with Eship simplified Learning Resources, you can start your startup journey within minutes by exploring a variety of hands-on Startup content designed for entrepreneurs and startups of all levels and with different industry backgrounds. We seek at once to provide practical resources and tools to develop a greater understanding of the principals of entrepreneurship.</p>
-        <div class="step">
-            <h2>Step 1: Stating your startup hypothesis</h2>
-            <div class="step-content">
-                <div class="card">
-                    <h3>Idea Validation</h3>
-                    <img src="{% static 'main/img1.png' %}" alt="" class="responsive-img materialboxed medium-image">
-                    <p>Every startup originates from an idea, an innovation. Learn how to test the feasibility of your startup idea in this module on idea validation.</p>
-                    <a href="{% url 'value' %}" class="learn-now-button">Learn Now</a>
-                </div>
-
-                <div class="card">
-                    <h3>Business Model</h3>
-                    <img src="{% static 'main/img2.png' %}" alt="" class="responsive-img materialboxed medium-image">
-                    <P></P>
-                    <P></P>
-                    <P></P>
-                    <P></P>
-                
-                    <p>The Business Model Canvas (BMC) is a strategic management tool. Use this tool to quickly and easily define and communicate a business idea.</p>
-                    <a href="{% url 'four' %}" class="learn-now-button">Learn Now</a>
-                </div>
-                
-                <div class="card">
-                    <h3>Value Proposition Canvas</h3>
-                    <img src="{% static 'main/img3.png' %}" alt="" class="responsive-img materialboxed medium-image">
-                    <P></P>
-                    <P></P>
-                    <P></P>
-                    <P></P>
-                    <P></P>
-                
-                    <p>Develop a deep understanding of how your business value proposition relates to your customer and learn to develop better value for your customers.</p>
-                    <a href="{% url 'five' %}" class="learn-now-button">Learn Now</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="step">
-            <h2>Step 2: Testing your startup hypothesis:</h2>
-            <div class="step-content">
-                <div class="card">
-                    <h3>Customer Journey</h3>
-                    <img src="{% static 'main/img4.png' %}" alt="" class="responsive-img materialboxed medium-image">
-                    <p>Customer journey is the complete sum of experiences that customers go through when interacting with your company and brand.</p>
-                    <a href="{% url 'seven' %}" class="learn-now-button">Learn Now</a>
-                </div>
-                <div class="card">
-                    <h3>Persona Development</h3>
-                    <img src="{% static 'main/img5.png' %}" alt="" class="responsive-img materialboxed medium-image">
-                    <P></P>
-                    <P></P>
-                    <P></P>
-                    <P></P>
-                
-
-                    <p>Persona Development is critical in helping you to understand your target audience and customer segments which helps you to better communicate with them.</p>
-                    <a href="{% url 'eight' %}" class="learn-now-button">Learn Now</a>
-                </div>
-                <div class="card">
-                    <h3>Empathy Map</h3>
-                    <img src="{% static 'main/img6.png' %}" alt="" class="responsive-img materialboxed medium-image">
-                    <P></P>
-                    <P></P>
-                    <p>This tool will give you a  deeper understanding of your customer's experience. Much like a user persona, an empathy map can represent a group of users.</p>
-                    <a href="{% url 'ten' %}" class="learn-now-button">Learn Now</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="step">
-            <h2>Step 3: Evaluating your startup environment:</h2>
-            <div class="step-content">
-                <div class="card">
-                    <h3>Blue Ocean Strategy</h3>
-                    <img src="{% static 'main/img7.png' %}" alt="" class="responsive-img materialboxed medium-image">
-                    <p>Competing in overcrowded industries is no way to sustain high performance. The real opportunity is to create blue oceans of uncontested market space.</p>
-                    <a href="#" class="learn-now-button">Learn Now</a>
-                </div>
-                <div class="card">
-                    <h3>Business Model Canvas 2</h3>
-                    <img src="{% static 'main/img8.png' %}" alt="" class="responsive-img materialboxed medium-image">
-                    <P></P>
-                    <p>With the basics of business model cleared we now discuss the strategic alliance of your business model with the industry conditions of your field.</p>
-                    <a href="#" class="learn-now-button">Learn Now</a>
-                </div>
-                <div class="card">
-                    <h3>Prototyping</h3>
-                    <img src="{% static 'main/img9.png' %}" alt="" class="responsive-img materialboxed medium-image">
-                    <P></P>
-                    <p>After drafting the strategy for your startup its now time to develop a prototype and test it out in the real world. Learn which hypothesis works and which fails.</p>
-                    <a href="#" class="learn-now-button">Learn Now</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="step">
-            <h2>Step 4: Legals and government support:</h2>
-            <div class="step-content">
-                <div class="card">
-                    <h3>Company Registration In India</h3>
-                    <img src="{% static 'main/img10.png' %}" alt="" class="responsive-img materialboxed medium-image">
-                    <p>Learn How can you register your startup as  a company in India. Learn about  the government norms, policies and documents required.</p>
-                    <a href="{% url 'nine' %}" class="learn-now-button">Learn Now</a>
-                </div>
-                <div class="card">
-                    <h3>Intellectual Property Rights</h3>
-                    <img src="{% static 'main/img11.png' %}" alt="" class="responsive-img materialboxed medium-image">
-                    <p>How can you file for a patent? Confused about the different types of patent? Have trouble filing the forms? Find all the answers here.</p>
-                    <a href="{% url 'leven' %}" class="learn-now-button">Learn Now</a>
-                </div>
-                <div class="card">
-                    <h3>How To File For Patent</h3>
-                    <img src="{% static 'main/img12.png' %}" alt="" class="responsive-img materialboxed medium-image">
-                    <P></P>
-                    <P></P>
-                    <P></P>
-                    <P></P>
-                    <P></P>
-                    <P></P>
-                    <p>Develop a deep understanding of how your business value proposition relates to your customer and learn to develop better value for your customers.</p>
-                    <a href="{% url 'srh' %}" class="learn-now-button">Learn Now</a>
-                </div>
-                <div class="card">
-                  <h3>Investor Engagement</h3>
-                  <img src="{% static 'main/img13.png' %}" alt="" class="responsive-img materialboxed medium-image">
-                  <p>What do investors look for ? How to plan a perfect pitch ? Find all the answers in this course.</p>
-                  <a href="{% url 'csk' %}" class="learn-now-button">Learn Now</a>
-              </div>
-              <div class="card">
-                  <h3>Government Policies</h3>
-                  <img src="{% static 'main/img14.png' %}" alt="" class="responsive-img materialboxed medium-image">
-                  <P></P>
-                  <P></P>
-                  <p>Learn about the startup India government program and different policies and subsidies offered by the government.</p>
-                  <a href="{% url 'govpo' %}" class="learn-now-button">Learn Now</a>
-              </div>
-              <div class="card">
-                  <h3>Marketing Matrics</h3>
-                  <img src="{% static 'main/img15.png' %}" alt="" class="responsive-img materialboxed medium-image">
-                  <p>Learn about the marketing metrics that matter in a startup and ways to draft a perfect market strategy for your startup.</p>
-                  <a href="#" class="learn-now-button">Learn Now</a>
-              </div>
-            </div>
-        </div>
+<!-- ══ STEP 1 ══ -->
+<section class="step-section">
+  <div class="container">
+    <div class="reveal">
+      <div class="step-label">
+        <div class="step-num-badge">1</div>
+        <h2 class="step-title">Stating Your <em>Startup Hypothesis</em></h2>
+      </div>
+      <div class="step-divider"></div>
     </div>
+    <div class="row gy-4">
+
+      <div class="col-lg-4 col-md-6">
+        <div class="res-card h-100">
+          <div class="img-wrap"><img src="{% static 'main/img1.png' %}" alt="Idea Validation" /></div>
+          <div class="card-body">
+            <h3>Idea Validation</h3>
+            <p>Every startup originates from an idea. Learn how to test the feasibility of your startup idea in this module on idea validation.</p>
+            <a href="{% url 'value' %}" class="learn-btn">Learn Now <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="res-card h-100">
+          <div class="img-wrap"><img src="{% static 'main/img2.png' %}" alt="Business Model" /></div>
+          <div class="card-body">
+            <h3>Business Model Canvas</h3>
+            <p>The Business Model Canvas (BMC) is a strategic management tool. Use it to quickly define and communicate your business idea.</p>
+            <a href="{% url 'four' %}" class="learn-btn">Learn Now <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="res-card h-100">
+          <div class="img-wrap"><img src="{% static 'main/img3.png' %}" alt="Value Proposition Canvas" /></div>
+          <div class="card-body">
+            <h3>Value Proposition Canvas</h3>
+            <p>Develop a deep understanding of how your business value proposition relates to your customer and learn to create better value.</p>
+            <a href="{% url 'five' %}" class="learn-btn">Learn Now <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ STEP 2 ══ -->
+<section class="step-section">
+  <div class="container">
+    <div class="reveal">
+      <div class="step-label">
+        <div class="step-num-badge">2</div>
+        <h2 class="step-title">Testing Your <em>Startup Hypothesis</em></h2>
+      </div>
+      <div class="step-divider"></div>
+    </div>
+    <div class="row gy-4">
+
+      <div class="col-lg-4 col-md-6">
+        <div class="res-card h-100">
+          <div class="img-wrap"><img src="{% static 'main/img4.png' %}" alt="Customer Journey" /></div>
+          <div class="card-body">
+            <h3>Customer Journey</h3>
+            <p>Customer journey is the complete sum of experiences customers go through when interacting with your company and brand.</p>
+            <a href="{% url 'seven' %}" class="learn-btn">Learn Now <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="res-card h-100">
+          <div class="img-wrap"><img src="{% static 'main/img5.png' %}" alt="Persona Development" /></div>
+          <div class="card-body">
+            <h3>Persona Development</h3>
+            <p>Persona Development is critical in helping you understand your target audience and customer segments to better communicate with them.</p>
+            <a href="{% url 'eight' %}" class="learn-btn">Learn Now <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="res-card h-100">
+          <div class="img-wrap"><img src="{% static 'main/img6.png' %}" alt="Empathy Map" /></div>
+          <div class="card-body">
+            <h3>Empathy Map</h3>
+            <p>This tool gives you a deeper understanding of your customer's experience — much like a user persona, representing a group of users.</p>
+            <a href="{% url 'ten' %}" class="learn-btn">Learn Now <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ STEP 3 ══ -->
+<section class="step-section">
+  <div class="container">
+    <div class="reveal">
+      <div class="step-label">
+        <div class="step-num-badge">3</div>
+        <h2 class="step-title">Evaluating Your <em>Startup Environment</em></h2>
+      </div>
+      <div class="step-divider"></div>
+    </div>
+    <div class="row gy-4">
+
+      <div class="col-lg-4 col-md-6">
+        <div class="res-card h-100">
+          <div class="img-wrap"><img src="{% static 'main/img7.png' %}" alt="Blue Ocean Strategy" /></div>
+          <div class="card-body">
+            <h3>Blue Ocean Strategy</h3>
+            <p>Competing in overcrowded industries is no way to sustain high performance. The real opportunity is to create blue oceans of uncontested market space.</p>
+            <a href="#" class="learn-btn">Learn Now <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="res-card h-100">
+          <div class="img-wrap"><img src="{% static 'main/img8.png' %}" alt="Business Model Canvas 2" /></div>
+          <div class="card-body">
+            <h3>Business Model Canvas 2</h3>
+            <p>With the basics cleared, we now discuss the strategic alignment of your business model with the industry conditions of your field.</p>
+            <a href="#" class="learn-btn">Learn Now <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="res-card h-100">
+          <div class="img-wrap"><img src="{% static 'main/img9.png' %}" alt="Prototyping" /></div>
+          <div class="card-body">
+            <h3>Prototyping</h3>
+            <p>After drafting your strategy, it's time to develop a prototype and test it in the real world. Learn which hypotheses work and which fail.</p>
+            <a href="#" class="learn-btn">Learn Now <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ STEP 4 ══ -->
+<section class="step-section">
+  <div class="container">
+    <div class="reveal">
+      <div class="step-label">
+        <div class="step-num-badge">4</div>
+        <h2 class="step-title">Legals &amp; <em>Government Support</em></h2>
+      </div>
+      <div class="step-divider"></div>
+    </div>
+    <div class="row gy-4">
+
+      <div class="col-lg-4 col-md-6">
+        <div class="res-card h-100">
+          <div class="img-wrap"><img src="{% static 'main/img10.png' %}" alt="Company Registration" /></div>
+          <div class="card-body">
+            <h3>Company Registration in the U.S.</h3>
+            <p>Learn how to register your startup as an LLC or C-Corp. Understand government norms, policies, and documents required.</p>
+            <a href="{% url 'nine' %}" class="learn-btn">Learn Now <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="res-card h-100">
+          <div class="img-wrap"><img src="{% static 'main/img11.png' %}" alt="Intellectual Property Rights" /></div>
+          <div class="card-body">
+            <h3>Intellectual Property Rights</h3>
+            <p>How can you file for a patent? Confused about the different types? Have trouble filing the forms? Find all the answers here.</p>
+            <a href="{% url 'leven' %}" class="learn-btn">Learn Now <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="res-card h-100">
+          <div class="img-wrap"><img src="{% static 'main/img12.png' %}" alt="How to File for Patent" /></div>
+          <div class="card-body">
+            <h3>How to File for a Patent</h3>
+            <p>Develop a deep understanding of the patent filing process and learn to protect your innovation from the ground up.</p>
+            <a href="{% url 'srh' %}" class="learn-btn">Learn Now <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="res-card h-100">
+          <div class="img-wrap"><img src="{% static 'main/img13.png' %}" alt="Investor Engagement" /></div>
+          <div class="card-body">
+            <h3>Investor Engagement</h3>
+            <p>What do investors look for? How do you plan a perfect pitch? Find all the answers in this course.</p>
+            <a href="{% url 'csk' %}" class="learn-btn">Learn Now <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="res-card h-100">
+          <div class="img-wrap"><img src="{% static 'main/img14.png' %}" alt="Government Policies" /></div>
+          <div class="card-body">
+            <h3>Government Policies</h3>
+            <p>Learn about the SBA programs, federal startup policies, and subsidies offered to help American entrepreneurs grow.</p>
+            <a href="{% url 'govpo' %}" class="learn-btn">Learn Now <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="res-card h-100">
+          <div class="img-wrap"><img src="{% static 'main/img15.png' %}" alt="Marketing Metrics" /></div>
+          <div class="card-body">
+            <h3>Marketing Metrics</h3>
+            <p>Learn about the marketing metrics that matter in a startup and how to draft a perfect market strategy for growth.</p>
+            <a href="#" class="learn-btn">Learn Now <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="row gy-4">
+      <div class="col-lg-4">
+        <div class="f-brand">StartUp <em>Incubator</em></div>
+        <p style="font-size:.88rem;color:rgba(255,255,255,.5);max-width:270px;margin-top:10px;line-height:1.7;">Connecting American entrepreneurs with the resources they need to build the future.</p>
+        <div class="f-icons">
+          <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+          <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-2 col-6">
+        <div class="f-label">Legal</div>
+        <ul class="f-links">
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms &amp; Conditions</a></li>
+          <li><a href="#">Disclaimer</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-6">
+        <div class="f-label">Navigate</div>
+        <ul class="f-links">
+          <li><a href="{% url 'Homee' %}">Home</a></li>
+          <li><a href="{% url 'about' %}">About</a></li>
+          <li><a href="{% url 'top-startups' %}">Top StartUps</a></li>
+          <li><a href="{% url 'resources' %}">Resources</a></li>
+          <li><a href="{% url 'schemes' %}">Gov. Programs</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4">
+        <div class="f-label">Connect With Us</div>
+        <div class="f-contact">
+          <a href="tel:9999999999"><i class="fas fa-phone-alt"></i>(999) 999-9999</a>
+          <a href="mailto:startupIncubator@mail.com"><i class="fas fa-envelope"></i>startupIncubator@mail.com</a>
+          <a href="#"><i class="fas fa-map-marker-alt"></i>United States of America 🇺🇸</a>
+        </div>
+      </div>
+    </div>
+    <div class="f-bottom">&copy; 2025 StartUp Incubator. All rights reserved. &nbsp;|&nbsp; Proudly American 🇺🇸</div>
+  </div>
+</footer>
+
+<!-- ══ TICKER ══ -->
+<div class="ticker-bar">
+  <div class="ticker-label"><i class="fas fa-satellite-dish"></i> Live</div>
+  <div style="overflow:hidden;flex:1;">
+    <div class="ticker-track">
+      <div class="ticker-item"><span>🚀</span>New startup registered today</div>
+      <div class="ticker-item"><span>💡</span>3 new federal programs added this week</div>
+      <div class="ticker-item"><span>📈</span>Investor funding round open — apply now</div>
+      <div class="ticker-item"><span>🎓</span>Free webinar: Startup Fundamentals — Register now</div>
+      <div class="ticker-item"><span>🏆</span>Top Startup of the Month announced</div>
+      <div class="ticker-item"><span>🚀</span>New startup registered today</div>
+      <div class="ticker-item"><span>💡</span>3 new federal programs added this week</div>
+      <div class="ticker-item"><span>📈</span>Investor funding round open — apply now</div>
+      <div class="ticker-item"><span>🎓</span>Free webinar: Startup Fundamentals — Register now</div>
+      <div class="ticker-item"><span>🏆</span>Top Startup of the Month announced</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+<script>function googleTranslateElementInit(){new google.translate.TranslateElement({pageLanguage:'en'},'google_translate_element');}</script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<script>
+/* scroll progress + navbar shadow */
+window.addEventListener('scroll',()=>{
+  const total=document.documentElement.scrollHeight-window.innerHeight;
+  document.getElementById('progress-bar').style.width=(window.scrollY/total*100)+'%';
+  document.getElementById('mainNav').classList.toggle('scrolled',window.scrollY>60);
+});
+
+/* scroll reveal for sections + cards */
+const ro=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('up');
+      ro.unobserve(e.target);
+    }
+  });
+},{threshold:0.1});
+
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+/* staggered card reveals */
+const cardObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const siblings=[...e.target.closest('.row').querySelectorAll('.res-card')];
+      const delay=siblings.indexOf(e.target)*100;
+      setTimeout(()=>e.target.classList.add('up'),delay);
+      cardObs.unobserve(e.target);
+    }
+  });
+},{threshold:0.1});
+
+document.querySelectorAll('.res-card').forEach(el=>cardObs.observe(el));
+</script>
 </body>
 </html>
-
