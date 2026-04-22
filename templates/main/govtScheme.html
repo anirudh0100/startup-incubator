@@ -276,7 +276,6 @@
       text-decoration: none; transition: background .2s;
     }
     .live-card-link:hover { background: #1e40af; color: #fff; text-decoration: none; }
-    .live-card-dates { color: #475569; font-size: 12px; padding: 8px 0; }
 
     /* examples */
     .ai-examples { margin-top: 22px; }
@@ -466,7 +465,7 @@
 
     <div class="ai-search-label">
       <div class="ai-live-dot"></div>
-      <span>Live · Grants.gov Database · AI-Powered</span>
+      <span>Live · AI-Powered Grant Finder</span>
     </div>
     <h2 class="ai-search-heading">Find Grants for <em>Your Startup Idea</em></h2>
     <p class="ai-search-sub">Describe your idea below — AI extracts keywords, searches live federal grants, then ranks and explains the best matches for you.</p>
@@ -502,7 +501,7 @@
       </div>
       <div class="ai-step" id="step-fetching">
         <div class="ai-step-dot idle" id="dot-fetching">·</div>
-        <span id="label-fetching" style="color:#334155;">🔍 Searching live grant databases (Grants.gov, SBIR, SBA…)</span>
+        <span id="label-fetching" style="color:#334155;">🔍 Searching live grant databases…</span>
       </div>
       <div class="ai-step" id="step-ranking">
         <div class="ai-step-dot idle" id="dot-ranking">·</div>
@@ -527,7 +526,7 @@
       <div class="live-grants" id="liveGrantsList"></div>
       <button class="ai-new-search-btn" onclick="resetAI()">← Search Another Idea</button>
       <div class="ai-footer-note">
-        Data sourced live from <a href="https://www.grants.gov" target="_blank">Grants.gov</a> · Official US federal grants database · AI analysis by Claude
+        AI analysis powered by Claude · Data based on U.S. federal funding programs
       </div>
     </div>
 
@@ -702,8 +701,8 @@
 </footer>
 
 <!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
 
 <!-- Google Translate -->
 <script>
@@ -742,10 +741,8 @@
   cards.forEach(c => observer.observe(c));
 
   /* ═══════════════════════════════════════════════════════
-     AI GRANTS FINDER LOGIC
+     AI GRANTS FINDER
   ═══════════════════════════════════════════════════════ */
-
-  let currentStage = 'idle';
 
   /* Enter key support */
   document.getElementById('aiIdeaInput').addEventListener('keydown', e => {
@@ -753,58 +750,80 @@
   });
 
   function runExample(btn) {
-    document.getElementById('aiIdeaInput').value = btn.textContent;
+    document.getElementById('aiIdeaInput').value = btn.textContent.trim();
     runAISearch();
   }
 
-  function setStage(stage, kw) {
-    currentStage = stage;
-    const stages = ['extracting','fetching','ranking'];
-    const stageIdx = stages.indexOf(stage);
-    const labels = { extracting:'🤖 Analyzing your idea', fetching:'🔍 Searching live databases…', ranking:'📊 Ranking &amp; matching results' };
-    const hints = { extracting:'🤖 Analyzing idea…', fetching:'🔍 Live web search running…', ranking:'📊 Ranking results…' };
+  /* ── CSRF cookie helper (required for Django POST) ── */
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      document.cookie.split(';').forEach(cookie => {
+        const c = cookie.trim();
+        if (c.startsWith(name + '=')) {
+          cookieValue = decodeURIComponent(c.slice(name.length + 1));
+        }
+      });
+    }
+    return cookieValue;
+  }
 
+  function setStage(stage, kw) {
+    const stages = ['extracting', 'fetching', 'ranking'];
+    const stageIdx = stages.indexOf(stage);
+    const labels = {
+      extracting: '🤖 Analyzing your idea',
+      fetching:   '🔍 Searching live databases…',
+      ranking:    '📊 Ranking &amp; matching results'
+    };
+    const hints = {
+      extracting: '🤖 Analyzing idea…',
+      fetching:   '🔍 Live AI search running…',
+      ranking:    '📊 Ranking results…'
+    };
     stages.forEach((s, i) => {
       const dot   = document.getElementById('dot-' + s);
       const label = document.getElementById('label-' + s);
       dot.className = 'ai-step-dot ' + (i < stageIdx ? 'done' : i === stageIdx ? 'active' : 'idle');
       dot.innerHTML = i < stageIdx ? '✓' : i === stageIdx ? '<span class="spin-dot"></span>' : '·';
-      label.style.color = i < stageIdx ? '#22c55e' : i === stageIdx ? '#60a5fa' : '#334155';
+      label.style.color      = i < stageIdx ? '#22c55e' : i === stageIdx ? '#60a5fa' : '#334155';
       label.style.fontWeight = i === stageIdx ? '700' : '400';
       label.innerHTML = labels[s];
     });
-    document.getElementById('aiHint').textContent = hints[stage] || '';
-    document.getElementById('aiHint').className = 'ai-hint loading';
+    const hint = document.getElementById('aiHint');
+    hint.textContent = hints[stage] || '';
+    hint.className = 'ai-hint loading';
     if (kw) document.getElementById('query-tag').textContent = `query: "${kw}"`;
   }
 
-  /* ── helpers ── */
   function matchRingSVG(score) {
-    const r=22, circ=2*Math.PI*r, fill=(score/100)*circ;
-    const col = score>=75?'#22c55e':score>=50?'#f59e0b':'#ef4444';
-    return `<svg width="56" height="56"><circle cx="28" cy="28" r="${r}" fill="none" stroke="#1e293b" stroke-width="4"/>
-    <circle cx="28" cy="28" r="${r}" fill="none" stroke="${col}" stroke-width="4"
-      stroke-dasharray="${fill} ${circ}" stroke-linecap="round" transform="rotate(-90 28 28)"/>
-    <text x="28" y="33" text-anchor="middle" font-size="12" font-weight="800" fill="${col}">${score}</text></svg>`;
+    const r = 22, circ = 2 * Math.PI * r, fill = (score / 100) * circ;
+    const col = score >= 75 ? '#22c55e' : score >= 50 ? '#f59e0b' : '#ef4444';
+    return `<svg width="56" height="56">
+      <circle cx="28" cy="28" r="${r}" fill="none" stroke="#1e293b" stroke-width="4"/>
+      <circle cx="28" cy="28" r="${r}" fill="none" stroke="${col}" stroke-width="4"
+        stroke-dasharray="${fill} ${circ}" stroke-linecap="round" transform="rotate(-90 28 28)"/>
+      <text x="28" y="33" text-anchor="middle" font-size="12" font-weight="800" fill="${col}">${score}</text>
+    </svg>`;
   }
 
   function buildLiveCard(grant, idx) {
     const aiBlock = `
       <div class="ai-match-box">
         <div class="ai-match-box-label">AI MATCH ANALYSIS</div>
-        <p>${grant.matchReason||''}</p>
-        <div class="ai-match-tip"><strong>💡 Tip:</strong> ${grant.tip||''}</div>
+        <p>${grant.matchReason || ''}</p>
+        <div class="ai-match-tip"><strong>💡 Tip:</strong> ${grant.tip || ''}</div>
       </div>`;
-    const desc = grant.description ? `<p class="live-card-desc">${grant.description.slice(0,420)}${grant.description.length>420?'…':''}</p>` : '';
-    const amtBadge = grant.amount ? `<span class="badge-amt">${grant.amount}</span>` : '';
-    const deadlineBadge = grant.deadline
-      ? `<span class="badge-soon">⏱ Closes: ${grant.deadline}</span>`
-      : `<span class="badge-open">⏱ Open</span>`;
+    const desc = grant.description
+      ? `<p class="live-card-desc">${grant.description.slice(0, 420)}${grant.description.length > 420 ? '…' : ''}</p>`
+      : '';
+    const amtBadge      = grant.amount   ? `<span class="badge-amt">${grant.amount}</span>` : '';
+    const deadlineBadge = grant.deadline ? `<span class="badge-soon">⏱ Closes: ${grant.deadline}</span>` : `<span class="badge-open">⏱ Open</span>`;
 
     return `
-      <div class="live-card" id="lc-${idx}" style="animation-delay:${idx*0.07}s" onclick="toggleCard(${idx})">
+      <div class="live-card" id="lc-${idx}" style="animation-delay:${idx * 0.07}s" onclick="toggleCard(${idx})">
         <div class="live-card-top">
-          <div class="match-ring-wrap">${matchRingSVG(grant.matchScore||70)}</div>
+          <div class="match-ring-wrap">${matchRingSVG(grant.matchScore || 70)}</div>
           <div class="live-card-meta">
             <div class="live-card-badges">
               ${amtBadge}
@@ -812,7 +831,7 @@
               ${grant.agency ? `<span class="badge-num">${grant.agency}</span>` : ''}
             </div>
             <div class="live-card-title">${grant.title}</div>
-            <div class="live-card-agency">${grant.source||''}</div>
+            <div class="live-card-agency">${grant.source || ''}</div>
           </div>
           <div class="live-card-chevron" id="chev-${idx}">▾</div>
         </div>
@@ -820,22 +839,22 @@
           ${aiBlock}
           ${desc}
           <div class="live-card-actions">
-            <a href="${grant.link||'https://www.grants.gov'}" target="_blank" class="live-card-link" onclick="event.stopPropagation()">View Grant ↗</a>
+            <a href="${grant.link || 'https://www.grants.gov'}" target="_blank" class="live-card-link" onclick="event.stopPropagation()">View Grant ↗</a>
           </div>
         </div>
       </div>`;
   }
 
   function toggleCard(idx) {
-    const detail = document.getElementById('lcd-'+idx);
-    const chev   = document.getElementById('chev-'+idx);
-    const card   = document.getElementById('lc-'+idx);
+    const detail = document.getElementById('lcd-' + idx);
+    const chev   = document.getElementById('chev-' + idx);
+    const card   = document.getElementById('lc-' + idx);
     const open   = detail.classList.toggle('open');
     chev.classList.toggle('open', open);
     card.style.borderColor = open ? '#3b82f6' : '';
   }
 
-  /* ── Main AI search using Claude web_search tool ── */
+  /* ── Main search — calls Django backend ── */
   async function runAISearch() {
     const idea = document.getElementById('aiIdeaInput').value.trim();
     if (!idea) return;
@@ -848,61 +867,27 @@
     document.getElementById('liveGrantsList').innerHTML  = '';
 
     try {
-      /* Step 1 — show "analyzing" */
       setStage('extracting');
+      await new Promise(r => setTimeout(r, 400));
 
-      /* Step 2 — single Claude call with web_search tool */
-      setStage('fetching', idea.slice(0,30));
+      setStage('fetching', idea.slice(0, 30));
 
-      const systemPrompt = `You are a US federal grants expert with web search access.
-The user gives you a startup idea. You must:
-1. Use the web_search tool to search for CURRENT, OPEN US federal grants and government funding programs relevant to the idea. Search Grants.gov, SBIR.gov, SBA.gov, and other official sources.
-2. After searching, return ONLY a valid JSON object — no markdown, no extra text — in this exact shape:
-{
-  "grants": [
-    {
-      "title": "Official grant program name",
-      "agency": "Agency abbreviation e.g. NSF, SBA, NIH",
-      "source": "Full agency name",
-      "amount": "e.g. Up to $500K or $50K–$2M",
-      "deadline": "Close date if known, else null",
-      "description": "2-3 sentence description of what the grant funds",
-      "matchScore": 85,
-      "matchReason": "1-2 sentences why this fits the startup idea",
-      "tip": "One concrete tip for applying",
-      "link": "Official URL"
-    }
-  ],
-  "insight": "2-sentence overall funding landscape analysis for this idea",
-  "tags": ["tag1", "tag2", "tag3"]
-}
-Return 5–8 grants. matchScore is 0-100. Only include real, currently active programs.`;
-
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('/api/grants-search/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 4000,
-          system: systemPrompt,
-          tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-          messages: [{ role: 'user', content: `Find current US government grants and funding programs for this startup idea: "${idea}"` }]
-        })
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ idea })
       });
 
-      const data = await res.json();
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Server error ${res.status}. Please try again.`);
+      }
+
       setStage('ranking');
-
-      /* Extract the final text block from potentially multi-block response */
-      const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text);
-      const fullText = textBlocks.join('');
-
-      /* Parse JSON — strip any accidental markdown fences */
-      const clean = fullText.replace(/```json|```/g,'').trim();
-      const jsonStart = clean.indexOf('{');
-      const jsonEnd   = clean.lastIndexOf('}');
-      if (jsonStart === -1) throw new Error('No results returned. Please try again.');
-      const parsed = JSON.parse(clean.slice(jsonStart, jsonEnd+1));
+      const parsed = await res.json();
 
       const grants = parsed.grants || [];
       if (!grants.length) throw new Error('No matching grants found. Try describing your idea differently.');
@@ -910,20 +895,20 @@ Return 5–8 grants. matchScore is 0-100. Only include real, currently active pr
       /* Render insight */
       if (parsed.insight) {
         document.getElementById('aiInsightText').textContent = parsed.insight;
-        document.getElementById('aiInsightTags').innerHTML = (parsed.tags||[]).map(t=>`<span>#${t}</span>`).join('');
+        document.getElementById('aiInsightTags').innerHTML = (parsed.tags || []).map(t => `<span>#${t}</span>`).join('');
         document.getElementById('aiInsightBox').style.display = 'block';
       }
 
       /* Render grant cards sorted by matchScore */
-      grants.sort((a,b) => (b.matchScore||0) - (a.matchScore||0));
+      grants.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
       document.getElementById('aiResultsCount').textContent = `${grants.length} Matching Grants Found`;
-      document.getElementById('liveGrantsList').innerHTML = grants.map((g,i) => buildLiveCard(g,i)).join('');
+      document.getElementById('liveGrantsList').innerHTML = grants.map((g, i) => buildLiveCard(g, i)).join('');
       document.getElementById('aiResults').style.display  = 'block';
       document.getElementById('aiPipeline').style.display = 'none';
       document.getElementById('aiHint').textContent = 'Press Enter or click Search';
       document.getElementById('aiHint').className = 'ai-hint';
 
-    } catch(err) {
+    } catch (err) {
       document.getElementById('aiPipeline').style.display = 'none';
       document.getElementById('aiError').textContent = '⚠️ ' + (err.message || 'Something went wrong. Please try again.');
       document.getElementById('aiError').style.display = 'block';
@@ -936,13 +921,12 @@ Return 5–8 grants. matchScore is 0-100. Only include real, currently active pr
 
   function resetAI() {
     document.getElementById('aiIdeaInput').value = '';
-    document.getElementById('aiResults').style.display = 'none';
-    document.getElementById('aiPipeline').style.display = 'none';
-    document.getElementById('aiError').style.display = 'none';
+    document.getElementById('aiResults').style.display   = 'none';
+    document.getElementById('aiPipeline').style.display  = 'none';
+    document.getElementById('aiError').style.display     = 'none';
     document.getElementById('aiInsightBox').style.display = 'none';
-    document.getElementById('aiExamples').style.display = 'block';
-    document.getElementById('query-tag').textContent = '';
-    currentStage = 'idle';
+    document.getElementById('aiExamples').style.display  = 'block';
+    document.getElementById('query-tag').textContent     = '';
   }
 </script>
 
