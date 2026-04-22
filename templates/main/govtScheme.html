@@ -64,13 +64,6 @@
     .ai-search-btn:disabled { background: #1e293b; color: #475569; cursor: not-allowed; }
     .ai-search-btn:not(:disabled):hover { background: linear-gradient(135deg, #1e40af, #1d4ed8); transform: translateY(-1px); }
 
-    /* API key input */
-    .api-key-row { display: flex; gap: 10px; margin-bottom: 18px; align-items: center; flex-wrap: wrap; }
-    .api-key-row input { flex: 1; min-width: 200px; background: #020b18; border: 1.5px solid #1e293b; border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #e2e8f0; font-family: monospace; transition: border .2s; }
-    .api-key-row input:focus { outline: none; border-color: #3b82f6; }
-    .api-key-label { font-size: 12px; color: #475569; white-space: nowrap; }
-    .api-key-link { font-size: 11px; color: #3b82f6; text-decoration: none; }
-    .api-key-link:hover { text-decoration: underline; }
 
     /* Pipeline steps */
     .ai-pipeline { margin-bottom: 22px; }
@@ -178,7 +171,7 @@
     /* SCROLL PROGRESS */
     #progress-bar { position: fixed; top: 69px; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, var(--red), var(--gold2)); z-index: 2000; transition: width .1s linear; }
 
-    @media (max-width: 768px) { .cards-section { padding: 30px 20px 60px; } .hero h1 { font-size: 2rem; } .api-key-row { flex-direction: column; align-items: stretch; } }
+    @media (max-width: 768px) { .cards-section { padding: 30px 20px 60px; } .hero h1 { font-size: 2rem; } }
   </style>
 </head>
 <body>
@@ -224,27 +217,14 @@
       <span>AI-Powered · Live Federal Grants Finder</span>
     </div>
     <h2 class="ai-search-heading">Find Grants for <em>Your Startup Idea</em></h2>
-    <p class="ai-search-sub">Enter your free Groq API key, describe your idea, and AI will find the best matching U.S. federal grants for you instantly.</p>
-
-    <!-- API Key Row -->
-    <div class="ai-box" style="margin-bottom:16px; padding: 18px 26px;">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap; gap:6px;">
-        <span class="api-key-label" style="color:#60a5fa; font-size:12px; font-weight:700; letter-spacing:1px; font-family:monospace;">🔑 GROQ API KEY</span>
-        <a href="https://console.groq.com/keys" target="_blank" class="api-key-link">Get free key at console.groq.com ↗</a>
-      </div>
-      <div class="api-key-row" style="margin-bottom:0;">
-        <input type="password" id="groqKeyInput" placeholder="Paste your Groq API key here  (gsk_...)" autocomplete="off" />
-        <button onclick="toggleKeyVisibility()" style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:8px 14px;color:#64748b;cursor:pointer;font-size:13px;white-space:nowrap;" id="eyeBtn">Show</button>
-        <button onclick="saveKey()" style="background:#14532d;border:none;border-radius:8px;padding:8px 16px;color:#86efac;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap;">Save Key</button>
-      </div>
-      <div id="keySavedMsg" style="display:none;margin-top:8px;font-size:12px;color:#22c55e;font-family:monospace;">✓ Key saved for this session</div>
+    <p class="ai-search-sub">Describe your startup idea below — AI searches live federal programs and ranks the best matches for you.</p>
     </div>
 
     <!-- Search box -->
     <div class="ai-box" id="aiSearchBox">
       <textarea id="aiIdeaInput" placeholder="Describe your startup idea… e.g. 'A mobile app using AI to help rural farmers detect crop disease early using smartphone photos'"></textarea>
       <div class="ai-box-footer">
-        <span class="ai-hint" id="aiHint">Enter your API key above, then describe your idea</span>
+        <span class="ai-hint" id="aiHint">Press Enter or click Search</span>
         <button class="ai-search-btn" id="aiSearchBtn" onclick="runAISearch()">Search Live Grants →</button>
       </div>
     </div>
@@ -503,29 +483,8 @@
   }, { threshold: 0.1 });
   cards.forEach(c => observer.observe(c));
 
-  /* API Key management */
-  let groqApiKey = sessionStorage.getItem('groqKey') || '';
-  if (groqApiKey) {
-    document.getElementById('groqKeyInput').value = groqApiKey;
-    document.getElementById('keySavedMsg').style.display = 'block';
-  }
-
-  function saveKey() {
-    const k = document.getElementById('groqKeyInput').value.trim();
-    if (!k) { alert('Please paste your Groq API key first.'); return; }
-    if (!k.startsWith('gsk_')) { alert('That doesn\'t look like a valid Groq key. It should start with gsk_'); return; }
-    groqApiKey = k;
-    sessionStorage.setItem('groqKey', k);
-    document.getElementById('keySavedMsg').style.display = 'block';
-    document.getElementById('aiHint').textContent = 'Key saved! Now describe your startup idea';
-  }
-
-  function toggleKeyVisibility() {
-    const inp = document.getElementById('groqKeyInput');
-    const btn = document.getElementById('eyeBtn');
-    if (inp.type === 'password') { inp.type = 'text'; btn.textContent = 'Hide'; }
-    else { inp.type = 'password'; btn.textContent = 'Show'; }
-  }
+  /* API Key — hardcoded */
+  const GROQ_API_KEY = 'gsk_YOUR_NEW_KEY_HERE'; // ← replace with your key from console.groq.com
 
   /* Enter key support */
   document.getElementById('aiIdeaInput').addEventListener('keydown', e => {
@@ -617,10 +576,8 @@
      MAIN AI SEARCH — Direct Groq API call
   ═══════════════════════════════════════════ */
   async function runAISearch() {
-    /* Check key */
-    const keyInput = document.getElementById('groqKeyInput').value.trim();
-    if (keyInput) { groqApiKey = keyInput; sessionStorage.setItem('groqKey', keyInput); }
-    if (!groqApiKey || !groqApiKey.startsWith('gsk_')) {
+    const groqApiKey = GROQ_API_KEY;
+    if (!groqApiKey || groqApiKey === 'gsk_YOUR_NEW_KEY_HERE') {
       document.getElementById('aiError').textContent = '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';
       document.getElementById('aiError').style.display = 'block';
       return;
