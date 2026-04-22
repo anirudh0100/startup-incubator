@@ -621,7 +621,7 @@
     const keyInput = document.getElementById('groqKeyInput').value.trim();
     if (keyInput) { groqApiKey = keyInput; sessionStorage.setItem('groqKey', keyInput); }
     if (!groqApiKey || !groqApiKey.startsWith('gsk_')) {
-      document.getElementById('aiError').textContent = '⚠️ Please enter your Groq API key above and click Save Key. Get a free key at console.groq.com';
+      document.getElementById('aiError').textContent = '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';
       document.getElementById('aiError').style.display = 'block';
       return;
     }
