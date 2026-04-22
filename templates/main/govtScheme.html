@@ -53,12 +53,7 @@
       overflow: hidden;
       background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 60%, #2a3d5c 100%);
     }
-
-    /* animated star field */
-    .stars {
-      position: absolute; inset: 0;
-      pointer-events: none;
-    }
+    .stars { position: absolute; inset: 0; pointer-events: none; }
     .star {
       position: absolute;
       width: 2px; height: 2px;
@@ -71,317 +66,351 @@
       from { opacity: .1; transform: scale(1); }
       to   { opacity: 1;  transform: scale(1.8); }
     }
-
-    /* diagonal stripe accent */
     .hero::before {
       content: '';
       position: absolute;
       top: -30%; right: -10%;
       width: 55%; height: 200%;
       background: repeating-linear-gradient(
-        -45deg,
-        transparent,
-        transparent 18px,
-        rgba(178,34,52,.12) 18px,
-        rgba(178,34,52,.12) 36px
+        -45deg, transparent, transparent 18px,
+        rgba(178,34,52,.12) 18px, rgba(178,34,52,.12) 36px
       );
       pointer-events: none;
     }
-
-    .hero-content {
-      position: relative;
-      text-align: center;
-      padding: 60px 20px;
-    }
+    .hero-content { position: relative; text-align: center; padding: 60px 20px; }
     .hero-badge {
       display: inline-block;
-      background: var(--gold);
-      color: var(--navy);
-      font-size: .75rem;
-      font-weight: 700;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      padding: 5px 16px;
-      border-radius: 20px;
+      background: var(--gold); color: var(--navy);
+      font-size: .75rem; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      padding: 5px 16px; border-radius: 20px;
       margin-bottom: 20px;
       animation: fadeDown .6s ease both;
     }
     .hero h1 {
       font-family: 'Playfair Display', serif;
       font-size: clamp(2rem, 5vw, 3.6rem);
-      font-weight: 900;
-      color: var(--white);
-      line-height: 1.1;
+      font-weight: 900; color: var(--white); line-height: 1.1;
       animation: fadeDown .7s .1s ease both;
     }
     .hero h1 span { color: var(--gold2); }
     .hero p {
-      color: rgba(255,255,255,.7);
-      font-size: 1.1rem;
-      max-width: 560px;
-      margin: 18px auto 0;
+      color: rgba(255,255,255,.7); font-size: 1.1rem;
+      max-width: 560px; margin: 18px auto 0;
       animation: fadeDown .7s .2s ease both;
     }
     .hero-divider {
       width: 70px; height: 4px;
       background: linear-gradient(90deg, var(--red), var(--gold2));
-      margin: 22px auto 0;
-      border-radius: 2px;
+      margin: 22px auto 0; border-radius: 2px;
       animation: fadeDown .7s .3s ease both;
     }
-
     @keyframes fadeDown {
       from { opacity: 0; transform: translateY(-20px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── SECTION LABEL ── */
-    .section-intro {
-      text-align: center;
-      padding: 60px 20px 10px;
+    /* ── AI SEARCH SECTION ── */
+    .ai-search-section {
+      background: linear-gradient(160deg, #0a1628 0%, #0d1f3c 60%, #050d1a 100%);
+      padding: 60px 24px 70px;
+      position: relative;
+      overflow: hidden;
     }
-    .section-intro h2 {
+    .ai-search-section::before {
+      content: '';
+      position: absolute; inset: 0; opacity: 0.04;
+      background-image: linear-gradient(#3b82f6 1px, transparent 1px), linear-gradient(90deg, #3b82f6 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .ai-search-inner {
+      position: relative;
+      max-width: 780px;
+      margin: 0 auto;
+    }
+    .ai-search-label {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 28px; justify-content: center;
+    }
+    .ai-live-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #22c55e;
+      animation: blink 1.5s ease infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .ai-search-label span {
+      font-size: .72rem; color: #60a5fa;
+      letter-spacing: 2px; font-weight: 700;
+      font-family: monospace; text-transform: uppercase;
+    }
+    .ai-search-heading {
       font-family: 'Playfair Display', serif;
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--navy);
+      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+      font-weight: 700; color: #f1f5f9;
+      text-align: center; margin-bottom: 8px;
     }
-    .section-intro p {
-      color: #5a6a7e;
-      max-width: 540px;
-      margin: 10px auto 0;
-      font-size: .97rem;
+    .ai-search-heading em { color: #60a5fa; font-style: italic; }
+    .ai-search-sub {
+      text-align: center; color: #475569;
+      font-size: .95rem; margin-bottom: 30px; line-height: 1.6;
     }
+    .ai-box {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 20px;
+      padding: 26px;
+    }
+    .ai-box textarea {
+      width: 100%; min-height: 96px;
+      background: #020b18; border: 1.5px solid #1e293b;
+      border-radius: 12px; padding: 14px 16px;
+      font-size: 14.5px; color: #e2e8f0;
+      font-family: 'DM Sans', sans-serif;
+      resize: vertical; line-height: 1.7;
+      transition: border .2s;
+    }
+    .ai-box textarea:focus { outline: none; border-color: #3b82f6; }
+    .ai-box-footer {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-top: 14px;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .ai-hint { font-size: 12px; color: #334155; }
+    .ai-hint.loading { color: #60a5fa; animation: blink 1s infinite; }
+    .ai-search-btn {
+      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+      color: #fff; border: none; border-radius: 10px;
+      padding: 12px 28px; font-size: 14px; font-weight: 700;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      letter-spacing: .3px; transition: all .2s;
+    }
+    .ai-search-btn:disabled {
+      background: #1e293b; color: #475569; cursor: not-allowed;
+    }
+    .ai-search-btn:not(:disabled):hover {
+      background: linear-gradient(135deg, #1e40af, #1d4ed8);
+      transform: translateY(-1px);
+    }
+
+    /* pipeline steps */
+    .ai-pipeline { margin-bottom: 22px; }
+    .ai-step {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid #0f172a;
+      font-size: 13.5px;
+    }
+    .ai-step-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 12px;
+    }
+    .ai-step-dot.done  { background: #14532d; border: 2px solid #22c55e; color: #22c55e; }
+    .ai-step-dot.active{ background: #1e3a8a; border: 2px solid #3b82f6; }
+    .ai-step-dot.idle  { background: #0f172a; border: 2px solid #1e293b; color: #334155; }
+    .spin-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      border: 2px solid #3b82f6; border-top-color: transparent;
+      animation: spin .7s linear infinite; display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* insight box */
+    .ai-insight {
+      background: linear-gradient(135deg, #0c1a2e, #0a1628);
+      border: 1px solid #1d4ed8; border-radius: 14px;
+      padding: 16px 20px; margin-bottom: 20px;
+    }
+    .ai-insight-label {
+      font-size: 11px; color: #3b82f6;
+      font-family: monospace; letter-spacing: 1.5px; margin-bottom: 8px;
+    }
+    .ai-insight p { color: #cbd5e1; font-size: 14px; line-height: 1.7; }
+    .ai-insight-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .ai-insight-tags span {
+      background: #0f172a; border: 1px solid #1e3a8a;
+      color: #93c5fd; border-radius: 6px;
+      padding: 2px 8px; font-size: 11px; font-family: monospace;
+    }
+
+    /* live grant cards */
+    .live-grants { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; }
+    .live-card {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 16px; padding: 20px 22px;
+      cursor: pointer; transition: border-color .2s;
+      animation: riseUp .5s ease both;
+    }
+    .live-card:hover { border-color: #3b82f6; }
+    .live-card-top { display: flex; gap: 16px; align-items: flex-start; }
+    .match-ring-wrap { flex-shrink: 0; }
+    .live-card-meta { flex: 1; min-width: 0; }
+    .live-card-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .badge-num  { background: #1e3a8a; color: #93c5fd; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700; font-family: monospace; }
+    .badge-amt  { background: #14532d; color: #86efac; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+    .badge-urgent{ background: #450a0a; color: #ef4444; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+    .badge-soon { background: #431407; color: #f59e0b; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+    .badge-open { background: #052e16; color: #22c55e; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+    .live-card-title { font-weight: 700; font-size: 14.5px; color: #f1f5f9; line-height: 1.4; margin-bottom: 4px; }
+    .live-card-agency { font-size: 12.5px; color: #64748b; }
+    .live-card-chevron { color: #475569; font-size: 18px; transition: transform .2s; }
+    .live-card-chevron.open { transform: rotate(180deg); }
+
+    .live-card-detail { margin-top: 18px; padding-top: 18px; border-top: 1px solid #1e293b; display: none; }
+    .live-card-detail.open { display: block; }
+    .ai-match-box {
+      background: #0c1a2e; border-radius: 10px;
+      padding: 12px 16px; margin-bottom: 14px;
+      border-left: 3px solid #3b82f6;
+    }
+    .ai-match-box-label { font-size: 11px; color: #3b82f6; font-family: monospace; letter-spacing: 1px; margin-bottom: 5px; }
+    .ai-match-box p { color: #cbd5e1; font-size: 13.5px; line-height: 1.6; margin-bottom: 8px; }
+    .ai-match-tip { font-size: 12.5px; color: #94a3b8; }
+    .ai-match-tip strong { color: #f59e0b; }
+    .live-card-desc { color: #94a3b8; font-size: 13px; line-height: 1.7; margin-bottom: 16px; }
+    .live-card-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .live-card-link {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #1d4ed8; color: #fff; border-radius: 8px;
+      padding: 8px 18px; font-size: 13px; font-weight: 600;
+      text-decoration: none; transition: background .2s;
+    }
+    .live-card-link:hover { background: #1e40af; color: #fff; text-decoration: none; }
+    .live-card-dates { color: #475569; font-size: 12px; padding: 8px 0; }
+
+    /* examples */
+    .ai-examples { margin-top: 22px; }
+    .ai-examples-label { font-size: 11px; color: #334155; letter-spacing: 2px; font-family: monospace; margin-bottom: 10px; }
+    .ai-example-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ai-chip {
+      background: #0f172a; border: 1px solid #1e293b;
+      border-radius: 20px; padding: 7px 14px;
+      font-size: 12.5px; color: #94a3b8;
+      cursor: pointer; transition: all .15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .ai-chip:hover { border-color: #3b82f6; color: #60a5fa; }
+
+    .ai-results-header {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 16px;
+    }
+    .ai-results-count { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: #f1f5f9; }
+    .ai-results-hint { font-size: 12px; color: #334155; }
+
+    .ai-new-search-btn {
+      display: block; margin: 20px auto 0;
+      background: none; border: 1px solid #1e293b;
+      border-radius: 10px; padding: 10px 24px;
+      color: #475569; font-size: 13px;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: all .15s;
+    }
+    .ai-new-search-btn:hover { border-color: #3b82f6; color: #60a5fa; }
+
+    .ai-error {
+      background: #1c0a0a; border: 1px solid #7f1d1d;
+      border-radius: 14px; padding: 20px;
+      color: #fca5a5; font-size: 14px; margin-bottom: 24px;
+    }
+    .ai-footer-note {
+      text-align: center; margin-top: 20px;
+      font-size: 11.5px; color: #1e293b; line-height: 1.8;
+    }
+    .ai-footer-note a { color: #334155; }
+
+    /* ── SECTION LABEL ── */
+    .section-intro { text-align: center; padding: 60px 20px 10px; }
+    .section-intro h2 { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--navy); }
+    .section-intro p { color: #5a6a7e; max-width: 540px; margin: 10px auto 0; font-size: .97rem; }
 
     /* ── CARDS GRID ── */
     .cards-section {
-      padding: 50px 40px 80px;
-      max-width: 1280px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      padding: 50px 40px 80px; max-width: 1280px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 32px;
     }
 
     /* ── INDIVIDUAL CARD ── */
     .scheme-card {
-      background: var(--card-bg);
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .35s ease;
-      opacity: 0;
-      transform: translateY(40px);
+      background: var(--card-bg); border-radius: 18px; overflow: hidden;
+      box-shadow: var(--shadow); display: flex; flex-direction: column;
+      position: relative; transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .35s ease;
+      opacity: 0; transform: translateY(40px);
     }
-    .scheme-card.visible {
-      animation: riseUp .55s ease forwards;
-    }
-    @keyframes riseUp {
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .scheme-card:hover {
-      transform: translateY(-10px) scale(1.02);
-      box-shadow: 0 24px 60px rgba(13,27,42,.2);
-    }
-
-    /* top color bar per card */
+    .scheme-card.visible { animation: riseUp .55s ease forwards; }
+    @keyframes riseUp { to { opacity: 1; transform: translateY(0); } }
+    .scheme-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 24px 60px rgba(13,27,42,.2); }
     .scheme-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 4px;
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
       background: linear-gradient(90deg, var(--card-accent, var(--navy)), var(--gold2));
       z-index: 2;
     }
-
-    .card-img-wrap {
-      position: relative;
-      height: 190px;
-      overflow: hidden;
-    }
-    .card-img-wrap img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      transition: transform .5s ease;
-    }
-    .scheme-card:hover .card-img-wrap img {
-      transform: scale(1.08);
-    }
-    .card-img-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(0deg, rgba(13,27,42,.6) 0%, transparent 55%);
-    }
+    .card-img-wrap { position: relative; height: 190px; overflow: hidden; }
+    .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+    .scheme-card:hover .card-img-wrap img { transform: scale(1.08); }
+    .card-img-overlay { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(13,27,42,.6) 0%, transparent 55%); }
     .card-tag {
-      position: absolute;
-      bottom: 12px; left: 14px;
-      background: var(--gold);
-      color: var(--navy);
-      font-size: .68rem;
-      font-weight: 700;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      padding: 3px 10px;
-      border-radius: 12px;
+      position: absolute; bottom: 12px; left: 14px;
+      background: var(--gold); color: var(--navy);
+      font-size: .68rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; padding: 3px 10px; border-radius: 12px;
     }
-
-    .card-body {
-      padding: 22px 22px 20px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
+    .card-body { padding: 22px 22px 20px; flex: 1; display: flex; flex-direction: column; }
     .card-icon {
-      width: 42px; height: 42px;
-      border-radius: 10px;
+      width: 42px; height: 42px; border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem;
-      color: white;
-      margin-bottom: 14px;
-      flex-shrink: 0;
+      font-size: 1.1rem; color: white; margin-bottom: 14px; flex-shrink: 0;
     }
-    .card-body h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 10px;
-      line-height: 1.3;
-    }
-    .card-body p {
-      font-size: .9rem;
-      color: #5a6a7e;
-      line-height: 1.6;
-      flex: 1;
-    }
+    .card-body h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--navy); margin-bottom: 10px; line-height: 1.3; }
+    .card-body p { font-size: .9rem; color: #5a6a7e; line-height: 1.6; flex: 1; }
     .card-funding {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin: 14px 0 16px;
-      font-size: .82rem;
-      font-weight: 600;
-      color: var(--navy2);
-      background: #f0f4f8;
-      padding: 5px 12px;
-      border-radius: 20px;
+      display: inline-flex; align-items: center; gap: 6px;
+      margin: 14px 0 16px; font-size: .82rem; font-weight: 600;
+      color: var(--navy2); background: #f0f4f8; padding: 5px 12px; border-radius: 20px;
     }
     .card-funding i { color: var(--gold); }
-
     .apply-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 12px 20px;
-      background: var(--navy);
-      color: white;
-      border-radius: 10px;
-      text-decoration: none;
-      font-size: .88rem;
-      font-weight: 600;
-      letter-spacing: .03em;
-      transition: background .25s, transform .2s;
-      margin-top: auto;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 20px; background: var(--navy); color: white;
+      border-radius: 10px; text-decoration: none;
+      font-size: .88rem; font-weight: 600; letter-spacing: .03em;
+      transition: background .25s, transform .2s; margin-top: auto;
     }
-    .apply-btn:hover {
-      background: var(--gold);
-      color: var(--navy);
-      transform: translateX(3px);
-      text-decoration: none;
-    }
+    .apply-btn:hover { background: var(--gold); color: var(--navy); transform: translateX(3px); text-decoration: none; }
     .apply-btn i { font-size: .8rem; }
 
     /* ── FOOTER ── */
-    .site-footer {
-      background: var(--navy);
-      color: rgba(255,255,255,.7);
-      padding: 50px 40px;
-    }
-    .footer-brand {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.6rem;
-      color: white;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
+    .site-footer { background: var(--navy); color: rgba(255,255,255,.7); padding: 50px 40px; }
+    .footer-brand { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: white; font-weight: 700; margin-bottom: 10px; }
     .footer-brand span { color: var(--gold2); }
     .footer-icons { display: flex; gap: 14px; margin-top: 14px; }
     .footer-icons a {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,.2);
+      width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,.2);
       display: flex; align-items: center; justify-content: center;
-      color: rgba(255,255,255,.6);
-      font-size: 1rem;
-      transition: border-color .2s, color .2s, background .2s;
-      text-decoration: none;
+      color: rgba(255,255,255,.6); font-size: 1rem;
+      transition: border-color .2s, color .2s, background .2s; text-decoration: none;
     }
-    .footer-icons a:hover {
-      border-color: var(--gold);
-      color: var(--gold);
-      background: rgba(201,144,42,.1);
-    }
+    .footer-icons a:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,144,42,.1); }
     .footer-links { list-style: none; padding: 0; }
     .footer-links li { margin-bottom: 8px; }
-    .footer-links a {
-      color: rgba(255,255,255,.6);
-      text-decoration: none;
-      font-size: .9rem;
-      transition: color .2s;
-    }
+    .footer-links a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .9rem; transition: color .2s; }
     .footer-links a:hover { color: var(--gold2); }
-    .footer-label {
-      font-size: .75rem;
-      font-weight: 700;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 16px;
-    }
+    .footer-label { font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
     .footer-contact { display: flex; flex-direction: column; gap: 10px; }
-    .footer-contact a {
-      display: flex; align-items: center; gap: 10px;
-      color: rgba(255,255,255,.65);
-      text-decoration: none;
-      font-size: .9rem;
-      transition: color .2s;
-    }
+    .footer-contact a { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.65); text-decoration: none; font-size: .9rem; transition: color .2s; }
     .footer-contact a:hover { color: var(--gold2); }
     .footer-contact i { color: var(--gold); width: 16px; }
-    .footer-bottom {
-      border-top: 1px solid rgba(255,255,255,.1);
-      margin-top: 40px;
-      padding-top: 20px;
-      text-align: center;
-      font-size: .82rem;
-      color: rgba(255,255,255,.35);
-    }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,.1); margin-top: 40px; padding-top: 20px; text-align: center; font-size: .82rem; color: rgba(255,255,255,.35); }
 
     /* ── SCROLL PROGRESS BAR ── */
-    #progress-bar {
-      position: fixed;
-      top: 69px; left: 0;
-      height: 3px;
-      width: 0%;
-      background: linear-gradient(90deg, var(--red), var(--gold2));
-      z-index: 2000;
-      transition: width .1s linear;
-    }
+    #progress-bar { position: fixed; top: 69px; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, var(--red), var(--gold2)); z-index: 2000; transition: width .1s linear; }
 
-    /* ── RESPONSIVE ── */
-    @media (max-width: 768px) {
-      .cards-section { padding: 30px 20px 60px; }
-      .hero h1 { font-size: 2rem; }
-    }
+    @media (max-width: 768px) { .cards-section { padding: 30px 20px 60px; } .hero h1 { font-size: 2rem; } }
   </style>
 </head>
 <body>
 
-<!-- Scroll Progress Bar -->
 <div id="progress-bar"></div>
 
 <!-- ── NAVBAR ── -->
@@ -390,7 +419,7 @@
     <a class="navbar-brand" href="#">
       <img src="{% static 'main/logo69.png' %}" alt="StartUp Incubator" width="218" height="47" class="d-inline-block align-text-top ms-2" />
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
@@ -403,7 +432,7 @@
         <li class="nav-item"><div id="google_translate_element"></div></li>
         <li class="nav-item">
           <div class="dropdown">
-            <button style="border-color:transparent" class="btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <button style="border-color:transparent" class="btn" type="button" id="userDropdown" data-bs-toggle="dropdown">
               <i class="fa-regular fa-user" style="color:white;"></i>
             </button>
             <ul style="left:-8rem" class="dropdown-menu" aria-labelledby="userDropdown">
@@ -429,172 +458,200 @@
   </div>
 </section>
 
-<!-- ── SECTION INTRO ── -->
+<!-- ═══════════════════════════════════════════════════════
+     AI LIVE GRANTS FINDER
+═══════════════════════════════════════════════════════ -->
+<section class="ai-search-section">
+  <div class="ai-search-inner">
+
+    <div class="ai-search-label">
+      <div class="ai-live-dot"></div>
+      <span>Live · Grants.gov Database · AI-Powered</span>
+    </div>
+    <h2 class="ai-search-heading">Find Grants for <em>Your Startup Idea</em></h2>
+    <p class="ai-search-sub">Describe your idea below — AI extracts keywords, searches live federal grants, then ranks and explains the best matches for you.</p>
+
+    <!-- Search box -->
+    <div class="ai-box" id="aiSearchBox">
+      <textarea id="aiIdeaInput" placeholder="Describe your startup idea… e.g. 'A mobile app using AI to help rural farmers detect crop disease early using smartphone photos'"></textarea>
+      <div class="ai-box-footer">
+        <span class="ai-hint" id="aiHint">Press Enter or click Search</span>
+        <button class="ai-search-btn" id="aiSearchBtn" onclick="runAISearch()">
+          Search Live Grants →
+        </button>
+      </div>
+    </div>
+
+    <!-- Examples (shown when idle) -->
+    <div class="ai-examples" id="aiExamples">
+      <div class="ai-examples-label">TRY AN EXAMPLE</div>
+      <div class="ai-example-chips">
+        <button class="ai-chip" onclick="runExample(this)">AI-powered crop disease detection for small farms</button>
+        <button class="ai-chip" onclick="runExample(this)">Affordable mental health platform for veterans</button>
+        <button class="ai-chip" onclick="runExample(this)">Clean hydrogen fuel cell for trucking fleets</button>
+        <button class="ai-chip" onclick="runExample(this)">Cybersecurity training tool for K-12 schools</button>
+      </div>
+    </div>
+
+    <!-- Pipeline status (shown while loading) -->
+    <div id="aiPipeline" style="display:none; margin-top:22px;">
+      <div class="ai-step" id="step-extracting">
+        <div class="ai-step-dot idle" id="dot-extracting">·</div>
+        <span id="label-extracting" style="color:#334155;">🤖 AI keyword extraction</span>
+        <span id="query-tag" style="margin-left:auto;font-size:11px;color:#475569;font-family:monospace;"></span>
+      </div>
+      <div class="ai-step" id="step-fetching">
+        <div class="ai-step-dot idle" id="dot-fetching">·</div>
+        <span id="label-fetching" style="color:#334155;">🔍 Live Grants.gov query</span>
+      </div>
+      <div class="ai-step" id="step-ranking">
+        <div class="ai-step-dot idle" id="dot-ranking">·</div>
+        <span id="label-ranking" style="color:#334155;">📊 AI match &amp; ranking</span>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div id="aiError" class="ai-error" style="display:none;margin-top:20px;"></div>
+
+    <!-- Results -->
+    <div id="aiResults" style="display:none; margin-top:28px;">
+      <div class="ai-insight" id="aiInsightBox" style="display:none;">
+        <div class="ai-insight-label">✦ AI FUNDING LANDSCAPE INSIGHT</div>
+        <p id="aiInsightText"></p>
+        <div class="ai-insight-tags" id="aiInsightTags"></div>
+      </div>
+      <div class="ai-results-header">
+        <div class="ai-results-count" id="aiResultsCount"></div>
+        <div class="ai-results-hint">Click any card to expand</div>
+      </div>
+      <div class="live-grants" id="liveGrantsList"></div>
+      <button class="ai-new-search-btn" onclick="resetAI()">← Search Another Idea</button>
+      <div class="ai-footer-note">
+        Data sourced live from <a href="https://www.grants.gov" target="_blank">Grants.gov</a> · Official US federal grants database · AI analysis by Claude
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── SECTION INTRO (static cards) ── -->
 <div class="section-intro">
-  <h2>Programs Available to You</h2>
-  <p>Each program below is backed by a federal agency. Click "Apply Now" to visit the official government portal.</p>
+  <h2>Featured Programs</h2>
+  <p>Well-known federal programs every startup should know about. Click "Apply Now" to visit the official government portal.</p>
 </div>
 
-<!-- ── CARDS GRID ── -->
+<!-- ── STATIC CARDS GRID ── -->
 <div class="cards-section" id="cardsGrid">
 
-  <!-- 1 -->
   <div class="scheme-card" style="--card-accent:#b22234;">
     <div class="card-img-wrap">
       <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600&q=80" alt="SBA Loans" loading="lazy">
-      <div class="card-img-overlay"></div>
-      <span class="card-tag">Loan</span>
+      <div class="card-img-overlay"></div><span class="card-tag">Loan</span>
     </div>
     <div class="card-body">
-      <div class="card-icon" style="background:linear-gradient(135deg,#b22234,#c9902a);">
-        <i class="fas fa-landmark"></i>
-      </div>
+      <div class="card-icon" style="background:linear-gradient(135deg,#b22234,#c9902a);"><i class="fas fa-landmark"></i></div>
       <h3>SBA 7(a) Loan Program</h3>
       <p>The SBA's most common loan program for working capital, equipment purchase, and business expansion.</p>
       <div class="card-funding"><i class="fas fa-dollar-sign"></i> Up to $5,000,000</div>
-      <a href="https://www.sba.gov/funding-programs/loans/7a-loans" class="apply-btn" target="_blank">
-        Apply Now <i class="fas fa-arrow-right"></i>
-      </a>
+      <a href="https://www.sba.gov/funding-programs/loans/7a-loans" class="apply-btn" target="_blank">Apply Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 
-  <!-- 2 -->
   <div class="scheme-card" style="--card-accent:#0d4f8c;">
     <div class="card-img-wrap">
       <img src="https://images.unsplash.com/photo-1532094349884-543559b9f4ab?w=600&q=80" alt="SBIR Research" loading="lazy">
-      <div class="card-img-overlay"></div>
-      <span class="card-tag">R&amp;D Grant</span>
+      <div class="card-img-overlay"></div><span class="card-tag">R&amp;D Grant</span>
     </div>
     <div class="card-body">
-      <div class="card-icon" style="background:linear-gradient(135deg,#0d4f8c,#0d1b2a);">
-        <i class="fas fa-flask"></i>
-      </div>
+      <div class="card-icon" style="background:linear-gradient(135deg,#0d4f8c,#0d1b2a);"><i class="fas fa-flask"></i></div>
       <h3>Small Business Innovation Research (SBIR)</h3>
       <p>Competitive grants for early-stage R&amp;D with high commercialization potential across federal agencies.</p>
       <div class="card-funding"><i class="fas fa-dollar-sign"></i> Up to $2,000,000</div>
-      <a href="https://www.sbir.gov/" class="apply-btn" target="_blank">
-        Apply Now <i class="fas fa-arrow-right"></i>
-      </a>
+      <a href="https://www.sbir.gov/" class="apply-btn" target="_blank">Apply Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 
-  <!-- 3 -->
   <div class="scheme-card" style="--card-accent:#1a7a4a;">
     <div class="card-img-wrap">
       <img src="https://images.unsplash.com/photo-1606761568499-6d2451b23c66?w=600&q=80" alt="University Research" loading="lazy">
-      <div class="card-img-overlay"></div>
-      <span class="card-tag">Research Transfer</span>
+      <div class="card-img-overlay"></div><span class="card-tag">Research Transfer</span>
     </div>
     <div class="card-body">
-      <div class="card-icon" style="background:linear-gradient(135deg,#1a7a4a,#2aad6a);">
-        <i class="fas fa-university"></i>
-      </div>
+      <div class="card-icon" style="background:linear-gradient(135deg,#1a7a4a,#2aad6a);"><i class="fas fa-university"></i></div>
       <h3>Small Business Technology Transfer (STTR)</h3>
       <p>Partners small businesses with universities and research institutions to move innovations from the lab to the market.</p>
       <div class="card-funding"><i class="fas fa-dollar-sign"></i> Up to $1,500,000</div>
-      <a href="https://www.sbir.gov/about/about-sttr" class="apply-btn" target="_blank">
-        Apply Now <i class="fas fa-arrow-right"></i>
-      </a>
+      <a href="https://www.sbir.gov/about/about-sttr" class="apply-btn" target="_blank">Apply Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 
-  <!-- 4 -->
   <div class="scheme-card" style="--card-accent:#7b4f12;">
     <div class="card-img-wrap">
       <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&q=80" alt="Microloan" loading="lazy">
-      <div class="card-img-overlay"></div>
-      <span class="card-tag">Microloan</span>
+      <div class="card-img-overlay"></div><span class="card-tag">Microloan</span>
     </div>
     <div class="card-body">
-      <div class="card-icon" style="background:linear-gradient(135deg,#c9902a,#f0b429);">
-        <i class="fas fa-coins"></i>
-      </div>
+      <div class="card-icon" style="background:linear-gradient(135deg,#c9902a,#f0b429);"><i class="fas fa-coins"></i></div>
       <h3>SBA Microloan Program</h3>
       <p>Small loans for startups and nonprofits needing capital to start up or expand, distributed through approved lenders.</p>
       <div class="card-funding"><i class="fas fa-dollar-sign"></i> Up to $50,000</div>
-      <a href="https://www.sba.gov/funding-programs/loans/microloans" class="apply-btn" target="_blank">
-        Apply Now <i class="fas fa-arrow-right"></i>
-      </a>
+      <a href="https://www.sba.gov/funding-programs/loans/microloans" class="apply-btn" target="_blank">Apply Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 
-  <!-- 5 -->
   <div class="scheme-card" style="--card-accent:#5a2d82;">
     <div class="card-img-wrap">
       <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=600&q=80" alt="SCORE Mentorship" loading="lazy">
-      <div class="card-img-overlay"></div>
-      <span class="card-tag">Mentorship</span>
+      <div class="card-img-overlay"></div><span class="card-tag">Mentorship</span>
     </div>
     <div class="card-body">
-      <div class="card-icon" style="background:linear-gradient(135deg,#5a2d82,#9b59b6);">
-        <i class="fas fa-hands-helping"></i>
-      </div>
+      <div class="card-icon" style="background:linear-gradient(135deg,#5a2d82,#9b59b6);"><i class="fas fa-hands-helping"></i></div>
       <h3>SCORE Mentorship Program</h3>
       <p>Free SBA-sponsored program connecting entrepreneurs with experienced volunteer mentors, workshops, and business resources.</p>
       <div class="card-funding"><i class="fas fa-star"></i> Free of Charge</div>
-      <a href="https://www.score.org/" class="apply-btn" target="_blank">
-        Apply Now <i class="fas fa-arrow-right"></i>
-      </a>
+      <a href="https://www.score.org/" class="apply-btn" target="_blank">Apply Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 
-  <!-- 6 -->
   <div class="scheme-card" style="--card-accent:#b22234;">
     <div class="card-img-wrap">
       <img src="https://images.unsplash.com/photo-1573497161161-c3e73707e25c?w=600&q=80" alt="Women Owned Business" loading="lazy">
-      <div class="card-img-overlay"></div>
-      <span class="card-tag">Federal Contracting</span>
+      <div class="card-img-overlay"></div><span class="card-tag">Federal Contracting</span>
     </div>
     <div class="card-body">
-      <div class="card-icon" style="background:linear-gradient(135deg,#b22234,#e74c3c);">
-        <i class="fas fa-female"></i>
-      </div>
+      <div class="card-icon" style="background:linear-gradient(135deg,#b22234,#e74c3c);"><i class="fas fa-female"></i></div>
       <h3>Women-Owned Small Business (WOSB) Program</h3>
       <p>Helps women-owned small businesses compete for federal set-aside contracts across underrepresented industries.</p>
       <div class="card-funding"><i class="fas fa-file-contract"></i> Federal Contracts</div>
-      <a href="https://www.sba.gov/federal-contracting/contracting-assistance-programs/women-owned-small-business-federal-contracting-program" class="apply-btn" target="_blank">
-        Apply Now <i class="fas fa-arrow-right"></i>
-      </a>
+      <a href="https://www.sba.gov/federal-contracting/contracting-assistance-programs/women-owned-small-business-federal-contracting-program" class="apply-btn" target="_blank">Apply Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 
-  <!-- 7 -->
   <div class="scheme-card" style="--card-accent:#1a5c9e;">
     <div class="card-img-wrap">
       <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80" alt="SBA 8a Program" loading="lazy">
-      <div class="card-img-overlay"></div>
-      <span class="card-tag">Business Development</span>
+      <div class="card-img-overlay"></div><span class="card-tag">Business Development</span>
     </div>
     <div class="card-body">
-      <div class="card-icon" style="background:linear-gradient(135deg,#1a5c9e,#2980b9);">
-        <i class="fas fa-handshake"></i>
-      </div>
+      <div class="card-icon" style="background:linear-gradient(135deg,#1a5c9e,#2980b9);"><i class="fas fa-handshake"></i></div>
       <h3>SBA 8(a) Business Development Program</h3>
       <p>Supports businesses owned by socially and economically disadvantaged individuals with mentoring and federal contracting access.</p>
       <div class="card-funding"><i class="fas fa-file-contract"></i> Federal Contracts</div>
-      <a href="https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program" class="apply-btn" target="_blank">
-        Apply Now <i class="fas fa-arrow-right"></i>
-      </a>
+      <a href="https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program" class="apply-btn" target="_blank">Apply Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 
-  <!-- 8 -->
   <div class="scheme-card" style="--card-accent:#1a7a4a;">
     <div class="card-img-wrap">
       <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&q=80" alt="EDA Build to Scale" loading="lazy">
-      <div class="card-img-overlay"></div>
-      <span class="card-tag">Ecosystem Grant</span>
+      <div class="card-img-overlay"></div><span class="card-tag">Ecosystem Grant</span>
     </div>
     <div class="card-body">
-      <div class="card-icon" style="background:linear-gradient(135deg,#1a7a4a,#16a085);">
-        <i class="fas fa-rocket"></i>
-      </div>
+      <div class="card-icon" style="background:linear-gradient(135deg,#1a7a4a,#16a085);"><i class="fas fa-rocket"></i></div>
       <h3>EDA Build to Scale Program</h3>
       <p>EDA awards grants to regional organizations that accelerate startup growth and innovation-driven entrepreneurship ecosystems.</p>
       <div class="card-funding"><i class="fas fa-dollar-sign"></i> Varies by Region</div>
-      <a href="https://www.eda.gov/funding/programs/build-to-scale" class="apply-btn" target="_blank">
-        Apply Now <i class="fas fa-arrow-right"></i>
-      </a>
+      <a href="https://www.eda.gov/funding/programs/build-to-scale" class="apply-btn" target="_blank">Apply Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 
@@ -606,9 +663,7 @@
     <div class="row gy-4">
       <div class="col-lg-4">
         <div class="footer-brand">StartUp <span>Incubator</span></div>
-        <p style="font-size:.9rem;color:rgba(255,255,255,.55);max-width:280px;">
-          Connecting American entrepreneurs with the resources they need to build the future.
-        </p>
+        <p style="font-size:.9rem;color:rgba(255,255,255,.55);max-width:280px;">Connecting American entrepreneurs with the resources they need to build the future.</p>
         <div class="footer-icons">
           <a href="#"><i class="fab fa-youtube"></i></a>
           <a href="#"><i class="fab fa-facebook"></i></a>
@@ -642,9 +697,7 @@
         </div>
       </div>
     </div>
-    <div class="footer-bottom">
-      &copy; 2025 StartUp Incubator. All rights reserved. &nbsp;|&nbsp; Proudly American 🇺🇸
-    </div>
+    <div class="footer-bottom">&copy; 2025 StartUp Incubator. All rights reserved. &nbsp;|&nbsp; Proudly American 🇺🇸</div>
   </div>
 </footer>
 
@@ -653,37 +706,30 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
 
 <!-- Google Translate -->
-<script type="text/javascript">
+<script>
   function googleTranslateElementInit() {
     new google.translate.TranslateElement({pageLanguage:'en'}, 'google_translate_element');
   }
 </script>
-<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 <script>
-  // ── Generate star field ──
+  /* ── Star field ── */
   const starsEl = document.getElementById('stars');
   for (let i = 0; i < 80; i++) {
     const s = document.createElement('div');
     s.className = 'star';
-    s.style.cssText = `
-      left:${Math.random()*100}%;
-      top:${Math.random()*100}%;
-      --d:${2 + Math.random()*4}s;
-      --delay:${Math.random()*4}s;
-      width:${1+Math.random()*2}px;
-      height:${1+Math.random()*2}px;
-    `;
+    s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${Math.random()*4}s;width:${1+Math.random()*2}px;height:${1+Math.random()*2}px;`;
     starsEl.appendChild(s);
   }
 
-  // ── Scroll progress bar ──
+  /* ── Scroll progress ── */
   window.addEventListener('scroll', () => {
     const total = document.documentElement.scrollHeight - window.innerHeight;
     document.getElementById('progress-bar').style.width = (window.scrollY / total * 100) + '%';
   });
 
-  // ── Intersection Observer: card entrance animations ──
+  /* ── Card entrance animations ── */
   const cards = document.querySelectorAll('.scheme-card');
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry, i) => {
@@ -694,6 +740,228 @@
     });
   }, { threshold: 0.1 });
   cards.forEach(c => observer.observe(c));
+
+  /* ═══════════════════════════════════════════════════════
+     AI GRANTS FINDER LOGIC
+  ═══════════════════════════════════════════════════════ */
+
+  let currentStage = 'idle';
+
+  /* Enter key support */
+  document.getElementById('aiIdeaInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); runAISearch(); }
+  });
+
+  function runExample(btn) {
+    document.getElementById('aiIdeaInput').value = btn.textContent;
+    runAISearch();
+  }
+
+  function setStage(stage, kw) {
+    currentStage = stage;
+    const stages = ['extracting','fetching','ranking'];
+    const stageIdx = stages.indexOf(stage);
+    const labels = { extracting:'🤖 AI keyword extraction', fetching:'🔍 Live Grants.gov query', ranking:'📊 AI match &amp; ranking' };
+    const hints   = { extracting:'🤖 AI analyzing your idea…', fetching:'🔍 Querying Grants.gov live…', ranking:'📊 AI ranking results…' };
+
+    stages.forEach((s, i) => {
+      const dot   = document.getElementById('dot-' + s);
+      const label = document.getElementById('label-' + s);
+      dot.className = 'ai-step-dot ' + (i < stageIdx ? 'done' : i === stageIdx ? 'active' : 'idle');
+      dot.innerHTML = i < stageIdx ? '✓' : i === stageIdx ? '<span class="spin-dot"></span>' : '·';
+      label.style.color = i < stageIdx ? '#22c55e' : i === stageIdx ? '#60a5fa' : '#334155';
+      label.style.fontWeight = i === stageIdx ? '700' : '400';
+      label.innerHTML = labels[s];
+    });
+    document.getElementById('aiHint').textContent = hints[stage] || '';
+    document.getElementById('aiHint').className = 'ai-hint loading';
+    if (kw) document.getElementById('query-tag').textContent = `query: "${kw}"`;
+  }
+
+  async function callClaude(system, userMsg) {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system,
+        messages: [{ role: 'user', content: userMsg }]
+      })
+    });
+    const data = await res.json();
+    const text = (data.content || []).map(i => i.text || '').join('');
+    return JSON.parse(text.replace(/```json|```/g,'').trim());
+  }
+
+  async function fetchGrantsGov(query) {
+    const res = await fetch('https://apply07.grants.gov/grantsws/rest/opportunities/search/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ keyword: query, oppStatuses: 'forecasted|posted', rows: 20, startRecordNum: 0, sortBy: 'openDate|desc' })
+    });
+    const data = await res.json();
+    return (data.oppHits || []).map(g => ({
+      id: g.id, title: g.title, agencyName: g.agencyName,
+      description: g.synopsis || '', openDate: g.openDate,
+      closeDate: g.closeDate, awardCeiling: g.awardCeiling,
+      awardFloor: g.awardFloor, oppNumber: g.number,
+      link: `https://www.grants.gov/search-results-detail/${g.id}`
+    }));
+  }
+
+  function fmtMoney(v) {
+    if (!v || v==='0') return null;
+    const n = parseInt(v); if (isNaN(n)) return null;
+    return n>=1e6 ? `$${(n/1e6).toFixed(1)}M` : n>=1000 ? `$${(n/1000).toFixed(0)}K` : `$${n}`;
+  }
+
+  function daysUntil(d) {
+    if (!d) return null;
+    return Math.ceil((new Date(d) - Date.now()) / 86400000);
+  }
+
+  function matchRingSVG(score) {
+    const r=22, circ=2*Math.PI*r, fill=(score/100)*circ;
+    const col = score>=75?'#22c55e':score>=50?'#f59e0b':'#ef4444';
+    return `<svg width="56" height="56"><circle cx="28" cy="28" r="${r}" fill="none" stroke="#1e293b" stroke-width="4"/>
+    <circle cx="28" cy="28" r="${r}" fill="none" stroke="${col}" stroke-width="4"
+      stroke-dasharray="${fill} ${circ}" stroke-linecap="round" transform="rotate(-90 28 28)"/>
+    <text x="28" y="33" text-anchor="middle" font-size="12" font-weight="800" fill="${col}">${score}</text></svg>`;
+  }
+
+  function buildLiveCard(grant, aiData, idx) {
+    const days = daysUntil(grant.closeDate);
+    const ceil = fmtMoney(grant.awardCeiling), floor = fmtMoney(grant.awardFloor);
+    const amt  = ceil ? (floor && floor!==ceil ? `${floor}–${ceil}` : ceil) : null;
+    const urgClass = days!==null&&days<=14?'badge-urgent':days!==null&&days<=30?'badge-soon':'badge-open';
+    const urgLabel = days!==null ? `⏱ ${days}d left` : '⏱ Open';
+
+    const aiBlock = aiData ? `
+      <div class="ai-match-box">
+        <div class="ai-match-box-label">AI MATCH ANALYSIS</div>
+        <p>${aiData.matchReason||''}</p>
+        <div class="ai-match-tip"><strong>💡 Tip:</strong> ${aiData.tip||''}</div>
+      </div>` : '';
+
+    const desc = grant.description ? `<p class="live-card-desc">${grant.description.slice(0,400)}${grant.description.length>400?'…':''}</p>` : '';
+    const dates = [grant.openDate?`Opened: ${grant.openDate}`:'', grant.closeDate?`Closes: ${grant.closeDate}`:''].filter(Boolean).join(' · ');
+
+    return `
+      <div class="live-card" id="lc-${idx}" style="animation-delay:${idx*0.07}s" onclick="toggleCard(${idx})">
+        <div class="live-card-top">
+          ${aiData ? `<div class="match-ring-wrap">${matchRingSVG(aiData.matchScore)}</div>` : ''}
+          <div class="live-card-meta">
+            <div class="live-card-badges">
+              ${grant.oppNumber?`<span class="badge-num">${grant.oppNumber}</span>`:''}
+              ${amt?`<span class="badge-amt">${amt}</span>`:''}
+              <span class="${urgClass}">${urgLabel}</span>
+            </div>
+            <div class="live-card-title">${grant.title}</div>
+            <div class="live-card-agency">${grant.agencyName}</div>
+          </div>
+          <div class="live-card-chevron" id="chev-${idx}">▾</div>
+        </div>
+        <div class="live-card-detail" id="lcd-${idx}">
+          ${aiBlock}
+          ${desc}
+          <div class="live-card-actions">
+            <a href="${grant.link}" target="_blank" class="live-card-link" onclick="event.stopPropagation()">View on Grants.gov ↗</a>
+            ${dates?`<div class="live-card-dates">${dates}</div>`:''}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function toggleCard(idx) {
+    const detail = document.getElementById('lcd-'+idx);
+    const chev   = document.getElementById('chev-'+idx);
+    const card   = document.getElementById('lc-'+idx);
+    const open   = detail.classList.toggle('open');
+    chev.classList.toggle('open', open);
+    card.style.borderColor = open ? '#3b82f6' : '';
+  }
+
+  async function runAISearch() {
+    const idea = document.getElementById('aiIdeaInput').value.trim();
+    if (!idea) return;
+
+    document.getElementById('aiExamples').style.display = 'none';
+    document.getElementById('aiPipeline').style.display = 'block';
+    document.getElementById('aiResults').style.display  = 'none';
+    document.getElementById('aiError').style.display    = 'none';
+    document.getElementById('aiSearchBtn').disabled = true;
+    document.getElementById('liveGrantsList').innerHTML = '';
+
+    try {
+      /* Step 1: extract keywords */
+      setStage('extracting');
+      const kw = await callClaude(
+        `Extract the best 2-3 word search query for finding US federal grants on Grants.gov.
+Return ONLY JSON, no markdown: {"query":"...","category":"...","tags":["...","...","..."]}`,
+        `Startup idea: "${idea}"`
+      );
+      setStage('fetching', kw.query);
+
+      /* Step 2: live Grants.gov */
+      const grants = await fetchGrantsGov(kw.query || idea);
+      if (!grants.length) throw new Error('No active grants found. Try rephrasing your idea.');
+      setStage('ranking');
+
+      /* Step 3: AI ranking */
+      const simplified = grants.slice(0,12).map(g=>({id:g.id,title:g.title,agency:g.agencyName,description:(g.description||'').slice(0,300),closeDate:g.closeDate,award:g.awardCeiling}));
+      const ranked = await callClaude(
+        `You are a startup funding expert. Rank the TOP 6 most relevant grants for the startup idea and explain each.
+Return ONLY JSON, no markdown:
+{"ranked":[{"id":"...","matchScore":85,"matchReason":"...","tip":"..."}],"insight":"..."}`,
+        `Startup idea: "${idea}"\n\nGrants: ${JSON.stringify(simplified)}`
+      );
+
+      /* Merge & render */
+      const aiMap = {};
+      (ranked.ranked||[]).forEach(r => { aiMap[String(r.id)] = r; });
+      const merged = grants.map(g => ({...g, ai: aiMap[String(g.id)]||null}));
+      const sorted = [
+        ...merged.filter(g=>g.ai).sort((a,b)=>b.ai.matchScore-a.ai.matchScore),
+        ...merged.filter(g=>!g.ai)
+      ];
+
+      /* Insight */
+      if (ranked.insight) {
+        document.getElementById('aiInsightText').textContent = ranked.insight;
+        const tagsEl = document.getElementById('aiInsightTags');
+        tagsEl.innerHTML = (kw.tags||[]).map(t=>`<span>#${t}</span>`).join('');
+        document.getElementById('aiInsightBox').style.display = 'block';
+      }
+
+      document.getElementById('aiResultsCount').textContent = `${grants.length} Live Grants Found`;
+      document.getElementById('liveGrantsList').innerHTML = sorted.map((g,i)=>buildLiveCard(g,g.ai,i)).join('');
+      document.getElementById('aiResults').style.display = 'block';
+      document.getElementById('aiPipeline').style.display = 'none';
+      document.getElementById('aiHint').textContent = 'Press Enter or click Search';
+      document.getElementById('aiHint').className = 'ai-hint';
+
+    } catch(err) {
+      document.getElementById('aiPipeline').style.display = 'none';
+      document.getElementById('aiError').textContent = '⚠️ ' + err.message;
+      document.getElementById('aiError').style.display = 'block';
+      document.getElementById('aiHint').textContent = 'Press Enter or click Search';
+      document.getElementById('aiHint').className = 'ai-hint';
+    }
+
+    document.getElementById('aiSearchBtn').disabled = false;
+  }
+
+  function resetAI() {
+    document.getElementById('aiIdeaInput').value = '';
+    document.getElementById('aiResults').style.display = 'none';
+    document.getElementById('aiPipeline').style.display = 'none';
+    document.getElementById('aiError').style.display = 'none';
+    document.getElementById('aiInsightBox').style.display = 'none';
+    document.getElementById('aiExamples').style.display = 'block';
+    document.getElementById('query-tag').textContent = '';
+    currentStage = 'idle';
+  }
 </script>
 
 </body>
