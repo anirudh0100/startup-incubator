@@ -419,11 +419,17 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
 <script>
 
-  // ─────────────────────────────────────────
-  // 🔑 PASTE YOUR NEW GROQ KEY HERE
-  const GROQ_API_KEY = 'gsk_YOUR_NEW_KEY_HERE';
-  // Get a free key at https://console.groq.com/keys
-  // ─────────────────────────────────────────
+  /* ── API key: stored in localStorage, prompted once ── */
+  function getKey(){
+    let k=localStorage.getItem('groq_api_key')||'';
+    if(!k||!k.startsWith('gsk_')){
+      k=(prompt('Enter your Groq API key to search grants.\nGet a free key at: console.groq.com/keys\n\nKey starts with gsk_')||'').trim();
+      if(!k)return null;
+      if(!k.startsWith('gsk_')){alert('Invalid key — should start with gsk_. Try again.');return null;}
+      localStorage.setItem('groq_api_key',k);
+    }
+    return k;
+  }
 
   /* Stars */
   const starsEl = document.getElementById('stars');
@@ -533,11 +539,8 @@
 
   /* ── MAIN SEARCH ── */
   async function runSearch() {
-    if (!GROQ_API_KEY || GROQ_API_KEY === 'gsk_YOUR_NEW_KEY_HERE') {
-      document.getElementById('errBox').textContent = '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';
-      document.getElementById('errBox').style.display = 'block';
-      return;
-    }
+    const GROQ_API_KEY = getKey();
+    if(!GROQ_API_KEY) return;
 
     const idea = document.getElementById('ideaInput').value.trim();
     if (!idea) { alert('Please describe your startup idea.'); return; }
@@ -592,7 +595,7 @@ Return 5-6 real active U.S. federal grants. matchScore is 1-100.`;
 
       if (!res.ok) {
         const e = await res.json().catch(()=>({}));
-        if (res.status === 401) throw new Error('Invalid Groq API key. Get a new one at console.groq.com/keys');
+        if (res.status === 401) { localStorage.removeItem('groq_api_key'); throw new Error('Invalid Groq API key — saved key cleared. Click Search again to enter a new one.'); }
         if (res.status === 429) throw new Error('Rate limit hit. Wait a moment and try again.');
         throw new Error(e?.error?.message || `Groq error ${res.status}`);
       }
