@@ -630,17 +630,7 @@ const ro=new IntersectionObserver(entries=>{
 document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(el=>ro.observe(el));
 
 /* ── stats counter triggered once ── */
-let done=false;
-new IntersectionObserver(entries=>{
-  if(entries[0].isIntersecting&&!done){
-    done=true;
-    animateCount('s1',1200,'+');
-    animateCount('s2',340,'+');
-    animateCount('s3',180,'+');
-    animateCount('s4',95,'+');
-    animateCount('s5',500,'+');
-  }
-},{threshold:0.35}).observe(document.getElementById('statsStrip'));
+
 </script>
 </body>
 </html>
