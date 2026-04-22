@@ -1,433 +1,244 @@
-{% load static %}
-<!DOCTYPE html>
+"""
+schemes_app.py  —  Drop-in single-file module for the Government Schemes page.
+
+HOW TO USE
+──────────
+1.  Copy this file into your Django app folder (e.g.  main/schemes_app.py)
+
+2.  In your project-level  urls.py  add ONE line:
+        from django.urls import path, include
+        urlpatterns = [
+            ...
+            path('', include('main.schemes_app')),   # ← add this
+        ]
+
+3.  Make sure ANTHROPIC_API_KEY is set in your environment, e.g.:
+        export ANTHROPIC_API_KEY="sk-ant-..."
+
+4.  pip install anthropic   (if not already installed)
+
+That's it — no other changes needed.
+"""
+
+# ─────────────────────────────────────────────────────────────
+#  Python / Django imports
+# ─────────────────────────────────────────────────────────────
+import json
+import os
+
+import anthropic
+from django.http import HttpResponse, JsonResponse
+from django.urls import path
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_POST
+
+# ─────────────────────────────────────────────────────────────
+#  AI system prompt
+# ─────────────────────────────────────────────────────────────
+SYSTEM_PROMPT = """You are a U.S. federal grants expert. The user will describe a startup idea.
+Return a JSON object with:
+- "insight": 2-3 sentence summary of the federal funding landscape for this idea
+- "tags": array of 3-5 relevant keyword tags (strings, no # symbol)
+- "grants": array of 5-8 relevant U.S. federal grant/loan programs
+
+Each grant object must have:
+- "title": program name
+- "agency": abbreviation e.g. "NSF", "DOE", "USDA"
+- "source": full agency name
+- "amount": funding range as string e.g. "$50,000 - $2,000,000" (or null)
+- "deadline": deadline string e.g. "Rolling" or "Sep 30, 2025" (or null)
+- "matchScore": integer 0-100 for relevance
+- "matchReason": 1-2 sentences explaining why this grant fits the idea
+- "tip": short actionable application tip
+- "description": 1-3 sentence program description
+- "link": official URL to the program page
+
+Return ONLY valid JSON. No markdown, no code fences, no explanation outside the JSON."""
+
+# ─────────────────────────────────────────────────────────────
+#  HTML template (inline — no template files needed)
+# ─────────────────────────────────────────────────────────────
+HTML = r"""<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <title>U.S. Government Startup Programs — StartUp Incubator</title>
-
+  <title>U.S. Government Startup Programs</title>
   <style>
-    :root {
-      --navy:    #0d1b2a;
-      --navy2:   #1b2d45;
-      --gold:    #c9902a;
-      --gold2:   #f0b429;
-      --cream:   #f9f5ee;
-      --red:     #b22234;
-      --white:   #ffffff;
-      --card-bg: #ffffff;
-      --shadow:  0 8px 40px rgba(13,27,42,0.13);
-    }
+    :root{--navy:#0d1b2a;--navy2:#1b2d45;--gold:#c9902a;--gold2:#f0b429;--cream:#f9f5ee;--red:#b22234;--white:#ffffff;--card-bg:#ffffff;--shadow:0 8px 40px rgba(13,27,42,0.13)}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--navy);overflow-x:hidden}
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* NAVBAR */
+    .navbar{height:69px;background:var(--navy)!important;border-bottom:3px solid var(--gold);z-index:1050}
+    .navbar-brand{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:white!important}
+    .navbar-brand span{color:var(--gold2)}
+    .nav-link{font-weight:600;letter-spacing:.03em;transition:color .2s}
+    .nav-link:hover{color:var(--gold2)!important}
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--cream);
-      color: var(--navy);
-      overflow-x: hidden;
-    }
+    /* HERO */
+    .hero{margin-top:69px;position:relative;min-height:420px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 60%,#2a3d5c 100%)}
+    .stars{position:absolute;inset:0;pointer-events:none}
+    .star{position:absolute;width:2px;height:2px;background:rgba(240,180,41,.7);border-radius:50%;animation:twinkle var(--d,3s) ease-in-out infinite alternate;animation-delay:var(--delay,0s)}
+    @keyframes twinkle{from{opacity:.1;transform:scale(1)}to{opacity:1;transform:scale(1.8)}}
+    .hero::before{content:'';position:absolute;top:-30%;right:-10%;width:55%;height:200%;background:repeating-linear-gradient(-45deg,transparent,transparent 18px,rgba(178,34,52,.12) 18px,rgba(178,34,52,.12) 36px);pointer-events:none}
+    .hero-content{position:relative;text-align:center;padding:60px 20px}
+    .hero-badge{display:inline-block;background:var(--gold);color:var(--navy);font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:5px 16px;border-radius:20px;margin-bottom:20px;animation:fadeDown .6s ease both}
+    .hero h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.6rem);font-weight:900;color:var(--white);line-height:1.1;animation:fadeDown .7s .1s ease both}
+    .hero h1 span{color:var(--gold2)}
+    .hero p{color:rgba(255,255,255,.7);font-size:1.1rem;max-width:560px;margin:18px auto 0;animation:fadeDown .7s .2s ease both}
+    .hero-divider{width:70px;height:4px;background:linear-gradient(90deg,var(--red),var(--gold2));margin:22px auto 0;border-radius:2px;animation:fadeDown .7s .3s ease both}
+    @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
 
-    /* ── NAVBAR ── */
-    .navbar {
-      height: 69px;
-      background: var(--navy) !important;
-      border-bottom: 3px solid var(--gold);
-      z-index: 1050;
-    }
-    .navbar-brand img { height: 47px; }
-    .nav-link { font-weight: 600; letter-spacing: .03em; transition: color .2s; }
-    .nav-link:hover { color: var(--gold2) !important; }
+    /* AI SEARCH */
+    .ai-search-section{background:linear-gradient(160deg,#0a1628 0%,#0d1f3c 60%,#050d1a 100%);padding:60px 24px 70px;position:relative;overflow:hidden}
+    .ai-search-section::before{content:'';position:absolute;inset:0;opacity:.04;background-image:linear-gradient(#3b82f6 1px,transparent 1px),linear-gradient(90deg,#3b82f6 1px,transparent 1px);background-size:40px 40px}
+    .ai-search-inner{position:relative;max-width:780px;margin:0 auto}
+    .ai-search-label{display:flex;align-items:center;gap:10px;margin-bottom:28px;justify-content:center}
+    .ai-live-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;animation:blink 1.5s ease infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+    .ai-search-label span{font-size:.72rem;color:#60a5fa;letter-spacing:2px;font-weight:700;font-family:monospace;text-transform:uppercase}
+    .ai-search-heading{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:700;color:#f1f5f9;text-align:center;margin-bottom:8px}
+    .ai-search-heading em{color:#60a5fa;font-style:italic}
+    .ai-search-sub{text-align:center;color:#475569;font-size:.95rem;margin-bottom:30px;line-height:1.6}
+    .ai-box{background:#0f172a;border:1px solid #1e293b;border-radius:20px;padding:26px}
+    .ai-box textarea{width:100%;min-height:96px;background:#020b18;border:1.5px solid #1e293b;border-radius:12px;padding:14px 16px;font-size:14.5px;color:#e2e8f0;font-family:'DM Sans',sans-serif;resize:vertical;line-height:1.7;transition:border .2s}
+    .ai-box textarea:focus{outline:none;border-color:#3b82f6}
+    .ai-box-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap;gap:10px}
+    .ai-hint{font-size:12px;color:#334155}
+    .ai-hint.loading{color:#60a5fa;animation:blink 1s infinite}
+    .ai-search-btn{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.3px;transition:all .2s}
+    .ai-search-btn:disabled{background:#1e293b;color:#475569;cursor:not-allowed}
+    .ai-search-btn:not(:disabled):hover{background:linear-gradient(135deg,#1e40af,#1d4ed8);transform:translateY(-1px)}
 
-    /* ── HERO BANNER ── */
-    .hero {
-      margin-top: 69px;
-      position: relative;
-      min-height: 420px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 60%, #2a3d5c 100%);
-    }
-    .stars { position: absolute; inset: 0; pointer-events: none; }
-    .star {
-      position: absolute;
-      width: 2px; height: 2px;
-      background: rgba(240,180,41,.7);
-      border-radius: 50%;
-      animation: twinkle var(--d, 3s) ease-in-out infinite alternate;
-      animation-delay: var(--delay, 0s);
-    }
-    @keyframes twinkle {
-      from { opacity: .1; transform: scale(1); }
-      to   { opacity: 1;  transform: scale(1.8); }
-    }
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -30%; right: -10%;
-      width: 55%; height: 200%;
-      background: repeating-linear-gradient(
-        -45deg, transparent, transparent 18px,
-        rgba(178,34,52,.12) 18px, rgba(178,34,52,.12) 36px
-      );
-      pointer-events: none;
-    }
-    .hero-content { position: relative; text-align: center; padding: 60px 20px; }
-    .hero-badge {
-      display: inline-block;
-      background: var(--gold); color: var(--navy);
-      font-size: .75rem; font-weight: 700;
-      letter-spacing: .12em; text-transform: uppercase;
-      padding: 5px 16px; border-radius: 20px;
-      margin-bottom: 20px;
-      animation: fadeDown .6s ease both;
-    }
-    .hero h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(2rem, 5vw, 3.6rem);
-      font-weight: 900; color: var(--white); line-height: 1.1;
-      animation: fadeDown .7s .1s ease both;
-    }
-    .hero h1 span { color: var(--gold2); }
-    .hero p {
-      color: rgba(255,255,255,.7); font-size: 1.1rem;
-      max-width: 560px; margin: 18px auto 0;
-      animation: fadeDown .7s .2s ease both;
-    }
-    .hero-divider {
-      width: 70px; height: 4px;
-      background: linear-gradient(90deg, var(--red), var(--gold2));
-      margin: 22px auto 0; border-radius: 2px;
-      animation: fadeDown .7s .3s ease both;
-    }
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    /* PIPELINE */
+    .ai-step{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #0f172a;font-size:13.5px}
+    .ai-step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px}
+    .ai-step-dot.done{background:#14532d;border:2px solid #22c55e;color:#22c55e}
+    .ai-step-dot.active{background:#1e3a8a;border:2px solid #3b82f6}
+    .ai-step-dot.idle{background:#0f172a;border:2px solid #1e293b;color:#334155}
+    .spin-dot{width:10px;height:10px;border-radius:50%;border:2px solid #3b82f6;border-top-color:transparent;animation:spin .7s linear infinite;display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* ── AI SEARCH SECTION ── */
-    .ai-search-section {
-      background: linear-gradient(160deg, #0a1628 0%, #0d1f3c 60%, #050d1a 100%);
-      padding: 60px 24px 70px;
-      position: relative;
-      overflow: hidden;
-    }
-    .ai-search-section::before {
-      content: '';
-      position: absolute; inset: 0; opacity: 0.04;
-      background-image: linear-gradient(#3b82f6 1px, transparent 1px), linear-gradient(90deg, #3b82f6 1px, transparent 1px);
-      background-size: 40px 40px;
-    }
-    .ai-search-inner {
-      position: relative;
-      max-width: 780px;
-      margin: 0 auto;
-    }
-    .ai-search-label {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 28px; justify-content: center;
-    }
-    .ai-live-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: #22c55e;
-      animation: blink 1.5s ease infinite;
-    }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-    .ai-search-label span {
-      font-size: .72rem; color: #60a5fa;
-      letter-spacing: 2px; font-weight: 700;
-      font-family: monospace; text-transform: uppercase;
-    }
-    .ai-search-heading {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
-      font-weight: 700; color: #f1f5f9;
-      text-align: center; margin-bottom: 8px;
-    }
-    .ai-search-heading em { color: #60a5fa; font-style: italic; }
-    .ai-search-sub {
-      text-align: center; color: #475569;
-      font-size: .95rem; margin-bottom: 30px; line-height: 1.6;
-    }
-    .ai-box {
-      background: #0f172a;
-      border: 1px solid #1e293b;
-      border-radius: 20px;
-      padding: 26px;
-    }
-    .ai-box textarea {
-      width: 100%; min-height: 96px;
-      background: #020b18; border: 1.5px solid #1e293b;
-      border-radius: 12px; padding: 14px 16px;
-      font-size: 14.5px; color: #e2e8f0;
-      font-family: 'DM Sans', sans-serif;
-      resize: vertical; line-height: 1.7;
-      transition: border .2s;
-    }
-    .ai-box textarea:focus { outline: none; border-color: #3b82f6; }
-    .ai-box-footer {
-      display: flex; justify-content: space-between;
-      align-items: center; margin-top: 14px;
-      flex-wrap: wrap; gap: 10px;
-    }
-    .ai-hint { font-size: 12px; color: #334155; }
-    .ai-hint.loading { color: #60a5fa; animation: blink 1s infinite; }
-    .ai-search-btn {
-      background: linear-gradient(135deg, #1d4ed8, #2563eb);
-      color: #fff; border: none; border-radius: 10px;
-      padding: 12px 28px; font-size: 14px; font-weight: 700;
-      cursor: pointer; font-family: 'DM Sans', sans-serif;
-      letter-spacing: .3px; transition: all .2s;
-    }
-    .ai-search-btn:disabled {
-      background: #1e293b; color: #475569; cursor: not-allowed;
-    }
-    .ai-search-btn:not(:disabled):hover {
-      background: linear-gradient(135deg, #1e40af, #1d4ed8);
-      transform: translateY(-1px);
-    }
+    /* INSIGHT */
+    .ai-insight{background:linear-gradient(135deg,#0c1a2e,#0a1628);border:1px solid #1d4ed8;border-radius:14px;padding:16px 20px;margin-bottom:20px}
+    .ai-insight-label{font-size:11px;color:#3b82f6;font-family:monospace;letter-spacing:1.5px;margin-bottom:8px}
+    .ai-insight p{color:#cbd5e1;font-size:14px;line-height:1.7}
+    .ai-insight-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+    .ai-insight-tags span{background:#0f172a;border:1px solid #1e3a8a;color:#93c5fd;border-radius:6px;padding:2px 8px;font-size:11px;font-family:monospace}
 
-    /* pipeline steps */
-    .ai-pipeline { margin-bottom: 22px; }
-    .ai-step {
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 0; border-bottom: 1px solid #0f172a;
-      font-size: 13.5px;
-    }
-    .ai-step-dot {
-      width: 28px; height: 28px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; font-size: 12px;
-    }
-    .ai-step-dot.done  { background: #14532d; border: 2px solid #22c55e; color: #22c55e; }
-    .ai-step-dot.active{ background: #1e3a8a; border: 2px solid #3b82f6; }
-    .ai-step-dot.idle  { background: #0f172a; border: 2px solid #1e293b; color: #334155; }
-    .spin-dot {
-      width: 10px; height: 10px; border-radius: 50%;
-      border: 2px solid #3b82f6; border-top-color: transparent;
-      animation: spin .7s linear infinite; display: inline-block;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* GRANT CARDS */
+    .live-grants{display:flex;flex-direction:column;gap:12px;margin-bottom:12px}
+    .live-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:20px 22px;cursor:pointer;transition:border-color .2s;animation:riseUp .5s ease both}
+    .live-card:hover{border-color:#3b82f6}
+    .live-card-top{display:flex;gap:16px;align-items:flex-start}
+    .match-ring-wrap{flex-shrink:0}
+    .live-card-meta{flex:1;min-width:0}
+    .live-card-badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+    .badge-num{background:#1e3a8a;color:#93c5fd;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;font-family:monospace}
+    .badge-amt{background:#14532d;color:#86efac;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700}
+    .badge-soon{background:#431407;color:#f59e0b;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700}
+    .badge-open{background:#052e16;color:#22c55e;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700}
+    .live-card-title{font-weight:700;font-size:14.5px;color:#f1f5f9;line-height:1.4;margin-bottom:4px}
+    .live-card-agency{font-size:12.5px;color:#64748b}
+    .live-card-chevron{color:#475569;font-size:18px;transition:transform .2s}
+    .live-card-chevron.open{transform:rotate(180deg)}
+    .live-card-detail{margin-top:18px;padding-top:18px;border-top:1px solid #1e293b;display:none}
+    .live-card-detail.open{display:block}
+    .ai-match-box{background:#0c1a2e;border-radius:10px;padding:12px 16px;margin-bottom:14px;border-left:3px solid #3b82f6}
+    .ai-match-box-label{font-size:11px;color:#3b82f6;font-family:monospace;letter-spacing:1px;margin-bottom:5px}
+    .ai-match-box p{color:#cbd5e1;font-size:13.5px;line-height:1.6;margin-bottom:8px}
+    .ai-match-tip{font-size:12.5px;color:#94a3b8}
+    .ai-match-tip strong{color:#f59e0b}
+    .live-card-desc{color:#94a3b8;font-size:13px;line-height:1.7;margin-bottom:16px}
+    .live-card-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .live-card-link{display:inline-flex;align-items:center;gap:5px;background:#1d4ed8;color:#fff;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;text-decoration:none;transition:background .2s}
+    .live-card-link:hover{background:#1e40af;color:#fff;text-decoration:none}
 
-    /* insight box */
-    .ai-insight {
-      background: linear-gradient(135deg, #0c1a2e, #0a1628);
-      border: 1px solid #1d4ed8; border-radius: 14px;
-      padding: 16px 20px; margin-bottom: 20px;
-    }
-    .ai-insight-label {
-      font-size: 11px; color: #3b82f6;
-      font-family: monospace; letter-spacing: 1.5px; margin-bottom: 8px;
-    }
-    .ai-insight p { color: #cbd5e1; font-size: 14px; line-height: 1.7; }
-    .ai-insight-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-    .ai-insight-tags span {
-      background: #0f172a; border: 1px solid #1e3a8a;
-      color: #93c5fd; border-radius: 6px;
-      padding: 2px 8px; font-size: 11px; font-family: monospace;
-    }
+    /* EXAMPLES */
+    .ai-examples{margin-top:22px}
+    .ai-examples-label{font-size:11px;color:#334155;letter-spacing:2px;font-family:monospace;margin-bottom:10px}
+    .ai-example-chips{display:flex;flex-wrap:wrap;gap:8px}
+    .ai-chip{background:#0f172a;border:1px solid #1e293b;border-radius:20px;padding:7px 14px;font-size:12.5px;color:#94a3b8;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+    .ai-chip:hover{border-color:#3b82f6;color:#60a5fa}
 
-    /* live grant cards */
-    .live-grants { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; }
-    .live-card {
-      background: #0f172a;
-      border: 1px solid #1e293b;
-      border-radius: 16px; padding: 20px 22px;
-      cursor: pointer; transition: border-color .2s;
-      animation: riseUp .5s ease both;
-    }
-    .live-card:hover { border-color: #3b82f6; }
-    .live-card-top { display: flex; gap: 16px; align-items: flex-start; }
-    .match-ring-wrap { flex-shrink: 0; }
-    .live-card-meta { flex: 1; min-width: 0; }
-    .live-card-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
-    .badge-num  { background: #1e3a8a; color: #93c5fd; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700; font-family: monospace; }
-    .badge-amt  { background: #14532d; color: #86efac; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
-    .badge-urgent{ background: #450a0a; color: #ef4444; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
-    .badge-soon { background: #431407; color: #f59e0b; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
-    .badge-open { background: #052e16; color: #22c55e; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
-    .live-card-title { font-weight: 700; font-size: 14.5px; color: #f1f5f9; line-height: 1.4; margin-bottom: 4px; }
-    .live-card-agency { font-size: 12.5px; color: #64748b; }
-    .live-card-chevron { color: #475569; font-size: 18px; transition: transform .2s; }
-    .live-card-chevron.open { transform: rotate(180deg); }
+    .ai-results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .ai-results-count{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#f1f5f9}
+    .ai-results-hint{font-size:12px;color:#334155}
+    .ai-new-search-btn{display:block;margin:20px auto 0;background:none;border:1px solid #1e293b;border-radius:10px;padding:10px 24px;color:#475569;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+    .ai-new-search-btn:hover{border-color:#3b82f6;color:#60a5fa}
+    .ai-error{background:#1c0a0a;border:1px solid #7f1d1d;border-radius:14px;padding:20px;color:#fca5a5;font-size:14px;margin-bottom:24px}
+    .ai-footer-note{text-align:center;margin-top:20px;font-size:11.5px;color:#1e293b;line-height:1.8}
 
-    .live-card-detail { margin-top: 18px; padding-top: 18px; border-top: 1px solid #1e293b; display: none; }
-    .live-card-detail.open { display: block; }
-    .ai-match-box {
-      background: #0c1a2e; border-radius: 10px;
-      padding: 12px 16px; margin-bottom: 14px;
-      border-left: 3px solid #3b82f6;
-    }
-    .ai-match-box-label { font-size: 11px; color: #3b82f6; font-family: monospace; letter-spacing: 1px; margin-bottom: 5px; }
-    .ai-match-box p { color: #cbd5e1; font-size: 13.5px; line-height: 1.6; margin-bottom: 8px; }
-    .ai-match-tip { font-size: 12.5px; color: #94a3b8; }
-    .ai-match-tip strong { color: #f59e0b; }
-    .live-card-desc { color: #94a3b8; font-size: 13px; line-height: 1.7; margin-bottom: 16px; }
-    .live-card-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    .live-card-link {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: #1d4ed8; color: #fff; border-radius: 8px;
-      padding: 8px 18px; font-size: 13px; font-weight: 600;
-      text-decoration: none; transition: background .2s;
-    }
-    .live-card-link:hover { background: #1e40af; color: #fff; text-decoration: none; }
+    /* SECTION + STATIC CARDS */
+    .section-intro{text-align:center;padding:60px 20px 10px}
+    .section-intro h2{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--navy)}
+    .section-intro p{color:#5a6a7e;max-width:540px;margin:10px auto 0;font-size:.97rem}
+    .cards-section{padding:50px 40px 80px;max-width:1280px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:32px}
+    .scheme-card{background:var(--card-bg);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;position:relative;transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s ease;opacity:0;transform:translateY(40px)}
+    .scheme-card.visible{animation:riseUp .55s ease forwards}
+    @keyframes riseUp{to{opacity:1;transform:translateY(0)}}
+    .scheme-card:hover{transform:translateY(-10px) scale(1.02);box-shadow:0 24px 60px rgba(13,27,42,.2)}
+    .scheme-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--card-accent,var(--navy)),var(--gold2));z-index:2}
+    .card-img-wrap{position:relative;height:190px;overflow:hidden}
+    .card-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+    .scheme-card:hover .card-img-wrap img{transform:scale(1.08)}
+    .card-img-overlay{position:absolute;inset:0;background:linear-gradient(0deg,rgba(13,27,42,.6) 0%,transparent 55%)}
+    .card-tag{position:absolute;bottom:12px;left:14px;background:var(--gold);color:var(--navy);font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:12px}
+    .card-body{padding:22px 22px 20px;flex:1;display:flex;flex-direction:column}
+    .card-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:white;margin-bottom:14px;flex-shrink:0}
+    .card-body h3{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:10px;line-height:1.3}
+    .card-body p{font-size:.9rem;color:#5a6a7e;line-height:1.6;flex:1}
+    .card-funding{display:inline-flex;align-items:center;gap:6px;margin:14px 0 16px;font-size:.82rem;font-weight:600;color:var(--navy2);background:#f0f4f8;padding:5px 12px;border-radius:20px}
+    .card-funding i{color:var(--gold)}
+    .apply-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;background:var(--navy);color:white;border-radius:10px;text-decoration:none;font-size:.88rem;font-weight:600;letter-spacing:.03em;transition:background .25s,transform .2s;margin-top:auto}
+    .apply-btn:hover{background:var(--gold);color:var(--navy);transform:translateX(3px);text-decoration:none}
+    .apply-btn i{font-size:.8rem}
 
-    /* examples */
-    .ai-examples { margin-top: 22px; }
-    .ai-examples-label { font-size: 11px; color: #334155; letter-spacing: 2px; font-family: monospace; margin-bottom: 10px; }
-    .ai-example-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-    .ai-chip {
-      background: #0f172a; border: 1px solid #1e293b;
-      border-radius: 20px; padding: 7px 14px;
-      font-size: 12.5px; color: #94a3b8;
-      cursor: pointer; transition: all .15s;
-      font-family: 'DM Sans', sans-serif;
-    }
-    .ai-chip:hover { border-color: #3b82f6; color: #60a5fa; }
+    /* FOOTER */
+    .site-footer{background:var(--navy);color:rgba(255,255,255,.7);padding:50px 40px}
+    .footer-brand{font-family:'Playfair Display',serif;font-size:1.6rem;color:white;font-weight:700;margin-bottom:10px}
+    .footer-brand span{color:var(--gold2)}
+    .footer-icons{display:flex;gap:14px;margin-top:14px}
+    .footer-icons a{width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.6);font-size:1rem;transition:border-color .2s,color .2s,background .2s;text-decoration:none}
+    .footer-icons a:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,144,42,.1)}
+    .footer-links{list-style:none;padding:0}
+    .footer-links li{margin-bottom:8px}
+    .footer-links a{color:rgba(255,255,255,.6);text-decoration:none;font-size:.9rem;transition:color .2s}
+    .footer-links a:hover{color:var(--gold2)}
+    .footer-label{font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+    .footer-contact{display:flex;flex-direction:column;gap:10px}
+    .footer-contact a{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.65);text-decoration:none;font-size:.9rem;transition:color .2s}
+    .footer-contact a:hover{color:var(--gold2)}
+    .footer-contact i{color:var(--gold);width:16px}
+    .footer-bottom{border-top:1px solid rgba(255,255,255,.1);margin-top:40px;padding-top:20px;text-align:center;font-size:.82rem;color:rgba(255,255,255,.35)}
 
-    .ai-results-header {
-      display: flex; justify-content: space-between;
-      align-items: center; margin-bottom: 16px;
-    }
-    .ai-results-count { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: #f1f5f9; }
-    .ai-results-hint { font-size: 12px; color: #334155; }
+    #progress-bar{position:fixed;top:69px;left:0;height:3px;width:0%;background:linear-gradient(90deg,var(--red),var(--gold2));z-index:2000;transition:width .1s linear}
 
-    .ai-new-search-btn {
-      display: block; margin: 20px auto 0;
-      background: none; border: 1px solid #1e293b;
-      border-radius: 10px; padding: 10px 24px;
-      color: #475569; font-size: 13px;
-      cursor: pointer; font-family: 'DM Sans', sans-serif;
-      transition: all .15s;
-    }
-    .ai-new-search-btn:hover { border-color: #3b82f6; color: #60a5fa; }
-
-    .ai-error {
-      background: #1c0a0a; border: 1px solid #7f1d1d;
-      border-radius: 14px; padding: 20px;
-      color: #fca5a5; font-size: 14px; margin-bottom: 24px;
-    }
-    .ai-footer-note {
-      text-align: center; margin-top: 20px;
-      font-size: 11.5px; color: #1e293b; line-height: 1.8;
-    }
-    .ai-footer-note a { color: #334155; }
-
-    /* ── SECTION LABEL ── */
-    .section-intro { text-align: center; padding: 60px 20px 10px; }
-    .section-intro h2 { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--navy); }
-    .section-intro p { color: #5a6a7e; max-width: 540px; margin: 10px auto 0; font-size: .97rem; }
-
-    /* ── CARDS GRID ── */
-    .cards-section {
-      padding: 50px 40px 80px; max-width: 1280px; margin: 0 auto;
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 32px;
-    }
-
-    /* ── INDIVIDUAL CARD ── */
-    .scheme-card {
-      background: var(--card-bg); border-radius: 18px; overflow: hidden;
-      box-shadow: var(--shadow); display: flex; flex-direction: column;
-      position: relative; transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .35s ease;
-      opacity: 0; transform: translateY(40px);
-    }
-    .scheme-card.visible { animation: riseUp .55s ease forwards; }
-    @keyframes riseUp { to { opacity: 1; transform: translateY(0); } }
-    .scheme-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 24px 60px rgba(13,27,42,.2); }
-    .scheme-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-      background: linear-gradient(90deg, var(--card-accent, var(--navy)), var(--gold2));
-      z-index: 2;
-    }
-    .card-img-wrap { position: relative; height: 190px; overflow: hidden; }
-    .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
-    .scheme-card:hover .card-img-wrap img { transform: scale(1.08); }
-    .card-img-overlay { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(13,27,42,.6) 0%, transparent 55%); }
-    .card-tag {
-      position: absolute; bottom: 12px; left: 14px;
-      background: var(--gold); color: var(--navy);
-      font-size: .68rem; font-weight: 700; letter-spacing: .1em;
-      text-transform: uppercase; padding: 3px 10px; border-radius: 12px;
-    }
-    .card-body { padding: 22px 22px 20px; flex: 1; display: flex; flex-direction: column; }
-    .card-icon {
-      width: 42px; height: 42px; border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; color: white; margin-bottom: 14px; flex-shrink: 0;
-    }
-    .card-body h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--navy); margin-bottom: 10px; line-height: 1.3; }
-    .card-body p { font-size: .9rem; color: #5a6a7e; line-height: 1.6; flex: 1; }
-    .card-funding {
-      display: inline-flex; align-items: center; gap: 6px;
-      margin: 14px 0 16px; font-size: .82rem; font-weight: 600;
-      color: var(--navy2); background: #f0f4f8; padding: 5px 12px; border-radius: 20px;
-    }
-    .card-funding i { color: var(--gold); }
-    .apply-btn {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 12px 20px; background: var(--navy); color: white;
-      border-radius: 10px; text-decoration: none;
-      font-size: .88rem; font-weight: 600; letter-spacing: .03em;
-      transition: background .25s, transform .2s; margin-top: auto;
-    }
-    .apply-btn:hover { background: var(--gold); color: var(--navy); transform: translateX(3px); text-decoration: none; }
-    .apply-btn i { font-size: .8rem; }
-
-    /* ── FOOTER ── */
-    .site-footer { background: var(--navy); color: rgba(255,255,255,.7); padding: 50px 40px; }
-    .footer-brand { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: white; font-weight: 700; margin-bottom: 10px; }
-    .footer-brand span { color: var(--gold2); }
-    .footer-icons { display: flex; gap: 14px; margin-top: 14px; }
-    .footer-icons a {
-      width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,.2);
-      display: flex; align-items: center; justify-content: center;
-      color: rgba(255,255,255,.6); font-size: 1rem;
-      transition: border-color .2s, color .2s, background .2s; text-decoration: none;
-    }
-    .footer-icons a:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,144,42,.1); }
-    .footer-links { list-style: none; padding: 0; }
-    .footer-links li { margin-bottom: 8px; }
-    .footer-links a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .9rem; transition: color .2s; }
-    .footer-links a:hover { color: var(--gold2); }
-    .footer-label { font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
-    .footer-contact { display: flex; flex-direction: column; gap: 10px; }
-    .footer-contact a { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.65); text-decoration: none; font-size: .9rem; transition: color .2s; }
-    .footer-contact a:hover { color: var(--gold2); }
-    .footer-contact i { color: var(--gold); width: 16px; }
-    .footer-bottom { border-top: 1px solid rgba(255,255,255,.1); margin-top: 40px; padding-top: 20px; text-align: center; font-size: .82rem; color: rgba(255,255,255,.35); }
-
-    /* ── SCROLL PROGRESS BAR ── */
-    #progress-bar { position: fixed; top: 69px; left: 0; height: 3px; width: 0%; background: linear-gradient(90deg, var(--red), var(--gold2)); z-index: 2000; transition: width .1s linear; }
-
-    @media (max-width: 768px) { .cards-section { padding: 30px 20px 60px; } .hero h1 { font-size: 2rem; } }
+    @media(max-width:768px){.cards-section{padding:30px 20px 60px}.hero h1{font-size:2rem}}
   </style>
 </head>
 <body>
 
 <div id="progress-bar"></div>
 
-<!-- ── NAVBAR ── -->
+<!-- NAVBAR -->
 <nav class="navbar fixed-top navbar-dark navbar-expand-lg">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">
-      <img src="{% static 'main/logo69.png' %}" alt="StartUp Incubator" width="218" height="47" class="d-inline-block align-text-top ms-2" />
-    </a>
+    <a class="navbar-brand ms-2" href="/">StartUp <span>Incubator</span></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
       <ul class="navbar-nav mb-2 mb-lg-0">
-        <li class="nav-item"><a href="{% url 'Homee' %}" class="nav-link text-light">Home</a></li>
-        <li class="nav-item"><a href="{% url 'about' %}" class="nav-link text-light">About</a></li>
-        <li class="nav-item"><a href="{% url 'top-startups' %}" class="nav-link text-light">Top StartUps</a></li>
-        <li class="nav-item"><a href="{% url 'resources' %}" class="nav-link text-light">Learning Resources</a></li>
-        <li class="nav-item"><a href="{% url 'schemes' %}" class="nav-link text-light">Government Schemes</a></li>
+        <li class="nav-item"><a href="/" class="nav-link text-light">Home</a></li>
+        <li class="nav-item"><a href="/about/" class="nav-link text-light">About</a></li>
+        <li class="nav-item"><a href="/top-startups/" class="nav-link text-light">Top StartUps</a></li>
+        <li class="nav-item"><a href="/resources/" class="nav-link text-light">Learning Resources</a></li>
+        <li class="nav-item"><a href="/schemes/" class="nav-link text-light" style="color:var(--gold2)!important">Government Schemes</a></li>
         <li class="nav-item"><div id="google_translate_element"></div></li>
         <li class="nav-item">
           <div class="dropdown">
@@ -435,9 +246,9 @@
               <i class="fa-regular fa-user" style="color:white;"></i>
             </button>
             <ul style="left:-8rem" class="dropdown-menu" aria-labelledby="userDropdown">
-              <li><a class="dropdown-item" href="{% url 'student-register' %}">Entrepreneur</a></li>
-              <li><a class="dropdown-item" href="{% url 'mentor-register' %}">Mentor</a></li>
-              <li><a class="dropdown-item" href="{% url 'investor-register' %}">Investor</a></li>
+              <li><a class="dropdown-item" href="/register/entrepreneur/">Entrepreneur</a></li>
+              <li><a class="dropdown-item" href="/register/mentor/">Mentor</a></li>
+              <li><a class="dropdown-item" href="/register/investor/">Investor</a></li>
             </ul>
           </div>
         </li>
@@ -446,42 +257,35 @@
   </div>
 </nav>
 
-<!-- ── HERO ── -->
+<!-- HERO -->
 <section class="hero">
   <div class="stars" id="stars"></div>
   <div class="hero-content">
-    <span class="hero-badge">🇺🇸 Federal Programs</span>
+    <span class="hero-badge">&#127482;&#127480; Federal Programs</span>
     <h1>U.S. Government <span>Startup</span><br>Funding Programs</h1>
     <p>Explore federal grants, loans, and accelerator programs designed to help American entrepreneurs grow their ideas into businesses.</p>
     <div class="hero-divider"></div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════
-     AI LIVE GRANTS FINDER
-═══════════════════════════════════════════════════════ -->
+<!-- AI GRANTS FINDER -->
 <section class="ai-search-section">
   <div class="ai-search-inner">
-
     <div class="ai-search-label">
       <div class="ai-live-dot"></div>
-      <span>Live · AI-Powered Grant Finder</span>
+      <span>Live &middot; AI-Powered Grant Finder</span>
     </div>
     <h2 class="ai-search-heading">Find Grants for <em>Your Startup Idea</em></h2>
-    <p class="ai-search-sub">Describe your idea below — AI extracts keywords, searches live federal grants, then ranks and explains the best matches for you.</p>
+    <p class="ai-search-sub">Describe your idea below &mdash; AI extracts keywords, searches live federal grants, then ranks and explains the best matches for you.</p>
 
-    <!-- Search box -->
-    <div class="ai-box" id="aiSearchBox">
-      <textarea id="aiIdeaInput" placeholder="Describe your startup idea… e.g. 'A mobile app using AI to help rural farmers detect crop disease early using smartphone photos'"></textarea>
+    <div class="ai-box">
+      <textarea id="aiIdeaInput" placeholder="Describe your startup idea... e.g. 'A mobile app using AI to help rural farmers detect crop disease early using smartphone photos'"></textarea>
       <div class="ai-box-footer">
         <span class="ai-hint" id="aiHint">Press Enter or click Search</span>
-        <button class="ai-search-btn" id="aiSearchBtn" onclick="runAISearch()">
-          Search Live Grants →
-        </button>
+        <button class="ai-search-btn" id="aiSearchBtn" onclick="runAISearch()">Search Live Grants &rarr;</button>
       </div>
     </div>
 
-    <!-- Examples (shown when idle) -->
     <div class="ai-examples" id="aiExamples">
       <div class="ai-examples-label">TRY AN EXAMPLE</div>
       <div class="ai-example-chips">
@@ -492,30 +296,27 @@
       </div>
     </div>
 
-    <!-- Pipeline status (shown while loading) -->
-    <div id="aiPipeline" style="display:none; margin-top:22px;">
-      <div class="ai-step" id="step-extracting">
-        <div class="ai-step-dot idle" id="dot-extracting">·</div>
-        <span id="label-extracting" style="color:#334155;">🤖 Analyzing your idea</span>
+    <div id="aiPipeline" style="display:none;margin-top:22px;">
+      <div class="ai-step">
+        <div class="ai-step-dot idle" id="dot-extracting">&#183;</div>
+        <span id="label-extracting" style="color:#334155;">&#129302; Analyzing your idea</span>
         <span id="query-tag" style="margin-left:auto;font-size:11px;color:#475569;font-family:monospace;"></span>
       </div>
-      <div class="ai-step" id="step-fetching">
-        <div class="ai-step-dot idle" id="dot-fetching">·</div>
-        <span id="label-fetching" style="color:#334155;">🔍 Searching live grant databases…</span>
+      <div class="ai-step">
+        <div class="ai-step-dot idle" id="dot-fetching">&#183;</div>
+        <span id="label-fetching" style="color:#334155;">&#128269; Searching live grant databases&hellip;</span>
       </div>
-      <div class="ai-step" id="step-ranking">
-        <div class="ai-step-dot idle" id="dot-ranking">·</div>
-        <span id="label-ranking" style="color:#334155;">📊 Ranking &amp; matching results</span>
+      <div class="ai-step">
+        <div class="ai-step-dot idle" id="dot-ranking">&#183;</div>
+        <span id="label-ranking" style="color:#334155;">&#128202; Ranking &amp; matching results</span>
       </div>
     </div>
 
-    <!-- Error -->
     <div id="aiError" class="ai-error" style="display:none;margin-top:20px;"></div>
 
-    <!-- Results -->
-    <div id="aiResults" style="display:none; margin-top:28px;">
+    <div id="aiResults" style="display:none;margin-top:28px;">
       <div class="ai-insight" id="aiInsightBox" style="display:none;">
-        <div class="ai-insight-label">✦ AI FUNDING LANDSCAPE INSIGHT</div>
+        <div class="ai-insight-label">&#10022; AI FUNDING LANDSCAPE INSIGHT</div>
         <p id="aiInsightText"></p>
         <div class="ai-insight-tags" id="aiInsightTags"></div>
       </div>
@@ -524,23 +325,18 @@
         <div class="ai-results-hint">Click any card to expand</div>
       </div>
       <div class="live-grants" id="liveGrantsList"></div>
-      <button class="ai-new-search-btn" onclick="resetAI()">← Search Another Idea</button>
-      <div class="ai-footer-note">
-        AI analysis powered by Claude · Data based on U.S. federal funding programs
-      </div>
+      <button class="ai-new-search-btn" onclick="resetAI()">&larr; Search Another Idea</button>
+      <div class="ai-footer-note">AI analysis powered by Claude &middot; Data based on U.S. federal funding programs</div>
     </div>
-
   </div>
 </section>
 
-<!-- ── SECTION INTRO (static cards) ── -->
+<!-- STATIC CARDS -->
 <div class="section-intro">
   <h2>Featured Programs</h2>
-  <p>Well-known federal programs every startup should know about. Click "Apply Now" to visit the official government portal.</p>
+  <p>Well-known federal programs every startup should know about.</p>
 </div>
-
-<!-- ── STATIC CARDS GRID ── -->
-<div class="cards-section" id="cardsGrid">
+<div class="cards-section">
 
   <div class="scheme-card" style="--card-accent:#b22234;">
     <div class="card-img-wrap">
@@ -552,13 +348,13 @@
       <h3>SBA 7(a) Loan Program</h3>
       <p>The SBA's most common loan program for working capital, equipment purchase, and business expansion.</p>
       <div class="card-funding"><i class="fas fa-dollar-sign"></i> Up to $5,000,000</div>
-      <a href="https://www.sba.gov/funding-programs/loans/7a-loans" class="apply-btn" target="_blank">Apply Now <i class="fas fa-arrow-right"></i></a>
+      <a href="https://www.sba.gov/funding-programs/loans/7a-loans" class="apply-btn" target="_blank" rel="noopener">Apply Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 
   <div class="scheme-card" style="--card-accent:#0d4f8c;">
     <div class="card-img-wrap">
-      <img src="https://images.unsplash.com/photo-1532094349884-543559b9f4ab?w=600&q=80" alt="SBIR Research" loading="lazy">
+      <img src="https://images.unsplash.com/photo-1532094349884-543559b9f4ab?w=600&q=80" alt="SBIR" loading="lazy">
       <div class="card-img-overlay"></div><span class="card-tag">R&amp;D Grant</span>
     </div>
     <div class="card-body">
@@ -566,13 +362,13 @@
       <h3>Small Business Innovation Research (SBIR)</h3>
       <p>Competitive grants for early-stage R&amp;D with high commercialization potential across federal agencies.</p>
       <div class="card-funding"><i class="fas fa-dollar-sign"></i> Up to $2,000,000</div>
-      <a href="https://www.sbir.gov/" class="apply-btn" target="_blank">Apply Now <i class="fas fa-arrow-right"></i></a>
+      <a href="https://www.sbir.gov/" class="apply-btn" target="_blank" rel="noopener">Apply Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 
   <div class="scheme-card" style="--card-accent:#1a7a4a;">
     <div class="card-img-wrap">
-      <img src="https://images.unsplash.com/photo-1606761568499-6d2451b23c66?w=600&q=80" alt="University Research" loading="lazy">
+      <img src="https://images.unsplash.com/photo-1606761568499-6d2451b23c66?w=600&q=80" alt="STTR" loading="lazy">
       <div class="card-img-overlay"></div><span class="card-tag">Research Transfer</span>
     </div>
     <div class="card-body">
@@ -580,7 +376,7 @@
       <h3>Small Business Technology Transfer (STTR)</h3>
       <p>Partners small businesses with universities and research institutions to move innovations from the lab to the market.</p>
       <div class="card-funding"><i class="fas fa-dollar-sign"></i> Up to $1,500,000</div>
-      <a href="https://www.sbir.gov/about/about-sttr" class="apply-btn" target="_blank">Apply Now <i class="fas fa-arrow-right"></i></a>
+      <a href="https://www.sbir.gov/about/about-sttr" class="apply-btn" target="_blank" rel="noopener">Apply Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 
@@ -594,13 +390,13 @@
       <h3>SBA Microloan Program</h3>
       <p>Small loans for startups and nonprofits needing capital to start up or expand, distributed through approved lenders.</p>
       <div class="card-funding"><i class="fas fa-dollar-sign"></i> Up to $50,000</div>
-      <a href="https://www.sba.gov/funding-programs/loans/microloans" class="apply-btn" target="_blank">Apply Now <i class="fas fa-arrow-right"></i></a>
+      <a href="https://www.sba.gov/funding-programs/loans/microloans" class="apply-btn" target="_blank" rel="noopener">Apply Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 
   <div class="scheme-card" style="--card-accent:#5a2d82;">
     <div class="card-img-wrap">
-      <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=600&q=80" alt="SCORE Mentorship" loading="lazy">
+      <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=600&q=80" alt="SCORE" loading="lazy">
       <div class="card-img-overlay"></div><span class="card-tag">Mentorship</span>
     </div>
     <div class="card-body">
@@ -608,13 +404,13 @@
       <h3>SCORE Mentorship Program</h3>
       <p>Free SBA-sponsored program connecting entrepreneurs with experienced volunteer mentors, workshops, and business resources.</p>
       <div class="card-funding"><i class="fas fa-star"></i> Free of Charge</div>
-      <a href="https://www.score.org/" class="apply-btn" target="_blank">Apply Now <i class="fas fa-arrow-right"></i></a>
+      <a href="https://www.score.org/" class="apply-btn" target="_blank" rel="noopener">Apply Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 
   <div class="scheme-card" style="--card-accent:#b22234;">
     <div class="card-img-wrap">
-      <img src="https://images.unsplash.com/photo-1573497161161-c3e73707e25c?w=600&q=80" alt="Women Owned Business" loading="lazy">
+      <img src="https://images.unsplash.com/photo-1573497161161-c3e73707e25c?w=600&q=80" alt="WOSB" loading="lazy">
       <div class="card-img-overlay"></div><span class="card-tag">Federal Contracting</span>
     </div>
     <div class="card-body">
@@ -622,13 +418,13 @@
       <h3>Women-Owned Small Business (WOSB) Program</h3>
       <p>Helps women-owned small businesses compete for federal set-aside contracts across underrepresented industries.</p>
       <div class="card-funding"><i class="fas fa-file-contract"></i> Federal Contracts</div>
-      <a href="https://www.sba.gov/federal-contracting/contracting-assistance-programs/women-owned-small-business-federal-contracting-program" class="apply-btn" target="_blank">Apply Now <i class="fas fa-arrow-right"></i></a>
+      <a href="https://www.sba.gov/federal-contracting/contracting-assistance-programs/women-owned-small-business-federal-contracting-program" class="apply-btn" target="_blank" rel="noopener">Apply Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 
   <div class="scheme-card" style="--card-accent:#1a5c9e;">
     <div class="card-img-wrap">
-      <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80" alt="SBA 8a Program" loading="lazy">
+      <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80" alt="SBA 8a" loading="lazy">
       <div class="card-img-overlay"></div><span class="card-tag">Business Development</span>
     </div>
     <div class="card-body">
@@ -636,13 +432,13 @@
       <h3>SBA 8(a) Business Development Program</h3>
       <p>Supports businesses owned by socially and economically disadvantaged individuals with mentoring and federal contracting access.</p>
       <div class="card-funding"><i class="fas fa-file-contract"></i> Federal Contracts</div>
-      <a href="https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program" class="apply-btn" target="_blank">Apply Now <i class="fas fa-arrow-right"></i></a>
+      <a href="https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program" class="apply-btn" target="_blank" rel="noopener">Apply Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 
   <div class="scheme-card" style="--card-accent:#1a7a4a;">
     <div class="card-img-wrap">
-      <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&q=80" alt="EDA Build to Scale" loading="lazy">
+      <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&q=80" alt="EDA" loading="lazy">
       <div class="card-img-overlay"></div><span class="card-tag">Ecosystem Grant</span>
     </div>
     <div class="card-body">
@@ -650,13 +446,13 @@
       <h3>EDA Build to Scale Program</h3>
       <p>EDA awards grants to regional organizations that accelerate startup growth and innovation-driven entrepreneurship ecosystems.</p>
       <div class="card-funding"><i class="fas fa-dollar-sign"></i> Varies by Region</div>
-      <a href="https://www.eda.gov/funding/programs/build-to-scale" class="apply-btn" target="_blank">Apply Now <i class="fas fa-arrow-right"></i></a>
+      <a href="https://www.eda.gov/funding/programs/build-to-scale" class="apply-btn" target="_blank" rel="noopener">Apply Now <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 
 </div>
 
-<!-- ── FOOTER ── -->
+<!-- FOOTER -->
 <footer class="site-footer">
   <div class="container">
     <div class="row gy-4">
@@ -681,10 +477,10 @@
       <div class="col-lg-2 col-6">
         <div class="footer-label">Navigate</div>
         <ul class="footer-links">
-          <li><a href="{% url 'Homee' %}">Home</a></li>
-          <li><a href="{% url 'about' %}">About</a></li>
-          <li><a href="{% url 'top-startups' %}">Top StartUps</a></li>
-          <li><a href="{% url 'resources' %}">Resources</a></li>
+          <li><a href="/">Home</a></li>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/top-startups/">Top StartUps</a></li>
+          <li><a href="/resources/">Resources</a></li>
         </ul>
       </div>
       <div class="col-lg-4">
@@ -696,239 +492,189 @@
         </div>
       </div>
     </div>
-    <div class="footer-bottom">&copy; 2025 StartUp Incubator. All rights reserved. &nbsp;|&nbsp; Proudly American 🇺🇸</div>
+    <div class="footer-bottom">&copy; 2025 StartUp Incubator. All rights reserved. &nbsp;|&nbsp; Proudly American &#127482;&#127480;</div>
   </div>
 </footer>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
-
-<!-- Google Translate -->
 <script>
-  function googleTranslateElementInit() {
-    new google.translate.TranslateElement({pageLanguage:'en'}, 'google_translate_element');
-  }
+  function googleTranslateElementInit(){new google.translate.TranslateElement({pageLanguage:'en'},'google_translate_element')}
 </script>
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-
 <script>
-  /* ── Star field ── */
-  const starsEl = document.getElementById('stars');
-  for (let i = 0; i < 80; i++) {
-    const s = document.createElement('div');
-    s.className = 'star';
-    s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${Math.random()*4}s;width:${1+Math.random()*2}px;height:${1+Math.random()*2}px;`;
-    starsEl.appendChild(s);
-  }
+  /* Stars */
+  const starsEl=document.getElementById('stars');
+  for(let i=0;i<80;i++){const s=document.createElement('div');s.className='star';s.style.cssText='left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;--d:'+(2+Math.random()*4)+'s;--delay:'+Math.random()*4+'s;width:'+(1+Math.random()*2)+'px;height:'+(1+Math.random()*2)+'px;';starsEl.appendChild(s)}
 
-  /* ── Scroll progress ── */
-  window.addEventListener('scroll', () => {
-    const total = document.documentElement.scrollHeight - window.innerHeight;
-    document.getElementById('progress-bar').style.width = (window.scrollY / total * 100) + '%';
-  });
+  /* Scroll bar */
+  window.addEventListener('scroll',()=>{const t=document.documentElement.scrollHeight-window.innerHeight;document.getElementById('progress-bar').style.width=(window.scrollY/t*100)+'%'});
 
-  /* ── Card entrance animations ── */
-  const cards = document.querySelectorAll('.scheme-card');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry, i) => {
-      if (entry.isIntersecting) {
-        setTimeout(() => entry.target.classList.add('visible'), i * 80);
-        observer.unobserve(entry.target);
-      }
+  /* Card entrance */
+  const observer=new IntersectionObserver((entries)=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*80);observer.unobserve(e.target)}})},{threshold:0.1});
+  document.querySelectorAll('.scheme-card').forEach(c=>observer.observe(c));
+
+  /* Enter key */
+  document.getElementById('aiIdeaInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();runAISearch()}});
+
+  function runExample(btn){document.getElementById('aiIdeaInput').value=btn.textContent.trim();runAISearch()}
+
+  function getCookie(name){let v=null;if(document.cookie){document.cookie.split(';').forEach(c=>{const t=c.trim();if(t.startsWith(name+'='))v=decodeURIComponent(t.slice(name.length+1))})}return v}
+
+  function setStage(stage,kw){
+    const stages=['extracting','fetching','ranking'];
+    const idx=stages.indexOf(stage);
+    const labels={extracting:'&#129302; Analyzing your idea',fetching:'&#128269; Searching live databases&hellip;',ranking:'&#128202; Ranking &amp; matching results'};
+    const hints={extracting:'Analyzing idea\u2026',fetching:'Live AI search running\u2026',ranking:'Ranking results\u2026'};
+    stages.forEach((s,i)=>{
+      const dot=document.getElementById('dot-'+s),label=document.getElementById('label-'+s);
+      dot.className='ai-step-dot '+(i<idx?'done':i===idx?'active':'idle');
+      dot.innerHTML=i<idx?'&#10003;':i===idx?'<span class="spin-dot"></span>':'&#183;';
+      label.style.color=i<idx?'#22c55e':i===idx?'#60a5fa':'#334155';
+      label.style.fontWeight=i===idx?'700':'400';
+      label.innerHTML=labels[s];
     });
-  }, { threshold: 0.1 });
-  cards.forEach(c => observer.observe(c));
-
-  /* ═══════════════════════════════════════════════════════
-     AI GRANTS FINDER
-  ═══════════════════════════════════════════════════════ */
-
-  /* Enter key support */
-  document.getElementById('aiIdeaInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); runAISearch(); }
-  });
-
-  function runExample(btn) {
-    document.getElementById('aiIdeaInput').value = btn.textContent.trim();
-    runAISearch();
+    const h=document.getElementById('aiHint');h.textContent=hints[stage]||'';h.className='ai-hint loading';
+    if(kw)document.getElementById('query-tag').textContent='query: "'+kw+'"';
   }
 
-  /* ── CSRF cookie helper (required for Django POST) ── */
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      document.cookie.split(';').forEach(cookie => {
-        const c = cookie.trim();
-        if (c.startsWith(name + '=')) {
-          cookieValue = decodeURIComponent(c.slice(name.length + 1));
-        }
-      });
-    }
-    return cookieValue;
+  function matchRingSVG(score){
+    const r=22,circ=2*Math.PI*r,fill=(score/100)*circ;
+    const col=score>=75?'#22c55e':score>=50?'#f59e0b':'#ef4444';
+    return '<svg width="56" height="56"><circle cx="28" cy="28" r="'+r+'" fill="none" stroke="#1e293b" stroke-width="4"/><circle cx="28" cy="28" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="4" stroke-dasharray="'+fill+' '+circ+'" stroke-linecap="round" transform="rotate(-90 28 28)"/><text x="28" y="33" text-anchor="middle" font-size="12" font-weight="800" fill="'+col+'">'+score+'</text></svg>';
   }
 
-  function setStage(stage, kw) {
-    const stages = ['extracting', 'fetching', 'ranking'];
-    const stageIdx = stages.indexOf(stage);
-    const labels = {
-      extracting: '🤖 Analyzing your idea',
-      fetching:   '🔍 Searching live databases…',
-      ranking:    '📊 Ranking &amp; matching results'
-    };
-    const hints = {
-      extracting: '🤖 Analyzing idea…',
-      fetching:   '🔍 Live AI search running…',
-      ranking:    '📊 Ranking results…'
-    };
-    stages.forEach((s, i) => {
-      const dot   = document.getElementById('dot-' + s);
-      const label = document.getElementById('label-' + s);
-      dot.className = 'ai-step-dot ' + (i < stageIdx ? 'done' : i === stageIdx ? 'active' : 'idle');
-      dot.innerHTML = i < stageIdx ? '✓' : i === stageIdx ? '<span class="spin-dot"></span>' : '·';
-      label.style.color      = i < stageIdx ? '#22c55e' : i === stageIdx ? '#60a5fa' : '#334155';
-      label.style.fontWeight = i === stageIdx ? '700' : '400';
-      label.innerHTML = labels[s];
-    });
-    const hint = document.getElementById('aiHint');
-    hint.textContent = hints[stage] || '';
-    hint.className = 'ai-hint loading';
-    if (kw) document.getElementById('query-tag').textContent = `query: "${kw}"`;
+  function buildLiveCard(g,idx){
+    const amt=g.amount?'<span class="badge-amt">'+g.amount+'</span>':'';
+    const dl=g.deadline?'<span class="badge-soon">&#9201; Closes: '+g.deadline+'</span>':'<span class="badge-open">&#9201; Open</span>';
+    const desc=g.description?'<p class="live-card-desc">'+g.description.slice(0,420)+(g.description.length>420?'&hellip;':'')+'</p>':'';
+    return '<div class="live-card" id="lc-'+idx+'" style="animation-delay:'+(idx*0.07)+'s" onclick="toggleCard('+idx+')">'
+      +'<div class="live-card-top"><div class="match-ring-wrap">'+matchRingSVG(g.matchScore||70)+'</div>'
+      +'<div class="live-card-meta"><div class="live-card-badges">'+amt+dl+(g.agency?'<span class="badge-num">'+g.agency+'</span>':'')+'</div>'
+      +'<div class="live-card-title">'+g.title+'</div><div class="live-card-agency">'+(g.source||'')+'</div></div>'
+      +'<div class="live-card-chevron" id="chev-'+idx+'">&#9662;</div></div>'
+      +'<div class="live-card-detail" id="lcd-'+idx+'">'
+      +'<div class="ai-match-box"><div class="ai-match-box-label">AI MATCH ANALYSIS</div><p>'+(g.matchReason||'')+'</p>'
+      +'<div class="ai-match-tip"><strong>&#128161; Tip:</strong> '+(g.tip||'')+'</div></div>'
+      +desc+'<div class="live-card-actions"><a href="'+(g.link||'https://www.grants.gov')+'" target="_blank" rel="noopener" class="live-card-link" onclick="event.stopPropagation()">View Grant &#8599;</a></div></div></div>';
   }
 
-  function matchRingSVG(score) {
-    const r = 22, circ = 2 * Math.PI * r, fill = (score / 100) * circ;
-    const col = score >= 75 ? '#22c55e' : score >= 50 ? '#f59e0b' : '#ef4444';
-    return `<svg width="56" height="56">
-      <circle cx="28" cy="28" r="${r}" fill="none" stroke="#1e293b" stroke-width="4"/>
-      <circle cx="28" cy="28" r="${r}" fill="none" stroke="${col}" stroke-width="4"
-        stroke-dasharray="${fill} ${circ}" stroke-linecap="round" transform="rotate(-90 28 28)"/>
-      <text x="28" y="33" text-anchor="middle" font-size="12" font-weight="800" fill="${col}">${score}</text>
-    </svg>`;
+  function toggleCard(idx){
+    const d=document.getElementById('lcd-'+idx),ch=document.getElementById('chev-'+idx),c=document.getElementById('lc-'+idx);
+    const open=d.classList.toggle('open');ch.classList.toggle('open',open);c.style.borderColor=open?'#3b82f6':'';
   }
 
-  function buildLiveCard(grant, idx) {
-    const aiBlock = `
-      <div class="ai-match-box">
-        <div class="ai-match-box-label">AI MATCH ANALYSIS</div>
-        <p>${grant.matchReason || ''}</p>
-        <div class="ai-match-tip"><strong>💡 Tip:</strong> ${grant.tip || ''}</div>
-      </div>`;
-    const desc = grant.description
-      ? `<p class="live-card-desc">${grant.description.slice(0, 420)}${grant.description.length > 420 ? '…' : ''}</p>`
-      : '';
-    const amtBadge      = grant.amount   ? `<span class="badge-amt">${grant.amount}</span>` : '';
-    const deadlineBadge = grant.deadline ? `<span class="badge-soon">⏱ Closes: ${grant.deadline}</span>` : `<span class="badge-open">⏱ Open</span>`;
-
-    return `
-      <div class="live-card" id="lc-${idx}" style="animation-delay:${idx * 0.07}s" onclick="toggleCard(${idx})">
-        <div class="live-card-top">
-          <div class="match-ring-wrap">${matchRingSVG(grant.matchScore || 70)}</div>
-          <div class="live-card-meta">
-            <div class="live-card-badges">
-              ${amtBadge}
-              ${deadlineBadge}
-              ${grant.agency ? `<span class="badge-num">${grant.agency}</span>` : ''}
-            </div>
-            <div class="live-card-title">${grant.title}</div>
-            <div class="live-card-agency">${grant.source || ''}</div>
-          </div>
-          <div class="live-card-chevron" id="chev-${idx}">▾</div>
-        </div>
-        <div class="live-card-detail" id="lcd-${idx}">
-          ${aiBlock}
-          ${desc}
-          <div class="live-card-actions">
-            <a href="${grant.link || 'https://www.grants.gov'}" target="_blank" class="live-card-link" onclick="event.stopPropagation()">View Grant ↗</a>
-          </div>
-        </div>
-      </div>`;
-  }
-
-  function toggleCard(idx) {
-    const detail = document.getElementById('lcd-' + idx);
-    const chev   = document.getElementById('chev-' + idx);
-    const card   = document.getElementById('lc-' + idx);
-    const open   = detail.classList.toggle('open');
-    chev.classList.toggle('open', open);
-    card.style.borderColor = open ? '#3b82f6' : '';
-  }
-
-  /* ── Main search — calls Django backend ── */
-  async function runAISearch() {
-    const idea = document.getElementById('aiIdeaInput').value.trim();
-    if (!idea) return;
-
-    document.getElementById('aiExamples').style.display  = 'none';
-    document.getElementById('aiPipeline').style.display  = 'block';
-    document.getElementById('aiResults').style.display   = 'none';
-    document.getElementById('aiError').style.display     = 'none';
-    document.getElementById('aiSearchBtn').disabled      = true;
-    document.getElementById('liveGrantsList').innerHTML  = '';
-
-    try {
+  async function runAISearch(){
+    const idea=document.getElementById('aiIdeaInput').value.trim();
+    if(!idea)return;
+    document.getElementById('aiExamples').style.display='none';
+    document.getElementById('aiPipeline').style.display='block';
+    document.getElementById('aiResults').style.display='none';
+    document.getElementById('aiError').style.display='none';
+    document.getElementById('aiSearchBtn').disabled=true;
+    document.getElementById('liveGrantsList').innerHTML='';
+    try{
       setStage('extracting');
-      await new Promise(r => setTimeout(r, 400));
-
-      setStage('fetching', idea.slice(0, 30));
-
-      const res = await fetch('/api/grants-search/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ idea })
-      });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || `Server error ${res.status}. Please try again.`);
-      }
-
+      await new Promise(r=>setTimeout(r,400));
+      setStage('fetching',idea.slice(0,30));
+      const res=await fetch('/api/grants-search/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({idea})});
+      if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error||'Server error '+res.status);}
       setStage('ranking');
-      const parsed = await res.json();
-
-      const grants = parsed.grants || [];
-      if (!grants.length) throw new Error('No matching grants found. Try describing your idea differently.');
-
-      /* Render insight */
-      if (parsed.insight) {
-        document.getElementById('aiInsightText').textContent = parsed.insight;
-        document.getElementById('aiInsightTags').innerHTML = (parsed.tags || []).map(t => `<span>#${t}</span>`).join('');
-        document.getElementById('aiInsightBox').style.display = 'block';
+      const parsed=await res.json();
+      const grants=parsed.grants||[];
+      if(!grants.length)throw new Error('No matching grants found. Try describing your idea differently.');
+      if(parsed.insight){
+        document.getElementById('aiInsightText').textContent=parsed.insight;
+        document.getElementById('aiInsightTags').innerHTML=(parsed.tags||[]).map(t=>'<span>#'+t+'</span>').join('');
+        document.getElementById('aiInsightBox').style.display='block';
       }
-
-      /* Render grant cards sorted by matchScore */
-      grants.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
-      document.getElementById('aiResultsCount').textContent = `${grants.length} Matching Grants Found`;
-      document.getElementById('liveGrantsList').innerHTML = grants.map((g, i) => buildLiveCard(g, i)).join('');
-      document.getElementById('aiResults').style.display  = 'block';
-      document.getElementById('aiPipeline').style.display = 'none';
-      document.getElementById('aiHint').textContent = 'Press Enter or click Search';
-      document.getElementById('aiHint').className = 'ai-hint';
-
-    } catch (err) {
-      document.getElementById('aiPipeline').style.display = 'none';
-      document.getElementById('aiError').textContent = '⚠️ ' + (err.message || 'Something went wrong. Please try again.');
-      document.getElementById('aiError').style.display = 'block';
-      document.getElementById('aiHint').textContent = 'Press Enter or click Search';
-      document.getElementById('aiHint').className = 'ai-hint';
+      grants.sort((a,b)=>(b.matchScore||0)-(a.matchScore||0));
+      document.getElementById('aiResultsCount').textContent=grants.length+' Matching Grants Found';
+      document.getElementById('liveGrantsList').innerHTML=grants.map((g,i)=>buildLiveCard(g,i)).join('');
+      document.getElementById('aiResults').style.display='block';
+      document.getElementById('aiPipeline').style.display='none';
+      document.getElementById('aiHint').textContent='Press Enter or click Search';
+      document.getElementById('aiHint').className='ai-hint';
+    }catch(err){
+      document.getElementById('aiPipeline').style.display='none';
+      document.getElementById('aiError').textContent='\u26a0\ufe0f '+(err.message||'Something went wrong.');
+      document.getElementById('aiError').style.display='block';
+      document.getElementById('aiHint').textContent='Press Enter or click Search';
+      document.getElementById('aiHint').className='ai-hint';
     }
-
-    document.getElementById('aiSearchBtn').disabled = false;
+    document.getElementById('aiSearchBtn').disabled=false;
   }
 
-  function resetAI() {
-    document.getElementById('aiIdeaInput').value = '';
-    document.getElementById('aiResults').style.display   = 'none';
-    document.getElementById('aiPipeline').style.display  = 'none';
-    document.getElementById('aiError').style.display     = 'none';
-    document.getElementById('aiInsightBox').style.display = 'none';
-    document.getElementById('aiExamples').style.display  = 'block';
-    document.getElementById('query-tag').textContent     = '';
+  function resetAI(){
+    document.getElementById('aiIdeaInput').value='';
+    ['aiResults','aiPipeline','aiError','aiInsightBox'].forEach(id=>document.getElementById(id).style.display='none');
+    document.getElementById('aiExamples').style.display='block';
+    document.getElementById('query-tag').textContent='';
   }
 </script>
-
 </body>
-</html>
+</html>"""
+
+
+# ─────────────────────────────────────────────────────────────
+#  Views
+# ─────────────────────────────────────────────────────────────
+@ensure_csrf_cookie
+def schemes(request):
+    """Render the Government Schemes page."""
+    return HttpResponse(HTML, content_type="text/html")
+
+
+@require_POST
+def grants_search(request):
+    """AI grant finder API endpoint — POST /api/grants-search/"""
+    try:
+        body = json.loads(request.body)
+        idea = body.get("idea", "").strip()
+
+        if not idea:
+            return JsonResponse({"error": "Please describe your startup idea."}, status=400)
+
+        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        if not api_key:
+            return JsonResponse(
+                {"error": "Server configuration error: ANTHROPIC_API_KEY not set."},
+                status=500,
+            )
+
+        client = anthropic.Anthropic(api_key=api_key)
+        message = client.messages.create(
+            model="claude-opus-4-5",
+            max_tokens=2048,
+            system=SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": "Startup idea: " + idea}],
+        )
+
+        raw_text = message.content[0].text.strip()
+
+        # Strip ```json ... ``` fences if present
+        if raw_text.startswith("```"):
+            parts = raw_text.split("```")
+            raw_text = parts[1] if len(parts) > 1 else raw_text
+            if raw_text.startswith("json"):
+                raw_text = raw_text[4:]
+            raw_text = raw_text.strip()
+
+        parsed = json.loads(raw_text)
+        return JsonResponse(parsed)
+
+    except json.JSONDecodeError as e:
+        return JsonResponse({"error": "Failed to parse AI response: " + str(e)}, status=500)
+    except anthropic.APIError as e:
+        return JsonResponse({"error": "Anthropic API error: " + str(e)}, status=500)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+# ─────────────────────────────────────────────────────────────
+#  URL patterns (this file IS the urls module)
+# ─────────────────────────────────────────────────────────────
+urlpatterns = [
+    path("schemes/",            schemes,       name="schemes"),
+    path("api/grants-search/",  grants_search, name="grants-search"),
+]
